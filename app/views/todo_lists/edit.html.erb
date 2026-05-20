@@ -1,0 +1,8 @@
+<% content_for :page_title, "Edit list" %>
+<% content_for :nav_key, "todos" %>
+
+<div class="max-w-md space-y-4">
+  <%= link_to "← Back", todo_lists_path, class: "text-sm text-[var(--color-fg-muted)]" %>
+  <h2 class="font-[family-name:var(--font-display)] text-3xl tracking-tight">Edit list</h2>
+  <div class="card"><%= render "form", list: @list %></div>
+</div>

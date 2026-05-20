@@ -1,0 +1,26 @@
+<%
+  input_cls = "w-full px-3.5 py-2.5 bg-[var(--color-bg-base)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] text-[var(--color-fg-primary)] focus:outline-none focus:border-[var(--color-accent-500)]"
+  label_cls = "block text-sm font-medium text-[var(--color-fg-muted)] mb-1.5"
+%>
+
+<%= form_with model: list, html: { class: "space-y-5" } do |f| %>
+  <% if list.errors.any? %>
+    <div class="px-4 py-3 rounded-[var(--radius-md)] border border-[var(--color-danger)] bg-[var(--color-bg-overlay)] text-sm">
+      <ul class="space-y-1 text-[var(--color-fg-muted)]"><% list.errors.full_messages.each { |m| %><li>• <%= m %></li><% } %></ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :name, class: label_cls %>
+    <%= f.text_field :name, autofocus: true, class: input_cls %>
+  </div>
+  <div>
+    <%= f.label :color, class: label_cls %>
+    <%= f.color_field :color, class: input_cls + " h-10" %>
+  </div>
+
+  <div class="flex justify-between items-center pt-4 border-t border-[var(--color-border-subtle)]">
+    <%= link_to "Cancel", todo_lists_path, class: "text-sm text-[var(--color-fg-muted)]" %>
+    <%= f.submit (list.persisted? ? "Update" : "Create"), class: "px-4 py-2 bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer" %>
+  </div>
+<% end %>

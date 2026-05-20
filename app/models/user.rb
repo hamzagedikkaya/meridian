@@ -8,6 +8,8 @@ class User < ApplicationRecord
   has_many :finance_categories, dependent: :destroy
   has_many :transactions, dependent: :destroy
   has_many :subscriptions, dependent: :destroy
+  has_many :todo_lists, dependent: :destroy
+  has_many :todos, dependent: :destroy
 
   THEME_PREFERENCES = %w[dark light system].freeze
   SUPPORTED_LOCALES = %w[tr en].freeze

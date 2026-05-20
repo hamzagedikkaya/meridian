@@ -1,0 +1,35 @@
+<%
+  priority_color = {
+    "urgent" => "text-[var(--color-expense)] border-[var(--color-expense)]",
+    "high"   => "text-[var(--color-warning)] border-[var(--color-warning)]",
+    "medium" => "text-[var(--color-fg-muted)] border-[var(--color-border-default)]",
+    "low"    => "text-[var(--color-fg-faint)] border-[var(--color-border-subtle)]"
+  }[todo.priority]
+%>
+<li id="<%= dom_id(todo) %>" class="flex items-start gap-3 py-3 group <%= 'opacity-50' if todo.done? %>">
+  <%= button_to toggle_todo_path(todo), method: :patch, form: { class: "flex-shrink-0 mt-0.5" }, class: "w-5 h-5 rounded border-2 #{todo.done? ? 'bg-[var(--color-accent-500)] border-[var(--color-accent-500)] text-[var(--color-bg-base)]' : 'border-[var(--color-border-default)] hover:border-[var(--color-accent-500)]'} flex items-center justify-center cursor-pointer transition-colors" do %>
+    <% if todo.done? %><span class="text-xs leading-none">✓</span><% end %>
+  <% end %>
+
+  <div class="flex-1 min-w-0">
+    <p class="text-sm <%= 'line-through text-[var(--color-fg-muted)]' if todo.done? %>">
+      <%= link_to todo.title, edit_todo_path(todo), class: "hover:text-[var(--color-accent-400)]" %>
+    </p>
+    <div class="flex items-center gap-2 mt-1 text-xs text-[var(--color-fg-muted)]">
+      <% if todo.due_at %>
+        <span class="<%= 'text-[var(--color-expense)]' if todo.overdue? %>"><%= todo.due_at.strftime("%d %b %H:%M") %></span>
+        <span>·</span>
+      <% end %>
+      <span class="pill !text-[10px] !py-0.5 <%= priority_color %>"><%= todo.priority %></span>
+      <% if todo.todo_list %>
+        <span>·</span>
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background: <%= todo.todo_list.color %>"></span><%= todo.todo_list.name %></span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+    <%= link_to "Edit", edit_todo_path(todo), class: "text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
+    <%= button_to "×", todo_path(todo), method: :delete, data: { turbo_confirm: "Delete?" }, class: "text-[var(--color-expense)] cursor-pointer" %>
+  </div>
+</li>

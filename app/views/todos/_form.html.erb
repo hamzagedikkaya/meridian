@@ -1,0 +1,46 @@
+<%
+  input_cls = "w-full px-3.5 py-2.5 bg-[var(--color-bg-base)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] text-[var(--color-fg-primary)] focus:outline-none focus:border-[var(--color-accent-500)]"
+  label_cls = "block text-sm font-medium text-[var(--color-fg-muted)] mb-1.5"
+%>
+
+<%= form_with model: todo, html: { class: "space-y-5" } do |f| %>
+  <% if todo.errors.any? %>
+    <div class="px-4 py-3 rounded-[var(--radius-md)] border border-[var(--color-danger)] bg-[var(--color-bg-overlay)] text-sm">
+      <ul class="space-y-1 text-[var(--color-fg-muted)]"><% todo.errors.full_messages.each { |m| %><li>• <%= m %></li><% } %></ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :title, class: label_cls %>
+    <%= f.text_field :title, autofocus: true, class: input_cls %>
+  </div>
+
+  <div>
+    <%= f.label :body, "Notes", class: label_cls %>
+    <%= f.text_area :body, rows: 3, class: input_cls %>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-5">
+    <div>
+      <%= f.label :due_at, "Due", class: label_cls %>
+      <%= f.datetime_local_field :due_at, class: input_cls %>
+    </div>
+    <div>
+      <%= f.label :priority, class: label_cls %>
+      <%= f.select :priority, Todo::PRIORITIES.map { |p| [ p.titleize, p ] }, {}, class: input_cls %>
+    </div>
+    <div>
+      <%= f.label :status, class: label_cls %>
+      <%= f.select :status, Todo::STATUSES.map { |s| [ s.titleize, s ] }, {}, class: input_cls %>
+    </div>
+    <div class="md:col-span-3">
+      <%= f.label :todo_list_id, "List", class: label_cls %>
+      <%= f.select :todo_list_id, @lists.map { |l| [ l.name, l.id ] }, { include_blank: "— No list —" }, class: input_cls %>
+    </div>
+  </div>
+
+  <div class="flex justify-between items-center pt-4 border-t border-[var(--color-border-subtle)]">
+    <%= link_to "Cancel", todos_path, class: "text-sm text-[var(--color-fg-muted)]" %>
+    <%= f.submit (todo.persisted? ? "Update" : "Add todo"), class: "px-4 py-2 bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer" %>
+  </div>
+<% end %>

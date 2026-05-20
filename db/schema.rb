@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_20_155253) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_20_160941) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -96,6 +96,41 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_155253) do
     t.index ["user_id"], name: "index_subscriptions_on_user_id"
   end
 
+  create_table "todo_lists", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.string "color", default: "#B8860B"
+    t.string "icon"
+    t.integer "position", default: 0, null: false
+    t.datetime "archived_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "position"], name: "index_todo_lists_on_user_id_and_position"
+    t.index ["user_id"], name: "index_todo_lists_on_user_id"
+  end
+
+  create_table "todos", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "todo_list_id"
+    t.string "title", null: false
+    t.text "body"
+    t.datetime "due_at"
+    t.string "priority", default: "medium", null: false
+    t.string "status", default: "pending", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "completed_at"
+    t.boolean "recurring", default: false, null: false
+    t.text "recurrence_rule"
+    t.bigint "parent_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["parent_id"], name: "index_todos_on_parent_id"
+    t.index ["todo_list_id", "position"], name: "index_todos_on_todo_list_id_and_position"
+    t.index ["todo_list_id"], name: "index_todos_on_todo_list_id"
+    t.index ["user_id", "status", "due_at"], name: "index_todos_on_user_id_and_status_and_due_at"
+    t.index ["user_id"], name: "index_todos_on_user_id"
+  end
+
   create_table "transactions", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "account_id", null: false
@@ -148,6 +183,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_155253) do
   add_foreign_key "subscriptions", "accounts"
   add_foreign_key "subscriptions", "finance_categories"
   add_foreign_key "subscriptions", "users"
+  add_foreign_key "todo_lists", "users"
+  add_foreign_key "todos", "todo_lists"
+  add_foreign_key "todos", "todos", column: "parent_id"
+  add_foreign_key "todos", "users"
   add_foreign_key "transactions", "accounts"
   add_foreign_key "transactions", "accounts", column: "related_account_id"
   add_foreign_key "transactions", "finance_categories"

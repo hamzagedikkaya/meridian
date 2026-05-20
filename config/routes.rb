@@ -22,6 +22,15 @@ Rails.application.routes.draw do
     get "export.csv", to: "transactions#export", as: :transactions_export
   end
 
+  # Todos
+  resources :todo_lists, except: [ :show ]
+  resources :todos do
+    member do
+      patch :toggle
+      patch :reorder
+    end
+  end
+
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 
