@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_20_160941) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_20_161552) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -71,6 +71,33 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_160941) do
     t.index ["user_id", "kind"], name: "index_finance_categories_on_user_id_and_kind"
     t.index ["user_id", "position"], name: "index_finance_categories_on_user_id_and_position"
     t.index ["user_id"], name: "index_finance_categories_on_user_id"
+  end
+
+  create_table "habit_logs", force: :cascade do |t|
+    t.bigint "habit_id", null: false
+    t.date "date", null: false
+    t.boolean "completed", default: false, null: false
+    t.integer "count", default: 0, null: false
+    t.text "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["habit_id", "date"], name: "index_habit_logs_on_habit_id_and_date", unique: true
+    t.index ["habit_id"], name: "index_habit_logs_on_habit_id"
+  end
+
+  create_table "habits", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.string "frequency", default: "daily", null: false
+    t.integer "target_count", default: 1, null: false
+    t.string "color", default: "#B8860B"
+    t.string "icon"
+    t.datetime "archived_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "archived_at"], name: "index_habits_on_user_id_and_archived_at"
+    t.index ["user_id"], name: "index_habits_on_user_id"
   end
 
   create_table "subscriptions", force: :cascade do |t|
@@ -180,6 +207,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_160941) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "finance_categories", "finance_categories", column: "parent_id"
   add_foreign_key "finance_categories", "users"
+  add_foreign_key "habit_logs", "habits"
+  add_foreign_key "habits", "users"
   add_foreign_key "subscriptions", "accounts"
   add_foreign_key "subscriptions", "finance_categories"
   add_foreign_key "subscriptions", "users"

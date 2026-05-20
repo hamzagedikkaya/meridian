@@ -10,6 +10,8 @@ class User < ApplicationRecord
   has_many :subscriptions, dependent: :destroy
   has_many :todo_lists, dependent: :destroy
   has_many :todos, dependent: :destroy
+  has_many :habits, dependent: :destroy
+  has_many :habit_logs, through: :habits
 
   THEME_PREFERENCES = %w[dark light system].freeze
   SUPPORTED_LOCALES = %w[tr en].freeze

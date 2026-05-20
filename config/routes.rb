@@ -31,6 +31,14 @@ Rails.application.routes.draw do
     end
   end
 
+  # Habits
+  resources :habits do
+    member do
+      patch :toggle_today
+    end
+    resources :habit_logs, only: [ :create, :update ], shallow: true
+  end
+
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 

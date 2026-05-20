@@ -4,7 +4,7 @@ module Layouts
       { key: :dashboard, label: "Dashboard", icon: "home",     path: "/" },
       { key: :finance,   label: "Finance",   icon: "wallet",   path: "/finance" },
       { key: :todos,     label: "Todos",     icon: "check",    path: "/todos" },
-      { key: :habits,    label: "Habits",    icon: "flame",    path: "#" },
+      { key: :habits,    label: "Habits",    icon: "flame",    path: "/habits" },
       { key: :calendar,  label: "Calendar",  icon: "calendar", path: "#" },
       { key: :journal,   label: "Journal",   icon: "book",     path: "#" },
       { key: :goals,     label: "Goals",     icon: "target",   path: "#" }
