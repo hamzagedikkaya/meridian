@@ -59,6 +59,15 @@ Rails.application.routes.draw do
   get  "calendar/feed",             to: "calendar#feed",  as: :calendar_feed
   resources :events
 
+  # Quick capture
+  resources :quick_captures, only: [ :create ]
+
+  # Weekly reviews
+  resources :weekly_reviews, only: [ :index, :new, :create, :show, :edit, :update ]
+
+  # Focus sessions
+  resources :focus_sessions, only: [ :create, :update ]
+
   # Search
   get "search", to: "search#index", defaults: { format: :json }, as: :search
 

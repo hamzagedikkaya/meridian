@@ -17,6 +17,8 @@ class User < ApplicationRecord
   has_many :goals, dependent: :destroy
   has_many :backups, dependent: :destroy
   has_many :tags, dependent: :destroy
+  has_many :weekly_reviews, dependent: :destroy
+  has_many :focus_sessions, dependent: :destroy
 
   THEME_PREFERENCES = %w[dark light system].freeze
   SUPPORTED_LOCALES = %w[tr en].freeze

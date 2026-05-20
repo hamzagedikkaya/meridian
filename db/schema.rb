@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_20_163855) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_20_164229) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -118,6 +118,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_163855) do
     t.index ["user_id", "kind"], name: "index_finance_categories_on_user_id_and_kind"
     t.index ["user_id", "position"], name: "index_finance_categories_on_user_id_and_position"
     t.index ["user_id"], name: "index_finance_categories_on_user_id"
+  end
+
+  create_table "focus_sessions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "todo_id"
+    t.integer "duration_seconds", default: 1500, null: false
+    t.datetime "started_at", null: false
+    t.datetime "completed_at"
+    t.string "mode", default: "focus", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["todo_id"], name: "index_focus_sessions_on_todo_id"
+    t.index ["user_id", "started_at"], name: "index_focus_sessions_on_user_id_and_started_at"
+    t.index ["user_id"], name: "index_focus_sessions_on_user_id"
   end
 
   create_table "goals", force: :cascade do |t|
@@ -314,6 +328,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_163855) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "weekly_reviews", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.date "week_starting", null: false
+    t.datetime "completed_at"
+    t.text "reflection_went_well"
+    t.text "reflection_learned"
+    t.text "reflection_next_week"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "week_starting"], name: "index_weekly_reviews_on_user_id_and_week_starting", unique: true
+    t.index ["user_id"], name: "index_weekly_reviews_on_user_id"
+  end
+
   add_foreign_key "accounts", "users"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
@@ -321,6 +348,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_163855) do
   add_foreign_key "events", "users"
   add_foreign_key "finance_categories", "finance_categories", column: "parent_id"
   add_foreign_key "finance_categories", "users"
+  add_foreign_key "focus_sessions", "todos"
+  add_foreign_key "focus_sessions", "users"
   add_foreign_key "goals", "users"
   add_foreign_key "habit_logs", "habits"
   add_foreign_key "habits", "goals"
@@ -342,4 +371,5 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_163855) do
   add_foreign_key "transactions", "finance_categories"
   add_foreign_key "transactions", "transactions", column: "parent_transaction_id"
   add_foreign_key "transactions", "users"
+  add_foreign_key "weekly_reviews", "users"
 end

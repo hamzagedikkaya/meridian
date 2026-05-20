@@ -1,0 +1,27 @@
+<% content_for :page_title, "Weekly review" %>
+
+<div class="max-w-3xl space-y-6">
+  <%= link_to "← Reviews", weekly_reviews_path, class: "text-sm text-[var(--color-fg-muted)]" %>
+
+  <div class="flex items-end justify-between">
+    <div>
+      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Week of <%= @review.week_starting.strftime("%d %b %Y") %></h2>
+      <p class="text-[var(--color-fg-muted)] mt-1"><%= @review.completed? ? "Completed #{@review.completed_at.strftime('%d %b %Y')}" : "Draft" %></p>
+    </div>
+    <%= link_to "Edit", edit_weekly_review_path(@review), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]">Habits</p><p class="text-xl font-medium mt-1"><%= @stats[:habits_completed] %></p></div>
+    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]">Todos</p><p class="text-xl font-medium mt-1"><%= @stats[:todos_completed] %></p></div>
+    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]">Net</p><p class="text-xl font-medium mt-1 <%= @stats[:transactions_net] >= 0 ? 'text-[var(--color-income)]' : 'text-[var(--color-expense)]' %>"><%= money_format(@stats[:transactions_net], currency: current_user.currency) %></p></div>
+    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]">Focus</p><p class="text-xl font-medium mt-1"><%= @stats[:focus_minutes] %>m</p></div>
+  </div>
+
+  <% [ [ "Ne iyi gitti?", @review.reflection_went_well ], [ "Ne öğrendim?", @review.reflection_learned ], [ "Önümüzdeki hafta?", @review.reflection_next_week ] ].each do |label, text| %>
+    <div class="card">
+      <p class="text-sm font-medium text-[var(--color-fg-muted)] mb-2"><%= label %></p>
+      <p class="text-sm whitespace-pre-wrap"><%= text.presence || "—" %></p>
+    </div>
+  <% end %>
+</div>

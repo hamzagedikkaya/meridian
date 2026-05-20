@@ -16,4 +16,15 @@
       <% if @todo.completed_at %><div><dt class="text-[var(--color-fg-muted)]">Completed</dt><dd><%= @todo.completed_at.strftime("%d %b %Y") %></dd></div><% end %>
     </dl>
   </div>
+
+  <%# Focus timer %>
+  <div class="card" data-controller="focus-timer" data-focus-timer-duration-minutes-value="25" data-focus-timer-todo-id-value="<%= @todo.id %>">
+    <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-3">Focus</h3>
+    <div class="flex items-center gap-4">
+      <p data-focus-timer-target="display" class="font-[family-name:var(--font-display)] text-4xl tracking-tight">25:00</p>
+      <button type="button" data-action="click->focus-timer#start" class="px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium cursor-pointer">Start</button>
+      <button type="button" data-action="click->focus-timer#stop" class="px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] cursor-pointer">Reset</button>
+    </div>
+    <p class="text-xs text-[var(--color-fg-faint)] mt-2">25 dakika pomodoro. Browser notification ile bittiğinde uyarır.</p>
+  </div>
 </div>
