@@ -25,7 +25,7 @@
           <%= render Ui::Icon.new(name: item[:icon], size: 18) %>
         </span>
         <% unless collapsed %>
-          <span><%= item[:label] %></span>
+          <span><%= t(item[:label_key]) %></span>
         <% end %>
       </a>
     <% end %>

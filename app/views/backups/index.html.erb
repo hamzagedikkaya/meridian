@@ -4,16 +4,16 @@
   <div class="flex items-end justify-between">
     <div>
       <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Backups</h2>
-      <p class="text-[var(--color-fg-muted)] mt-1">Tüm verini tek bir tar.gz dosyasında dışa aktar veya geri yükle.</p>
+      <p class="text-[var(--color-fg-muted)] mt-1">Export or restore your entire data as a single tar.gz file.</p>
     </div>
     <%= button_to "+ Create backup", backups_path, method: :post, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium cursor-pointer" %>
   </div>
 
   <% if @last_succeeded %>
-    <p class="text-sm text-[var(--color-fg-muted)]">Son başarılı backup: <strong><%= time_ago_in_words(@last_succeeded.created_at) %> önce</strong> · <%= @last_succeeded.display_size %></p>
+    <p class="text-sm text-[var(--color-fg-muted)]">Last successful backup: <strong><%= time_ago_in_words(@last_succeeded.created_at) %> ago</strong> · <%= @last_succeeded.display_size %></p>
   <% else %>
     <div class="card border-[var(--color-warning)]">
-      <p class="text-sm text-[var(--color-warning)]">Henüz backup almadın. Şimdi al ki başka bilgisayara geçtiğinde verin güvende olsun.</p>
+      <p class="text-sm text-[var(--color-warning)]">No backup yet. Take one now so your data is safe when you move to another machine.</p>
     </div>
   <% end %>
 
@@ -21,9 +21,9 @@
   <div class="card border-[var(--color-warning)]">
     <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-2">Restore</h3>
     <p class="text-sm text-[var(--color-fg-muted)] mb-4">
-      ⚠️ Bu işlem mevcut DB'yi silip backup dosyasından yeniden oluşturur. Önce mevcut DB'nin backup'ını al.
+      ⚠️ This wipes the current DB and rebuilds from the backup file. Take a fresh backup first.
     </p>
-    <%= form_with url: restore_backups_path, method: :post, multipart: true, html: { class: "flex flex-wrap gap-3 items-center", data: { turbo_confirm: "Mevcut tüm veri silinecek. Devam et?" } } do %>
+    <%= form_with url: restore_backups_path, method: :post, multipart: true, html: { class: "flex flex-wrap gap-3 items-center", data: { turbo_confirm: "All current data will be erased. Continue?" } } do %>
       <%= file_field_tag :file, accept: ".tar.gz,application/gzip", required: true, class: "text-sm" %>
       <%= submit_tag "Restore", class: "px-4 py-2 bg-[var(--color-warning)] hover:opacity-90 text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer" %>
     <% end %>

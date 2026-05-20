@@ -1,3 +1,5 @@
+require "ostruct"
+
 class CalendarController < ApplicationController
   def index
     year  = params[:year]&.to_i  || Date.current.year

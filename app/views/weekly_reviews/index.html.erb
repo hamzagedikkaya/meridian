@@ -4,7 +4,7 @@
   <div class="flex items-end justify-between">
     <div>
       <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Weekly Review</h2>
-      <p class="text-[var(--color-fg-muted)] mt-1">Her hafta sonu dur, düşün, sonraki haftaya hazırlan.</p>
+      <p class="text-[var(--color-fg-muted)] mt-1">Pause every weekend, reflect, and prepare for the next.</p>
     </div>
     <%= link_to (@this_week_review&.completed? ? "Update this week" : "Start this week"), new_weekly_review_path, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium" %>
   </div>

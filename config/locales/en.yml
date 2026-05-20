@@ -1,31 +1,37 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
-#
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
-
 en:
-  hello: "Hello world"
+  meridian:
+    tagline: "Your life, beautifully organized."
+    brand_caption: "One local life OS for your finances, habits, todos, calendar, journal, and goals."
+
+  nav:
+    dashboard: "Dashboard"
+    finance: "Finance"
+    todos: "Todos"
+    habits: "Habits"
+    calendar: "Calendar"
+    journal: "Journal"
+    goals: "Goals"
+    insights: "Insights"
+    backups: "Backups"
+    settings: "Settings"
+    weekly_review: "Weekly Review"
+    sign_out: "Sign out"
+    sign_in: "Sign in"
+
+  common:
+    save: "Save"
+    create: "Create"
+    update: "Update"
+    delete: "Delete"
+    edit: "Edit"
+    cancel: "Cancel"
+    back: "Back"
+    all: "All"
+    today: "Today"
+    new: "New"
+    search: "Search"
+
+  flash:
+    saved: "Saved."
+    deleted: "Deleted."
+    updated: "Updated."

@@ -6,7 +6,7 @@
   <div class="flex items-end justify-between">
     <div>
       <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight"><%= @month_start.strftime("%B %Y") %></h2>
-      <p class="text-[var(--color-fg-muted)] mt-1">Aylık görünüm</p>
+      <p class="text-[var(--color-fg-muted)] mt-1">Monthly view</p>
     </div>
     <div class="flex gap-2 items-center">
       <%= link_to "←", calendar_month_path(@prev_month.year, @prev_month.month), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>

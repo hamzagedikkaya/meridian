@@ -18,31 +18,31 @@
   <%# Hero stats %>
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <div class="card">
-      <p class="text-sm text-[var(--color-fg-muted)]">Bu ay net</p>
+      <p class="text-sm text-[var(--color-fg-muted)]">Net this month</p>
       <p class="stat-number mt-2 <%= @month_net >= 0 ? 'text-[var(--color-income)]' : 'text-[var(--color-expense)]' %>">
         <%= money_format(@month_net, currency: @currency) %>
       </p>
       <p class="text-xs text-[var(--color-fg-faint)] mt-2"><%= Date.current.strftime("%B") %></p>
     </div>
     <div class="card">
-      <p class="text-sm text-[var(--color-fg-muted)]">Gelir</p>
+      <p class="text-sm text-[var(--color-fg-muted)]">Income</p>
       <p class="stat-number mt-2 text-[var(--color-income)]"><%= money_format(@month_income, currency: @currency) %></p>
-      <p class="text-xs text-[var(--color-fg-faint)] mt-2">Bu ay</p>
+      <p class="text-xs text-[var(--color-fg-faint)] mt-2">This month</p>
     </div>
     <div class="card">
-      <p class="text-sm text-[var(--color-fg-muted)]">Gider</p>
+      <p class="text-sm text-[var(--color-fg-muted)]">Expense</p>
       <p class="stat-number mt-2 text-[var(--color-expense)]"><%= money_format(@month_expense, currency: @currency) %></p>
-      <p class="text-xs text-[var(--color-fg-faint)] mt-2">Bu ay</p>
+      <p class="text-xs text-[var(--color-fg-faint)] mt-2">This month</p>
     </div>
   </div>
 
   <%# 6-month chart + Top categories %>
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
     <div class="card lg:col-span-2">
-      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4">6 aylık trend</h3>
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4">6-month trend</h3>
       <%= column_chart [
-        { name: "Gelir",  data: @six_month_series[:labels].zip(@six_month_series[:income]).to_h },
-        { name: "Gider", data: @six_month_series[:labels].zip(@six_month_series[:expense]).to_h }
+        { name: "Income",  data: @six_month_series[:labels].zip(@six_month_series[:income]).to_h },
+        { name: "Expense", data: @six_month_series[:labels].zip(@six_month_series[:expense]).to_h }
       ], colors: [ "#6B8E5A", "#B85450" ], height: "280px", library: { plugins: { legend: { labels: { color: "#A09B8E" } } }, scales: { x: { ticks: { color: "#A09B8E" }, grid: { display: false } }, y: { ticks: { color: "#A09B8E" }, grid: { color: "rgba(245,241,232,0.06)" } } } } %>
     </div>
 

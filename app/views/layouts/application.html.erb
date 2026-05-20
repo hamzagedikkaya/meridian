@@ -23,6 +23,10 @@
 
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+
+    <%# Chart.js + Chartkick (UMD scripts — kept out of importmap to avoid ESM module-scope ReferenceError that broke Stimulus) %>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" data-turbo-track="reload"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartkick@5.0.1/dist/chartkick.min.js" data-turbo-track="reload"></script>
   </head>
 
   <body class="min-h-screen bg-[var(--color-bg-base)] text-[var(--color-fg-primary)] font-[family-name:var(--font-sans)]" data-controller="theme keyboard-nav">

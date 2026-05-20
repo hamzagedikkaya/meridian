@@ -1,0 +1,37 @@
+tr:
+  meridian:
+    tagline: "Hayatın, şık biçimde düzenli."
+    brand_caption: "Gelir-gider, alışkanlık, görev, takvim, günlük ve hedeflerin için tek bir lokal yaşam OS'u."
+
+  nav:
+    dashboard: "Pano"
+    finance: "Finans"
+    todos: "Görevler"
+    habits: "Alışkanlıklar"
+    calendar: "Takvim"
+    journal: "Günlük"
+    goals: "Hedefler"
+    insights: "Öngörüler"
+    backups: "Yedekler"
+    settings: "Ayarlar"
+    weekly_review: "Haftalık Gözden Geçirme"
+    sign_out: "Çıkış"
+    sign_in: "Giriş"
+
+  common:
+    save: "Kaydet"
+    create: "Oluştur"
+    update: "Güncelle"
+    delete: "Sil"
+    edit: "Düzenle"
+    cancel: "İptal"
+    back: "Geri"
+    all: "Tümü"
+    today: "Bugün"
+    new: "Yeni"
+    search: "Ara"
+
+  flash:
+    saved: "Kaydedildi."
+    deleted: "Silindi."
+    updated: "Güncellendi."

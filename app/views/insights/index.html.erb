@@ -4,7 +4,7 @@
   <div class="flex items-end justify-between">
     <div>
       <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Insights</h2>
-      <p class="text-[var(--color-fg-muted)] mt-1">Son <%= @range_days %> günün cross-module analizi.</p>
+      <p class="text-[var(--color-fg-muted)] mt-1">Cross-module analysis for the last <%= @range_days %> days.</p>
     </div>
     <div class="flex gap-1 text-sm">
       <% [ 7, 30, 90 ].each do |d| %>
@@ -30,7 +30,7 @@
       <% if @weekend_avg > 0 && @weekday_avg > 0 %>
         <% diff = ((@weekend_avg - @weekday_avg).to_f / @weekday_avg * 100).round %>
         <p class="text-sm text-[var(--color-fg-muted)] mt-3">
-          Hafta sonu <strong class="text-[var(--color-fg-primary)]"><%= diff.abs %>%</strong> <%= diff.positive? ? "daha fazla" : "daha az" %> harcıyorsun.
+          You spend <strong class="text-[var(--color-fg-primary)]"><%= diff.abs %>%</strong> <%= diff.positive? ? "more" : "less" %> on weekends.
         </p>
       <% end %>
     </div>
@@ -57,13 +57,13 @@
   <% if @mood_completion.any? %>
     <div class="card">
       <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-3">Mood × habit completion</h3>
-      <p class="text-sm text-[var(--color-fg-muted)] mb-4">Hangi mood gününde habit'lerin daha yüksek tamamlanıyor.</p>
+      <p class="text-sm text-[var(--color-fg-muted)] mb-4">Which mood days have higher habit completion.</p>
       <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
         <% @mood_completion.each do |row| %>
           <div class="p-4 rounded-[var(--radius-md)] bg-[var(--color-bg-base)] border border-[var(--color-border-subtle)] text-center">
             <p class="text-2xl"><%= row[:emoji] %></p>
             <p class="text-2xl font-medium mt-1"><%= row[:rate] %>%</p>
-            <p class="text-xs text-[var(--color-fg-muted)] mt-1"><%= row[:days] %> gün</p>
+            <p class="text-xs text-[var(--color-fg-muted)] mt-1"><%= row[:days] %> days</p>
           </div>
         <% end %>
       </div>

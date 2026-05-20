@@ -10,7 +10,7 @@
 
   <div>
     <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Week of <%= @review.week_starting.strftime("%d %b %Y") %></h2>
-    <p class="text-[var(--color-fg-muted)] mt-1">Geçen haftanı 5 dakikada gözden geçir.</p>
+    <p class="text-[var(--color-fg-muted)] mt-1">Review last week in 5 minutes.</p>
   </div>
 
   <%# Stats summary %>
@@ -27,15 +27,15 @@
       <%= f.hidden_field :week_starting, value: @review.week_starting %>
     <% end %>
     <div>
-      <%= f.label :reflection_went_well, "Ne iyi gitti?", class: label_cls %>
+      <%= f.label :reflection_went_well, "What went well?", class: label_cls %>
       <%= f.text_area :reflection_went_well, rows: 3, class: input_cls %>
     </div>
     <div>
-      <%= f.label :reflection_learned, "Ne öğrendim?", class: label_cls %>
+      <%= f.label :reflection_learned, "What did I learn?", class: label_cls %>
       <%= f.text_area :reflection_learned, rows: 3, class: input_cls %>
     </div>
     <div>
-      <%= f.label :reflection_next_week, "Önümüzdeki hafta?", class: label_cls %>
+      <%= f.label :reflection_next_week, "What is next week?", class: label_cls %>
       <%= f.text_area :reflection_next_week, rows: 3, class: input_cls %>
     </div>
     <div class="flex justify-end pt-3 border-t border-[var(--color-border-subtle)]">

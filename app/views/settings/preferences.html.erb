@@ -46,7 +46,7 @@
           <%= f.text_field :currency, maxlength: 3,
               class: input_class + " uppercase font-mono",
               style: "text-transform: uppercase;" %>
-          <p class="<%= hint_class %>">ISO 4217 — örn. TRY, USD, EUR.</p>
+          <p class="<%= hint_class %>">ISO 4217 — e.g. TRY, USD, EUR.</p>
         </div>
 
         <div>
@@ -65,7 +65,7 @@
         <div class="md:col-span-2">
           <%= f.label :weekly_review_day, "Weekly review day", class: label_class %>
           <%= f.select :weekly_review_day, weekly_days, {}, class: input_class %>
-          <p class="<%= hint_class %>">Pazar günü hatırlatması için kullanılacak (Aşama 8.5).</p>
+          <p class="<%= hint_class %>">Used for the weekly review reminder.</p>
         </div>
       </div>
 

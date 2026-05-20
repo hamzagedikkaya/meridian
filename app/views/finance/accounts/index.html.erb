@@ -5,7 +5,7 @@
   <div class="flex items-end justify-between gap-3">
     <div>
       <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Accounts</h2>
-      <p class="text-[var(--color-fg-muted)] mt-1">Cüzdan, banka, kredi kartı ve birikim hesaplarını yönet.</p>
+      <p class="text-[var(--color-fg-muted)] mt-1">Manage wallets, bank accounts, credit cards, and savings.</p>
     </div>
     <%= link_to "+ New account", new_finance_account_path, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium" %>
   </div>
@@ -13,7 +13,7 @@
   <% if @accounts.any? %>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <% @accounts.each do |acc| %>
-        <%= link_to finance_account_path(acc), class: "card hover:border-[var(--color-border-default)] block <%= 'opacity-60' if acc.archived? %>" do %>
+        <%= link_to finance_account_path(acc), class: "card hover:border-[var(--color-border-default)] block #{'opacity-60' if acc.archived?}" do %>
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
               <p class="text-sm text-[var(--color-fg-muted)]"><%= acc.account_type.titleize %></p>
