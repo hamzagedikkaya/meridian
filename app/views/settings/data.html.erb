@@ -14,15 +14,36 @@
 
     <div class="space-y-4">
       <div class="p-5 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-base)]">
-        <p class="text-sm font-medium text-[var(--color-fg-primary)] mb-1">Backup & Restore</p>
-        <p class="text-sm text-[var(--color-fg-muted)] mb-3">pg_dump + ActiveStorage tar.gz arşivleri ile veri taşıma.</p>
-        <span class="pill">Aşama 7'de aktif olacak</span>
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-sm font-medium text-[var(--color-fg-primary)] mb-1">Backup & Restore</p>
+            <p class="text-sm text-[var(--color-fg-muted)]">pg_dump + ActiveStorage tar.gz arşivi ile veri taşıma.</p>
+            <% if @last_backup %>
+              <p class="text-xs text-[var(--color-fg-faint)] mt-2">Son backup: <%= time_ago_in_words(@last_backup.created_at) %> önce · <%= @last_backup.display_size %></p>
+            <% end %>
+          </div>
+          <%= link_to "Open Backups →", backups_path, class: "text-sm text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)] flex-shrink-0" %>
+        </div>
       </div>
 
       <div class="p-5 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-base)]">
-        <p class="text-sm font-medium text-[var(--color-fg-primary)] mb-1">CSV export</p>
-        <p class="text-sm text-[var(--color-fg-muted)] mb-3">Modül bazlı CSV dışa aktarım.</p>
-        <span class="pill">Aşama 2 (Finance) ile gelecek</span>
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-sm font-medium text-[var(--color-fg-primary)] mb-1">CSV export</p>
+            <p class="text-sm text-[var(--color-fg-muted)]">Finance transaction'larını CSV olarak dışa aktar.</p>
+          </div>
+          <%= link_to "Export CSV →", finance_transactions_export_path(format: :csv), class: "text-sm text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)] flex-shrink-0" %>
+        </div>
+      </div>
+
+      <div class="p-5 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-base)]">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-sm font-medium text-[var(--color-fg-primary)] mb-1">iCal feed</p>
+            <p class="text-sm text-[var(--color-fg-muted)]">Eventleri telefonun takvimine read-only feed olarak abone et.</p>
+          </div>
+          <%= link_to "Open feed →", calendar_feed_path, class: "text-sm text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)] flex-shrink-0" %>
+        </div>
       </div>
     </div>
   </div>

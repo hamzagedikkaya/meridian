@@ -1,0 +1,15 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "Command Injection",
+      "fingerprint": "a8e1a9433c5cf2ae42c65ee891777ba29bdb59518605d9fd91d1d923d1a676d7",
+      "note": "pg_dump args come from Rails DB config (trusted), and Open3.capture3 uses array form which is shell-safe."
+    },
+    {
+      "warning_type": "Command Injection",
+      "fingerprint": "fc086d8f669a4ac2a8df6ef1abcab5b1c869aa28e9a88ebda2cd808bff788b7b",
+      "note": "pg_restore args come from Rails DB config (trusted), and Open3.capture3 uses array form which is shell-safe."
+    }
+  ],
+  "updated": "2026-05-20"
+}

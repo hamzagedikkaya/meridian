@@ -28,7 +28,7 @@ class SettingsController < ApplicationController
   end
 
   def data
-    @last_backup = nil # Aşama 7'de doldurulacak
+    @last_backup = current_user.backups.succeeded.recent.first
     render :data
   end
 

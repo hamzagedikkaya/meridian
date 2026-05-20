@@ -36,6 +36,12 @@ Rails.application.routes.draw do
     member { patch :recalculate }
   end
 
+  # Backups
+  resources :backups, only: [ :index, :show, :create, :destroy ] do
+    member { get :download }
+    collection { post :restore }
+  end
+
   # Journal
   resources :journal_entries, path: "journal"
 

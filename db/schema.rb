@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_20_162923) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_20_163330) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -65,6 +65,21 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_162923) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "backups", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "filename"
+    t.string "status", default: "pending", null: false
+    t.bigint "size_bytes"
+    t.text "note"
+    t.string "meridian_version"
+    t.string "schema_version"
+    t.text "error_message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "created_at"], name: "index_backups_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_backups_on_user_id"
   end
 
   create_table "events", force: :cascade do |t|
@@ -280,6 +295,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_162923) do
   add_foreign_key "accounts", "users"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "backups", "users"
   add_foreign_key "events", "users"
   add_foreign_key "finance_categories", "finance_categories", column: "parent_id"
   add_foreign_key "finance_categories", "users"
