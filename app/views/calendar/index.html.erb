@@ -1,0 +1,58 @@
+<% content_for :page_title, "Calendar" %>
+<% content_for :nav_key, "calendar" %>
+
+<div class="space-y-6">
+  <%# Header with nav %>
+  <div class="flex items-end justify-between">
+    <div>
+      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight"><%= @month_start.strftime("%B %Y") %></h2>
+      <p class="text-[var(--color-fg-muted)] mt-1">Aylık görünüm</p>
+    </div>
+    <div class="flex gap-2 items-center">
+      <%= link_to "←", calendar_month_path(@prev_month.year, @prev_month.month), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
+      <%= link_to "Today", calendar_path, class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
+      <%= link_to "→", calendar_month_path(@next_month.year, @next_month.month), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
+      <%= link_to "+ Event", new_event_path, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium" %>
+    </div>
+  </div>
+
+  <%# Weekday headers %>
+  <div class="grid grid-cols-7 gap-px text-xs text-[var(--color-fg-muted)] uppercase tracking-wider">
+    <% %w[Mon Tue Wed Thu Fri Sat Sun].each do |d| %>
+      <div class="px-2 py-2"><%= d %></div>
+    <% end %>
+  </div>
+
+  <%# Grid - 6 weeks %>
+  <div class="grid grid-cols-7 gap-px bg-[var(--color-border-subtle)] rounded-[var(--radius-md)] overflow-hidden border border-[var(--color-border-subtle)]">
+    <% (0..41).each do |i| %>
+      <% date = @grid_start + i.days %>
+      <% is_current_month = date.month == @month_start.month %>
+      <% is_today = date == Date.current %>
+      <% events = @events_by_date[date] || [] %>
+      <%= link_to new_event_path(date: date), class: "min-h-[100px] bg-[var(--color-bg-elevated)] p-2 hover:bg-[var(--color-bg-hover)] transition-colors block #{is_current_month ? '' : 'opacity-40'}" do %>
+        <div class="flex items-start justify-between mb-1">
+          <span class="text-xs font-medium <%= is_today ? 'w-6 h-6 rounded-full bg-[var(--color-accent-500)] text-[var(--color-bg-base)] flex items-center justify-center' : '' %>"><%= date.day %></span>
+        </div>
+        <div class="space-y-0.5">
+          <% events.first(3).each do |e| %>
+            <div class="text-[10px] truncate px-1.5 py-0.5 rounded" style="background: <%= e.color %>22; color: <%= e.color %>;">
+              <%= e.title %>
+            </div>
+          <% end %>
+          <% if events.size > 3 %>
+            <div class="text-[10px] text-[var(--color-fg-muted)]">+<%= events.size - 3 %> more</div>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <%# Legend %>
+  <div class="flex flex-wrap gap-3 text-xs text-[var(--color-fg-muted)]">
+    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[var(--color-accent-500)]"></span>Event</span>
+    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background: #A09B8E"></span>Todo</span>
+    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background: #B85450"></span>Subscription</span>
+    <span class="ml-auto"><%= link_to "iCal feed →", calendar_feed_path, class: "text-[var(--color-accent-400)]" %></span>
+  </div>
+</div>

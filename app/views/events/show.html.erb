@@ -1,0 +1,24 @@
+<% content_for :page_title, @event.title %>
+<% content_for :nav_key, "calendar" %>
+
+<div class="max-w-xl space-y-4">
+  <%= link_to "← Calendar", calendar_path, class: "text-sm text-[var(--color-fg-muted)]" %>
+  <div class="card">
+    <p class="text-sm text-[var(--color-fg-muted)] uppercase tracking-wider"><%= @event.event_type.titleize %></p>
+    <h2 class="font-[family-name:var(--font-display)] text-3xl tracking-tight mt-1"><%= @event.title %></h2>
+    <p class="text-sm text-[var(--color-fg-muted)] mt-2">
+      <%= @event.start_at.strftime("%A, %d %B %Y · %H:%M") %>
+      <% if @event.end_at %>– <%= @event.end_at.strftime("%H:%M") %><% end %>
+    </p>
+    <% if @event.location.present? %>
+      <p class="text-sm text-[var(--color-fg-muted)] mt-1">📍 <%= @event.location %></p>
+    <% end %>
+    <% if @event.description.present? %>
+      <p class="mt-4 whitespace-pre-wrap"><%= @event.description %></p>
+    <% end %>
+    <div class="flex justify-end gap-2 mt-6 pt-4 border-t border-[var(--color-border-subtle)]">
+      <%= link_to "Edit", edit_event_path(@event), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
+      <%= button_to "Delete", event_path(@event), method: :delete, data: { turbo_confirm: "Delete?" }, class: "px-3 py-2 text-sm border border-[var(--color-expense)] text-[var(--color-expense)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] cursor-pointer" %>
+    </div>
+  </div>
+</div>

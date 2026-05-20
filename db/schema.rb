@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_20_161552) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_20_162003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -55,6 +55,28 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_161552) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "events", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "title", null: false
+    t.text "description"
+    t.datetime "start_at", null: false
+    t.datetime "end_at"
+    t.boolean "all_day", default: false, null: false
+    t.string "timezone"
+    t.string "color", default: "#B8860B"
+    t.string "location"
+    t.string "event_type", default: "personal", null: false
+    t.boolean "recurring", default: false, null: false
+    t.text "recurrence_rule"
+    t.string "related_type"
+    t.bigint "related_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["related_type", "related_id"], name: "index_events_on_related"
+    t.index ["user_id", "start_at"], name: "index_events_on_user_id_and_start_at"
+    t.index ["user_id"], name: "index_events_on_user_id"
   end
 
   create_table "finance_categories", force: :cascade do |t|
@@ -205,6 +227,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_161552) do
   add_foreign_key "accounts", "users"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "events", "users"
   add_foreign_key "finance_categories", "finance_categories", column: "parent_id"
   add_foreign_key "finance_categories", "users"
   add_foreign_key "habit_logs", "habits"

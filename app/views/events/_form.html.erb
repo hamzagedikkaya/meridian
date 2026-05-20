@@ -1,0 +1,54 @@
+<%
+  input_cls = "w-full px-3.5 py-2.5 bg-[var(--color-bg-base)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] text-[var(--color-fg-primary)] focus:outline-none focus:border-[var(--color-accent-500)]"
+  label_cls = "block text-sm font-medium text-[var(--color-fg-muted)] mb-1.5"
+%>
+
+<%= form_with model: event, html: { class: "space-y-5" } do |f| %>
+  <% if event.errors.any? %>
+    <div class="px-4 py-3 rounded-[var(--radius-md)] border border-[var(--color-danger)] bg-[var(--color-bg-overlay)] text-sm">
+      <ul class="space-y-1 text-[var(--color-fg-muted)]"><% event.errors.full_messages.each { |m| %><li>• <%= m %></li><% } %></ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :title, class: label_cls %>
+    <%= f.text_field :title, autofocus: true, class: input_cls %>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-5">
+    <div>
+      <%= f.label :start_at, class: label_cls %>
+      <%= f.datetime_local_field :start_at, class: input_cls %>
+    </div>
+    <div>
+      <%= f.label :end_at, class: label_cls %>
+      <%= f.datetime_local_field :end_at, class: input_cls %>
+    </div>
+    <div>
+      <%= f.label :event_type, "Type", class: label_cls %>
+      <%= f.select :event_type, Event::EVENT_TYPES.map { |t| [ t.titleize, t ] }, {}, class: input_cls %>
+    </div>
+    <div>
+      <%= f.label :color, class: label_cls %>
+      <%= f.color_field :color, class: input_cls + " h-10" %>
+    </div>
+    <div class="md:col-span-2">
+      <%= f.label :location, class: label_cls %>
+      <%= f.text_field :location, class: input_cls %>
+    </div>
+    <div class="md:col-span-2">
+      <%= f.label :description, class: label_cls %>
+      <%= f.text_area :description, rows: 3, class: input_cls %>
+    </div>
+  </div>
+
+  <label class="flex items-center gap-2 text-sm">
+    <%= f.check_box :all_day %>
+    <span>All day</span>
+  </label>
+
+  <div class="flex justify-between items-center pt-4 border-t border-[var(--color-border-subtle)]">
+    <%= link_to "Cancel", calendar_path, class: "text-sm text-[var(--color-fg-muted)]" %>
+    <%= f.submit (event.persisted? ? "Update" : "Create"), class: "px-4 py-2 bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer" %>
+  </div>
+<% end %>

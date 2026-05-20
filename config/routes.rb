@@ -39,6 +39,12 @@ Rails.application.routes.draw do
     resources :habit_logs, only: [ :create, :update ], shallow: true
   end
 
+  # Calendar
+  get  "calendar",                  to: "calendar#index", as: :calendar
+  get  "calendar/:year/:month",     to: "calendar#index", as: :calendar_month, constraints: { year: /\d{4}/, month: /\d{1,2}/ }
+  get  "calendar/feed",             to: "calendar#feed",  as: :calendar_feed
+  resources :events
+
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 
