@@ -1,0 +1,61 @@
+<% content_for :page_title, "Journal" %>
+<% content_for :nav_key, "journal" %>
+
+<div class="space-y-6">
+  <div class="flex items-end justify-between">
+    <div>
+      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Journal</h2>
+      <p class="text-[var(--color-fg-muted)] mt-1"><%= pluralize(@entries.count, "entry") %></p>
+    </div>
+    <%= link_to "+ New entry", new_journal_entry_path, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium" %>
+  </div>
+
+  <% if @mood_data.any? %>
+    <div class="card">
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4">Mood (last 30 days)</h3>
+      <div class="flex gap-3 flex-wrap">
+        <% JournalEntry::MOODS.each do |mood| %>
+          <div class="flex items-center gap-2 text-sm">
+            <span class="text-2xl"><%= JournalEntry::MOOD_EMOJI[mood] %></span>
+            <span class="text-[var(--color-fg-muted)]"><%= @mood_data[mood] || 0 %></span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @entries.any? %>
+    <div class="space-y-3">
+      <% @entries.each do |entry| %>
+        <%= link_to journal_entry_path(entry), class: "card hover:border-[var(--color-border-default)] block" do %>
+          <div class="flex items-start gap-4">
+            <div class="text-center flex-shrink-0">
+              <p class="text-xs text-[var(--color-fg-muted)] uppercase"><%= entry.date.strftime("%a") %></p>
+              <p class="font-[family-name:var(--font-display)] text-2xl"><%= entry.date.day %></p>
+              <p class="text-xs text-[var(--color-fg-muted)]"><%= entry.date.strftime("%b") %></p>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <% if entry.mood %><span class="text-xl"><%= entry.mood_emoji %></span><% end %>
+                <h3 class="text-base font-medium"><%= entry.title.presence || "Untitled" %></h3>
+              </div>
+              <% if entry.body.body.present? %>
+                <p class="text-sm text-[var(--color-fg-muted)] mt-1 line-clamp-2"><%= truncate(entry.body.to_plain_text, length: 150) %></p>
+              <% end %>
+              <% if entry.tag_list.any? %>
+                <div class="flex gap-1 mt-2 flex-wrap">
+                  <% entry.tag_list.first(4).each do |tag| %><span class="pill !text-[10px]"><%= tag %></span><% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="card text-center py-12">
+      <p class="text-[var(--color-fg-muted)] mb-3">No journal entries yet.</p>
+      <%= link_to "Write today's entry", new_journal_entry_path, class: "text-[var(--color-accent-400)]" %>
+    </div>
+  <% end %>
+</div>

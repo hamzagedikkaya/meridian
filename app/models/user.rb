@@ -13,6 +13,7 @@ class User < ApplicationRecord
   has_many :habits, dependent: :destroy
   has_many :habit_logs, through: :habits
   has_many :events, dependent: :destroy
+  has_many :journal_entries, dependent: :destroy
 
   THEME_PREFERENCES = %w[dark light system].freeze
   SUPPORTED_LOCALES = %w[tr en].freeze

@@ -5,3 +5,6 @@ import "Chart.bundle"
 import Chartkick from "chartkick"
 window.Chartkick = Chartkick
 Chartkick.use(Chart)
+
+import "trix"
+import "@rails/actiontext"

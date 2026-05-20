@@ -31,6 +31,9 @@ Rails.application.routes.draw do
     end
   end
 
+  # Journal
+  resources :journal_entries, path: "journal"
+
   # Habits
   resources :habits do
     member do

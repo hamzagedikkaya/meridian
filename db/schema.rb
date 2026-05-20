@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_20_162003) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_20_162533) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -27,6 +27,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_162003) do
     t.datetime "updated_at", null: false
     t.index ["user_id", "archived_at"], name: "index_accounts_on_user_id_and_archived_at"
     t.index ["user_id"], name: "index_accounts_on_user_id"
+  end
+
+  create_table "action_text_rich_texts", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "body"
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["record_type", "record_id", "name"], name: "index_action_text_rich_texts_uniqueness", unique: true
   end
 
   create_table "active_storage_attachments", force: :cascade do |t|
@@ -120,6 +130,21 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_162003) do
     t.datetime "updated_at", null: false
     t.index ["user_id", "archived_at"], name: "index_habits_on_user_id_and_archived_at"
     t.index ["user_id"], name: "index_habits_on_user_id"
+  end
+
+  create_table "journal_entries", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.date "date", null: false
+    t.string "title"
+    t.string "mood"
+    t.string "weather"
+    t.integer "energy_level"
+    t.text "gratitude"
+    t.string "tags"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "date"], name: "index_journal_entries_on_user_id_and_date"
+    t.index ["user_id"], name: "index_journal_entries_on_user_id"
   end
 
   create_table "subscriptions", force: :cascade do |t|
@@ -232,6 +257,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_162003) do
   add_foreign_key "finance_categories", "users"
   add_foreign_key "habit_logs", "habits"
   add_foreign_key "habits", "users"
+  add_foreign_key "journal_entries", "users"
   add_foreign_key "subscriptions", "accounts"
   add_foreign_key "subscriptions", "finance_categories"
   add_foreign_key "subscriptions", "users"
