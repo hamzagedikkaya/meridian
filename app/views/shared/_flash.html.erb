@@ -1,0 +1,14 @@
+<% flash.each do |type, message| %>
+  <% type_class = case type.to_s
+                  when "notice", "success" then "border-[var(--color-success)] text-[var(--color-success)]"
+                  when "alert", "error", "danger" then "border-[var(--color-danger)] text-[var(--color-danger)]"
+                  when "warning" then "border-[var(--color-warning)] text-[var(--color-warning)]"
+                  else "border-[var(--color-info)] text-[var(--color-info)]"
+                  end %>
+  <div class="mb-4 px-4 py-3 rounded-[var(--radius-md)] border <%= type_class %> bg-[var(--color-bg-elevated)] text-sm flex items-center justify-between"
+       data-controller="flash"
+       data-flash-target="root">
+    <span><%= message %></span>
+    <button type="button" data-action="click->flash#dismiss" class="text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)] text-lg leading-none">×</button>
+  </div>
+<% end %>

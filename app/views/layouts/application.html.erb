@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>" class="dark">
+  <head>
+    <title><%= content_for(:title) || "Meridian" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0A0908">
+    <meta name="turbo-prefetch" content="true">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <%# Google Fonts: Fraunces (display) + DM Sans (body) %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..900,0..100&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="min-h-screen bg-[var(--color-bg-base)] text-[var(--color-fg-primary)] font-[family-name:var(--font-sans)]" data-controller="theme">
+    <div class="flex min-h-screen">
+      <%= render ::Layouts::Sidebar.new(active: content_for(:nav_key)&.to_sym) %>
+
+      <div class="flex-1 flex flex-col min-w-0">
+        <%= render ::Layouts::TopBar.new(title: content_for(:page_title), user: nil) %>
+
+        <main class="flex-1 px-4 md:px-8 py-6 pb-24 md:pb-6 max-w-[var(--container-page)] w-full mx-auto">
+          <%= render "shared/flash" %>
+          <%= yield %>
+        </main>
+      </div>
+
+      <%= render ::Layouts::BottomNav.new(active: content_for(:nav_key)&.to_sym) %>
+    </div>
+  </body>
+</html>

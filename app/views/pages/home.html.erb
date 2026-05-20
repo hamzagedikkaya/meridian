@@ -1,0 +1,32 @@
+<% content_for :page_title, "Welcome" %>
+<% content_for :nav_key, "dashboard" %>
+
+<div class="space-y-8">
+  <div class="card">
+    <p class="text-[var(--color-fg-muted)] text-sm uppercase tracking-wider">Aşama 0 — Shell</p>
+    <h2 class="font-[family-name:var(--font-display)] text-5xl mt-3 tracking-tight">Hello, Meridian.</h2>
+    <p class="mt-4 text-[var(--color-fg-muted)] max-w-xl">
+      Bu, projenin temel iskeletinin canlı görüntüsüdür: Rails 8, Hotwire, Tailwind v4,
+      Fraunces + DM Sans tipografi, dark-first palet ve ViewComponent layout şablonu.
+      Modüller (Finance, Todos, Habits, Calendar, Journal, Goals) sonraki aşamalarda eklenecek.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="card">
+      <p class="text-sm text-[var(--color-fg-muted)]">Stack</p>
+      <p class="stat-number mt-2">Rails 8</p>
+      <p class="text-xs text-[var(--color-fg-faint)] mt-2">Hotwire · Importmap · Propshaft</p>
+    </div>
+    <div class="card">
+      <p class="text-sm text-[var(--color-fg-muted)]">Design</p>
+      <p class="stat-number mt-2">Fraunces</p>
+      <p class="text-xs text-[var(--color-fg-faint)] mt-2">DM Sans body · Amber/gold accent</p>
+    </div>
+    <div class="card">
+      <p class="text-sm text-[var(--color-fg-muted)]">Status</p>
+      <p class="stat-number mt-2">0/12</p>
+      <p class="text-xs text-[var(--color-fg-faint)] mt-2">Aşamalar tamamlandı</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,13 @@
+<nav class="md:hidden fixed bottom-0 inset-x-0 z-30 bg-[var(--color-bg-elevated)]/95 backdrop-blur border-t border-[var(--color-border-subtle)] px-2 py-2">
+  <div class="grid grid-cols-5 gap-1">
+    <% ITEMS.each do |item| %>
+      <a
+        href="<%= item[:path] %>"
+        class="flex flex-col items-center gap-1 py-1.5 rounded-[var(--radius-sm)] text-xs <%= active?(item[:key]) ? 'text-[var(--color-accent-500)]' : 'text-[var(--color-fg-muted)]' %> hover:text-[var(--color-fg-primary)] transition-colors"
+      >
+        <%= render Ui::Icon.new(name: item[:icon], size: 20) %>
+        <span><%= item[:label] %></span>
+      </a>
+    <% end %>
+  </div>
+</nav>

@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   MERIDIAN DESIGN TOKENS
+   Dark-first, editorial serif + clean sans, amber/gold accent
+   ========================================================================== */
+
+@theme {
+  /* --- Typography --- */
+  --font-display: "Fraunces", "Times New Roman", serif;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* --- Background (dark-first) --- */
+  --color-bg-base: #0A0908;
+  --color-bg-elevated: #161514;
+  --color-bg-overlay: #1F1D1B;
+  --color-bg-hover: #1A1817;
+
+  /* --- Foreground --- */
+  --color-fg-primary: #F5F1E8;
+  --color-fg-muted: #A09B8E;
+  --color-fg-faint: #5E574D;
+  --color-fg-inverse: #0A0908;
+
+  /* --- Accent (amber / gold) --- */
+  --color-accent-50: #FEF3C7;
+  --color-accent-100: #FDE7A8;
+  --color-accent-200: #F5D78A;
+  --color-accent-300: #E8C170;
+  --color-accent-400: #D4A574;
+  --color-accent-500: #B8860B;
+  --color-accent-600: #9A6F0A;
+  --color-accent-700: #8B5A00;
+  --color-accent-800: #6B4500;
+  --color-accent-900: #4A3000;
+
+  /* --- Semantic --- */
+  --color-income: #6B8E5A;
+  --color-expense: #B85450;
+  --color-warning: #D4915A;
+  --color-info: #6B8FA0;
+  --color-success: #6B8E5A;
+  --color-danger: #B85450;
+
+  /* --- Borders --- */
+  --color-border-subtle: rgba(245, 241, 232, 0.06);
+  --color-border-default: rgba(245, 241, 232, 0.12);
+  --color-border-strong: rgba(245, 241, 232, 0.20);
+
+  /* --- Radius --- */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  /* --- Container --- */
+  --container-page: 1440px;
+}
+
+/* ==========================================================================
+   BASE STYLES
+   ========================================================================== */
+
+@layer base {
+  html {
+    background-color: var(--color-bg-base);
+    color: var(--color-fg-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-bg-base);
+    color: var(--color-fg-primary);
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-feature-settings: "ss01", "ss02";
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background-color: var(--color-accent-500);
+    color: var(--color-bg-base);
+  }
+
+  /* Focus ring tutarlı */
+  :focus-visible {
+    outline: 2px solid var(--color-accent-500);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+/* ==========================================================================
+   COMPONENT CLASSES
+   Tailwind utility kompozisyonu için tekrar eden patterns
+   ========================================================================== */
+
+@layer components {
+  .card {
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    transition: transform 0.18s ease-out, border-color 0.18s ease-out;
+  }
+
+  .card:hover {
+    border-color: var(--color-border-default);
+    transform: translateY(-2px);
+  }
+
+  .stat-number {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 2.5rem;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background-color: var(--color-bg-overlay);
+    color: var(--color-fg-muted);
+  }
+}

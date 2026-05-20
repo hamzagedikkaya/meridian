@@ -1,0 +1,58 @@
+<header class="h-16 px-6 flex items-center justify-between border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-base)]/80 backdrop-blur sticky top-0 z-20">
+  <%# Left: title + breadcrumbs %>
+  <div class="flex items-center gap-3">
+    <% if title.present? %>
+      <h1 class="font-[family-name:var(--font-display)] text-xl text-[var(--color-fg-primary)] tracking-tight"><%= title %></h1>
+    <% end %>
+    <% if breadcrumbs.any? %>
+      <nav class="flex items-center gap-2 text-sm text-[var(--color-fg-muted)]">
+        <% breadcrumbs.each_with_index do |crumb, i| %>
+          <% if i.positive? %>
+            <span class="text-[var(--color-fg-faint)]">/</span>
+          <% end %>
+          <% if crumb[:path].present? %>
+            <a href="<%= crumb[:path] %>" class="hover:text-[var(--color-fg-primary)] transition-colors"><%= crumb[:label] %></a>
+          <% else %>
+            <span><%= crumb[:label] %></span>
+          <% end %>
+        <% end %>
+      </nav>
+    <% end %>
+  </div>
+
+  <%# Right: search shortcut + theme toggle + user %>
+  <div class="flex items-center gap-3">
+    <button
+      type="button"
+      class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--color-border-default)] text-sm text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)] hover:border-[var(--color-border-strong)] transition-colors"
+      data-controller="global-search"
+      data-action="click->global-search#open"
+      aria-label="Open search"
+    >
+      <%= render Ui::Icon.new(name: "search", size: 14) %>
+      <span>Search</span>
+      <kbd class="ml-2 px-1.5 py-0.5 text-xs bg-[var(--color-bg-overlay)] rounded text-[var(--color-fg-muted)]">⌘K</kbd>
+    </button>
+
+    <button
+      type="button"
+      class="w-9 h-9 flex items-center justify-center rounded-[var(--radius-sm)] text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)] hover:bg-[var(--color-bg-hover)] transition-colors"
+      data-controller="theme"
+      data-action="click->theme#toggle"
+      aria-label="Toggle theme"
+    >
+      <%= render Ui::Icon.new(name: "moon", size: 18) %>
+    </button>
+
+    <% if user %>
+      <div class="flex items-center gap-2 pl-3 border-l border-[var(--color-border-subtle)]">
+        <div class="w-8 h-8 rounded-full bg-[var(--color-accent-700)] flex items-center justify-center text-[var(--color-fg-primary)] text-sm font-medium">
+          <%= user.name.to_s[0]&.upcase || "?" %>
+        </div>
+        <span class="hidden md:inline text-sm text-[var(--color-fg-muted)]"><%= user.name %></span>
+      </div>
+    <% else %>
+      <a href="#" class="text-sm text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)] transition-colors">Sign in</a>
+    <% end %>
+  </div>
+</header>
