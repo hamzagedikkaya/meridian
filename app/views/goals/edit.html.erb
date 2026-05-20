@@ -1,0 +1,8 @@
+<% content_for :page_title, "Edit goal" %>
+<% content_for :nav_key, "goals" %>
+
+<div class="max-w-2xl space-y-4">
+  <%= link_to "← Back", goal_path(@goal), class: "text-sm text-[var(--color-fg-muted)]" %>
+  <h2 class="font-[family-name:var(--font-display)] text-3xl tracking-tight">Edit goal</h2>
+  <div class="card"><%= render "form", goal: @goal %></div>
+</div>

@@ -1,0 +1,50 @@
+<% content_for :page_title, "Goals" %>
+<% content_for :nav_key, "goals" %>
+
+<div class="space-y-6">
+  <div class="flex items-end justify-between">
+    <div>
+      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Goals</h2>
+      <p class="text-[var(--color-fg-muted)] mt-1">Hedeflerini takip et.</p>
+    </div>
+    <%= link_to "+ New goal", new_goal_path, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium" %>
+  </div>
+
+  <% if @active_goals.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <% @active_goals.each do |g| %>
+        <%= link_to goal_path(g), class: "card hover:border-[var(--color-border-default)] block" do %>
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <div class="min-w-0">
+              <p class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider"><%= g.target_type.titleize %></p>
+              <p class="text-lg font-medium mt-1 truncate"><%= g.name %></p>
+            </div>
+            <% if g.deadline %>
+              <p class="text-xs text-[var(--color-fg-muted)] flex-shrink-0"><%= g.days_remaining %>d</p>
+            <% end %>
+          </div>
+          <%= render "progress_bar", goal: g %>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="card text-center py-12">
+      <p class="text-[var(--color-fg-muted)] mb-3">No active goals.</p>
+      <%= link_to "Set your first goal", new_goal_path, class: "text-[var(--color-accent-400)]" %>
+    </div>
+  <% end %>
+
+  <% if @achieved_goals.any? %>
+    <div class="card">
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4 text-[var(--color-success)]">Achieved ✓</h3>
+      <ul class="space-y-2">
+        <% @achieved_goals.each do |g| %>
+          <li class="flex items-center justify-between text-sm">
+            <%= link_to g.name, goal_path(g), class: "text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)]" %>
+            <span class="text-xs text-[var(--color-success)]"><%= g.target_value.to_f.round %> <%= g.unit %></span>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</div>

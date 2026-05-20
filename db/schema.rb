@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_20_162533) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_20_162923) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -105,6 +105,28 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_162533) do
     t.index ["user_id"], name: "index_finance_categories_on_user_id"
   end
 
+  create_table "goals", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.string "target_type", default: "custom", null: false
+    t.decimal "target_value", precision: 14, scale: 2, default: "0.0", null: false
+    t.decimal "current_value", precision: 14, scale: 2, default: "0.0", null: false
+    t.string "unit", default: "TRY"
+    t.date "deadline"
+    t.string "color", default: "#B8860B"
+    t.string "icon"
+    t.string "status", default: "active", null: false
+    t.integer "position", default: 0, null: false
+    t.string "related_type"
+    t.bigint "related_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["related_type", "related_id"], name: "index_goals_on_related"
+    t.index ["user_id", "status", "position"], name: "index_goals_on_user_id_and_status_and_position"
+    t.index ["user_id"], name: "index_goals_on_user_id"
+  end
+
   create_table "habit_logs", force: :cascade do |t|
     t.bigint "habit_id", null: false
     t.date "date", null: false
@@ -128,6 +150,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_162533) do
     t.datetime "archived_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "goal_id"
+    t.index ["goal_id"], name: "index_habits_on_goal_id"
     t.index ["user_id", "archived_at"], name: "index_habits_on_user_id_and_archived_at"
     t.index ["user_id"], name: "index_habits_on_user_id"
   end
@@ -164,8 +188,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_162533) do
     t.text "note"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "goal_id"
     t.index ["account_id"], name: "index_subscriptions_on_account_id"
     t.index ["finance_category_id"], name: "index_subscriptions_on_finance_category_id"
+    t.index ["goal_id"], name: "index_subscriptions_on_goal_id"
     t.index ["user_id", "active", "next_charge_on"], name: "index_subscriptions_on_user_id_and_active_and_next_charge_on"
     t.index ["user_id"], name: "index_subscriptions_on_user_id"
   end
@@ -198,6 +224,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_162533) do
     t.bigint "parent_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "goal_id"
+    t.index ["goal_id"], name: "index_todos_on_goal_id"
     t.index ["parent_id"], name: "index_todos_on_parent_id"
     t.index ["todo_list_id", "position"], name: "index_todos_on_todo_list_id_and_position"
     t.index ["todo_list_id"], name: "index_todos_on_todo_list_id"
@@ -255,13 +283,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_162533) do
   add_foreign_key "events", "users"
   add_foreign_key "finance_categories", "finance_categories", column: "parent_id"
   add_foreign_key "finance_categories", "users"
+  add_foreign_key "goals", "users"
   add_foreign_key "habit_logs", "habits"
+  add_foreign_key "habits", "goals"
   add_foreign_key "habits", "users"
   add_foreign_key "journal_entries", "users"
   add_foreign_key "subscriptions", "accounts"
   add_foreign_key "subscriptions", "finance_categories"
+  add_foreign_key "subscriptions", "goals"
   add_foreign_key "subscriptions", "users"
   add_foreign_key "todo_lists", "users"
+  add_foreign_key "todos", "goals"
   add_foreign_key "todos", "todo_lists"
   add_foreign_key "todos", "todos", column: "parent_id"
   add_foreign_key "todos", "users"

@@ -10,7 +10,8 @@ puts "[seed] Starting Meridian seed…"
   "todos",
   "habits",
   "events",
-  "journal"
+  "journal",
+  "goals"
 ].each do |seed_file|
   path = Rails.root.join("db/seeds/#{seed_file}.rb")
   if path.exist?

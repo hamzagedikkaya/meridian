@@ -1,0 +1,7 @@
+<div class="h-2 bg-[var(--color-bg-base)] rounded-full overflow-hidden">
+  <div class="h-full transition-all" style="width: <%= goal.progress_percent %>%; background: <%= goal.color %>;"></div>
+</div>
+<div class="flex items-center justify-between text-xs text-[var(--color-fg-muted)] mt-1.5">
+  <span><%= goal.current_value.to_f.round(2) %> / <%= goal.target_value.to_f.round(2) %> <%= goal.unit %></span>
+  <span><%= goal.progress_percent %>%</span>
+</div>

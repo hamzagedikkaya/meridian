@@ -2,6 +2,7 @@ class Habit < ApplicationRecord
   FREQUENCIES = %w[daily weekly monthly].freeze
 
   belongs_to :user
+  belongs_to :goal, optional: true
   has_many :habit_logs, dependent: :destroy
 
   validates :name, presence: true, length: { maximum: 60 }

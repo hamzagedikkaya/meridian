@@ -1,0 +1,37 @@
+<% content_for :page_title, @goal.name %>
+<% content_for :nav_key, "goals" %>
+
+<div class="max-w-2xl space-y-6">
+  <%= link_to "← Goals", goals_path, class: "text-sm text-[var(--color-fg-muted)]" %>
+
+  <div class="card">
+    <div class="flex items-start justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <span class="w-4 h-4 rounded-full" style="background: <%= @goal.color %>"></span>
+        <div>
+          <p class="text-sm text-[var(--color-fg-muted)] uppercase tracking-wider"><%= @goal.target_type.titleize %></p>
+          <h2 class="font-[family-name:var(--font-display)] text-3xl tracking-tight"><%= @goal.name %></h2>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <%= button_to "Recalculate", recalculate_goal_path(@goal), method: :patch, class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] cursor-pointer" %>
+        <%= link_to "Edit", edit_goal_path(@goal), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
+        <%= button_to "Delete", goal_path(@goal), method: :delete, data: { turbo_confirm: "Delete?" }, class: "px-3 py-2 text-sm border border-[var(--color-expense)] text-[var(--color-expense)] rounded-[var(--radius-sm)] cursor-pointer" %>
+      </div>
+    </div>
+
+    <% if @goal.description.present? %>
+      <p class="mt-3 text-[var(--color-fg-muted)]"><%= @goal.description %></p>
+    <% end %>
+
+    <div class="mt-6">
+      <%= render "progress_bar", goal: @goal %>
+    </div>
+
+    <dl class="grid grid-cols-3 gap-3 mt-6 text-sm">
+      <div><dt class="text-[var(--color-fg-muted)]">Status</dt><dd><%= @goal.status.titleize %></dd></div>
+      <% if @goal.deadline %><div><dt class="text-[var(--color-fg-muted)]">Deadline</dt><dd><%= @goal.deadline.strftime("%d %b %Y") %></dd></div><% end %>
+      <% if @goal.days_remaining %><div><dt class="text-[var(--color-fg-muted)]">Remaining</dt><dd><%= @goal.days_remaining %> days</dd></div><% end %>
+    </dl>
+  </div>
+</div>

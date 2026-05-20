@@ -2,6 +2,7 @@ class Subscription < ApplicationRecord
   FREQUENCIES = %w[weekly monthly yearly].freeze
 
   belongs_to :user
+  belongs_to :goal, optional: true
   belongs_to :account
   belongs_to :finance_category, optional: true
 

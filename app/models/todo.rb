@@ -3,6 +3,7 @@ class Todo < ApplicationRecord
   STATUSES   = %w[pending in_progress done cancelled].freeze
 
   belongs_to :user
+  belongs_to :goal, optional: true
   belongs_to :todo_list, optional: true
   belongs_to :parent, class_name: "Todo", optional: true
   has_many :subtasks, class_name: "Todo", foreign_key: :parent_id, dependent: :nullify

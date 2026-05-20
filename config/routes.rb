@@ -31,6 +31,11 @@ Rails.application.routes.draw do
     end
   end
 
+  # Goals
+  resources :goals do
+    member { patch :recalculate }
+  end
+
   # Journal
   resources :journal_entries, path: "journal"
 

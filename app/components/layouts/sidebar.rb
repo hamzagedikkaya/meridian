@@ -7,7 +7,7 @@ module Layouts
       { key: :habits,    label: "Habits",    icon: "flame",    path: "/habits" },
       { key: :calendar,  label: "Calendar",  icon: "calendar", path: "/calendar" },
       { key: :journal,   label: "Journal",   icon: "book",     path: "/journal" },
-      { key: :goals,     label: "Goals",     icon: "target",   path: "#" }
+      { key: :goals,     label: "Goals",     icon: "target",   path: "/goals" }
     ].freeze
 
     def initialize(active: nil, collapsed: false)
