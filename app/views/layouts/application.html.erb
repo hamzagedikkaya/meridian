@@ -25,7 +25,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="min-h-screen bg-[var(--color-bg-base)] text-[var(--color-fg-primary)] font-[family-name:var(--font-sans)]" data-controller="theme">
+  <body class="min-h-screen bg-[var(--color-bg-base)] text-[var(--color-fg-primary)] font-[family-name:var(--font-sans)]" data-controller="theme keyboard-nav">
     <div class="flex min-h-screen">
       <%= render ::Layouts::Sidebar.new(active: content_for(:nav_key)&.to_sym) %>
 

@@ -59,6 +59,9 @@ Rails.application.routes.draw do
   get  "calendar/feed",             to: "calendar#feed",  as: :calendar_feed
   resources :events
 
+  # Search
+  get "search", to: "search#index", defaults: { format: :json }, as: :search
+
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 
