@@ -1,0 +1,66 @@
+<% content_for :page_title, "Subscriptions" %>
+<% content_for :nav_key, "finance" %>
+
+<div class="space-y-6">
+  <div class="flex items-end justify-between gap-3">
+    <div>
+      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Subscriptions</h2>
+      <p class="text-[var(--color-fg-muted)] mt-1">Tekrarlayan giderlerini takip et.</p>
+    </div>
+    <%= link_to "+ New subscription", new_finance_subscription_path, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium" %>
+  </div>
+
+  <%# Totals %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="card">
+      <p class="text-sm text-[var(--color-fg-muted)]">Aylık yük (ortalama)</p>
+      <p class="stat-number mt-2 text-[var(--color-expense)]"><%= money_format(@monthly_total_cents, currency: current_user.currency) %></p>
+    </div>
+    <div class="card">
+      <p class="text-sm text-[var(--color-fg-muted)]">Yıllık yük</p>
+      <p class="stat-number mt-2 text-[var(--color-expense)]"><%= money_format(@yearly_total_cents, currency: current_user.currency) %></p>
+    </div>
+  </div>
+
+  <%# Active %>
+  <div class="card">
+    <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4">Active</h3>
+    <% if @active_subs.any? %>
+      <ul class="divide-y divide-[var(--color-border-subtle)]">
+        <% @active_subs.each do |sub| %>
+          <li class="py-3 flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <p class="text-sm font-medium truncate"><%= sub.name %></p>
+              <p class="text-xs text-[var(--color-fg-muted)]"><%= sub.frequency.titleize %> · <%= sub.account.name %><%= " · #{sub.finance_category.name}" if sub.finance_category %></p>
+              <p class="text-xs text-[var(--color-fg-faint)]">Next: <%= sub.next_charge_on&.strftime("%d %b %Y") || "—" %></p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-medium text-[var(--color-expense)]"><%= money_format(sub.amount_cents, currency: sub.account_currency) %></p>
+              <p class="text-xs text-[var(--color-fg-faint)]"><%= money_format(sub.yearly_amount_cents, currency: sub.account_currency) %>/yr</p>
+            </div>
+            <div class="flex flex-col gap-1 text-xs ml-3">
+              <%= link_to "Edit", edit_finance_subscription_path(sub), class: "text-[var(--color-accent-400)]" %>
+              <%= button_to "Del", finance_subscription_path(sub), method: :delete, data: { turbo_confirm: "Delete?" }, class: "text-[var(--color-expense)] cursor-pointer" %>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="text-sm text-[var(--color-fg-muted)]">No active subscriptions.</p>
+    <% end %>
+  </div>
+
+  <% if @inactive_subs.any? %>
+    <div class="card">
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4 text-[var(--color-fg-muted)]">Inactive</h3>
+      <ul class="divide-y divide-[var(--color-border-subtle)]">
+        <% @inactive_subs.each do |sub| %>
+          <li class="py-3 flex items-center justify-between gap-3 opacity-60">
+            <p class="text-sm"><%= sub.name %></p>
+            <p class="text-sm text-[var(--color-fg-muted)]"><%= money_format(sub.amount_cents, currency: sub.account_currency) %></p>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</div>

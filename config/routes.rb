@@ -10,6 +10,18 @@ Rails.application.routes.draw do
   get  "settings/data",           to: "settings#data",                as: :data_settings
   get  "settings/notifications",  to: "settings#notifications",       as: :notifications_settings
 
+  # Finance module
+  namespace :finance do
+    root "dashboard#index"
+    resources :transactions
+    resources :accounts
+    resources :categories
+    resources :subscriptions
+    resource  :transfer, only: [ :new, :create ]
+    get "reports", to: "reports#index", as: :reports
+    get "export.csv", to: "transactions#export", as: :transactions_export
+  end
+
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 

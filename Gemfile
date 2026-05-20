@@ -41,12 +41,14 @@ gem "groupdate"
 # --- Search (Postgres FTS) ---
 gem "pg_search"
 
+# --- Ruby 3.4 prep: csv is being removed from stdlib ---
+gem "csv"
+
 # --- Money & Recurring ---
 gem "money-rails"
 gem "ice_cube"
 
-# --- Pagination ---
-gem "pagy"
+# Pagination handled manually (offset/limit) — keep deps lean.
 
 # --- ActiveStorage variants ---
 gem "image_processing", "~> 1.2"

@@ -4,6 +4,11 @@ class User < ApplicationRecord
 
   has_one_attached :avatar
 
+  has_many :accounts, dependent: :destroy
+  has_many :finance_categories, dependent: :destroy
+  has_many :transactions, dependent: :destroy
+  has_many :subscriptions, dependent: :destroy
+
   THEME_PREFERENCES = %w[dark light system].freeze
   SUPPORTED_LOCALES = %w[tr en].freeze
   WEEKLY_REVIEW_DAYS = (0..6).to_a.freeze # 0 = Sunday, 6 = Saturday

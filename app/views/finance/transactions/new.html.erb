@@ -1,0 +1,12 @@
+<% content_for :page_title, "New transaction" %>
+<% content_for :nav_key, "finance" %>
+
+<div class="max-w-2xl">
+  <div class="mb-6">
+    <h2 class="font-[family-name:var(--font-display)] text-3xl tracking-tight">New transaction</h2>
+    <%= link_to "← Back", finance_transactions_path, class: "text-sm text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)]" %>
+  </div>
+  <div class="card">
+    <%= render "form", transaction: @transaction %>
+  </div>
+</div>

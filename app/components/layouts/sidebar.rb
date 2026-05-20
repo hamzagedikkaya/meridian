@@ -1,13 +1,13 @@
 module Layouts
   class Sidebar < ApplicationComponent
     NAV_ITEMS = [
-      { key: :dashboard, label: "Dashboard", icon: "home",       path: "#" },
-      { key: :finance,   label: "Finance",   icon: "wallet",     path: "#" },
-      { key: :todos,     label: "Todos",     icon: "check",      path: "#" },
-      { key: :habits,    label: "Habits",    icon: "flame",      path: "#" },
-      { key: :calendar,  label: "Calendar",  icon: "calendar",   path: "#" },
-      { key: :journal,   label: "Journal",   icon: "book",       path: "#" },
-      { key: :goals,     label: "Goals",     icon: "target",     path: "#" }
+      { key: :dashboard, label: "Dashboard", icon: "home",     path: "/" },
+      { key: :finance,   label: "Finance",   icon: "wallet",   path: "/finance" },
+      { key: :todos,     label: "Todos",     icon: "check",    path: "#" },
+      { key: :habits,    label: "Habits",    icon: "flame",    path: "#" },
+      { key: :calendar,  label: "Calendar",  icon: "calendar", path: "#" },
+      { key: :journal,   label: "Journal",   icon: "book",     path: "#" },
+      { key: :goals,     label: "Goals",     icon: "target",   path: "#" }
     ].freeze
 
     def initialize(active: nil, collapsed: false)

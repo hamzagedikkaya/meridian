@@ -10,9 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_20_153549) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_20_155253) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "accounts", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.string "account_type", default: "cash", null: false
+    t.string "currency", default: "TRY", null: false
+    t.integer "initial_balance_cents", default: 0, null: false
+    t.string "color", default: "#B8860B"
+    t.string "icon"
+    t.datetime "archived_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "archived_at"], name: "index_accounts_on_user_id_and_archived_at"
+    t.index ["user_id"], name: "index_accounts_on_user_id"
+  end
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -42,6 +57,71 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_153549) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "finance_categories", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.string "color", default: "#A09B8E"
+    t.string "icon"
+    t.string "kind", default: "expense", null: false
+    t.bigint "parent_id"
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["parent_id"], name: "index_finance_categories_on_parent_id"
+    t.index ["user_id", "kind"], name: "index_finance_categories_on_user_id_and_kind"
+    t.index ["user_id", "position"], name: "index_finance_categories_on_user_id_and_position"
+    t.index ["user_id"], name: "index_finance_categories_on_user_id"
+  end
+
+  create_table "subscriptions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "account_id", null: false
+    t.bigint "finance_category_id"
+    t.string "name", null: false
+    t.string "vendor"
+    t.integer "amount_cents", default: 0, null: false
+    t.string "frequency", default: "monthly", null: false
+    t.date "next_charge_on"
+    t.date "start_date"
+    t.date "end_date"
+    t.boolean "active", default: true, null: false
+    t.string "color", default: "#B8860B"
+    t.string "icon"
+    t.text "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_subscriptions_on_account_id"
+    t.index ["finance_category_id"], name: "index_subscriptions_on_finance_category_id"
+    t.index ["user_id", "active", "next_charge_on"], name: "index_subscriptions_on_user_id_and_active_and_next_charge_on"
+    t.index ["user_id"], name: "index_subscriptions_on_user_id"
+  end
+
+  create_table "transactions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "account_id", null: false
+    t.bigint "finance_category_id"
+    t.bigint "related_account_id"
+    t.integer "amount_cents", default: 0, null: false
+    t.string "kind", null: false
+    t.string "description"
+    t.text "note"
+    t.date "date", null: false
+    t.datetime "occurred_at"
+    t.boolean "recurring", default: false, null: false
+    t.text "recurrence_rule"
+    t.bigint "parent_transaction_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "date"], name: "index_transactions_on_account_id_and_date"
+    t.index ["account_id"], name: "index_transactions_on_account_id"
+    t.index ["finance_category_id"], name: "index_transactions_on_finance_category_id"
+    t.index ["parent_transaction_id"], name: "index_transactions_on_parent_transaction_id"
+    t.index ["related_account_id"], name: "index_transactions_on_related_account_id"
+    t.index ["user_id", "date"], name: "index_transactions_on_user_id_and_date"
+    t.index ["user_id", "kind", "date"], name: "index_transactions_on_user_id_and_kind_and_date"
+    t.index ["user_id"], name: "index_transactions_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -60,6 +140,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_20_153549) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "accounts", "users"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "finance_categories", "finance_categories", column: "parent_id"
+  add_foreign_key "finance_categories", "users"
+  add_foreign_key "subscriptions", "accounts"
+  add_foreign_key "subscriptions", "finance_categories"
+  add_foreign_key "subscriptions", "users"
+  add_foreign_key "transactions", "accounts"
+  add_foreign_key "transactions", "accounts", column: "related_account_id"
+  add_foreign_key "transactions", "finance_categories"
+  add_foreign_key "transactions", "transactions", column: "parent_transaction_id"
+  add_foreign_key "transactions", "users"
 end

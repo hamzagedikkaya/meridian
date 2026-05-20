@@ -1,0 +1,41 @@
+<% content_for :page_title, "Categories" %>
+<% content_for :nav_key, "finance" %>
+
+<div class="space-y-6">
+  <div class="flex items-end justify-between gap-3">
+    <div>
+      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Categories</h2>
+      <p class="text-[var(--color-fg-muted)] mt-1">Gelir ve gider kategorileri.</p>
+    </div>
+    <div class="flex gap-2">
+      <%= link_to "+ Income", new_finance_category_path(kind: "income"), class: "px-3 py-2 text-sm border border-[var(--color-income)] text-[var(--color-income)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
+      <%= link_to "+ Expense", new_finance_category_path(kind: "expense"), class: "px-3 py-2 text-sm border border-[var(--color-expense)] text-[var(--color-expense)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <% [ [ "Income", @income_categories, "income" ], [ "Expense", @expense_categories, "expense" ] ].each do |label, cats, kind| %>
+      <div class="card">
+        <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4"><%= label %></h3>
+        <% if cats.any? %>
+          <ul class="space-y-1">
+            <% cats.each do |c| %>
+              <li class="flex items-center justify-between gap-3 px-2 py-1.5 rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: <%= c.color %>;"></span>
+                  <span class="text-sm truncate"><%= c.name %></span>
+                </div>
+                <div class="flex gap-2 text-xs">
+                  <%= link_to "Edit", edit_finance_category_path(c), class: "text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
+                  <%= button_to "×", finance_category_path(c), method: :delete, data: { turbo_confirm: "Delete category? Transactions remain but lose this category." }, class: "text-[var(--color-expense)] hover:text-[var(--color-fg-primary)] cursor-pointer" %>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="text-sm text-[var(--color-fg-muted)]">No <%= kind %> categories yet.</p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
