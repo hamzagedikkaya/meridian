@@ -1,0 +1,29 @@
+<% content_for :page_title, "Settings" %>
+
+<div class="max-w-3xl">
+  <div class="mb-6">
+    <h1 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Settings</h1>
+    <p class="mt-1 text-[var(--color-fg-muted)]">Manage your account and preferences.</p>
+  </div>
+
+  <%= render "tabs" %>
+
+  <div class="card">
+    <h2 class="font-[family-name:var(--font-display)] text-2xl tracking-tight mb-2">Data</h2>
+    <p class="text-sm text-[var(--color-fg-muted)] mb-6">Backup, restore, and export your Meridian data.</p>
+
+    <div class="space-y-4">
+      <div class="p-5 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-base)]">
+        <p class="text-sm font-medium text-[var(--color-fg-primary)] mb-1">Backup & Restore</p>
+        <p class="text-sm text-[var(--color-fg-muted)] mb-3">pg_dump + ActiveStorage tar.gz arşivleri ile veri taşıma.</p>
+        <span class="pill">Aşama 7'de aktif olacak</span>
+      </div>
+
+      <div class="p-5 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-base)]">
+        <p class="text-sm font-medium text-[var(--color-fg-primary)] mb-1">CSV export</p>
+        <p class="text-sm text-[var(--color-fg-muted)] mb-3">Modül bazlı CSV dışa aktarım.</p>
+        <span class="pill">Aşama 2 (Finance) ile gelecek</span>
+      </div>
+    </div>
+  </div>
+</div>

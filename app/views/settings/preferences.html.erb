@@ -1,0 +1,78 @@
+<% content_for :page_title, "Settings" %>
+
+<%
+  input_class = "w-full px-3.5 py-2.5 bg-[var(--color-bg-base)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] text-[var(--color-fg-primary)] focus:outline-none focus:border-[var(--color-accent-500)] transition-colors"
+  label_class = "block text-sm font-medium text-[var(--color-fg-muted)] mb-1.5"
+  hint_class  = "mt-1 text-xs text-[var(--color-fg-faint)]"
+
+  weekly_days = [
+    [ "Sunday",    0 ], [ "Monday",  1 ], [ "Tuesday",  2 ], [ "Wednesday", 3 ],
+    [ "Thursday",  4 ], [ "Friday",  5 ], [ "Saturday", 6 ]
+  ]
+%>
+
+<div class="max-w-3xl">
+  <div class="mb-6">
+    <h1 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Settings</h1>
+    <p class="mt-1 text-[var(--color-fg-muted)]">Manage your account and preferences.</p>
+  </div>
+
+  <%= render "tabs" %>
+
+  <div class="card">
+    <h2 class="font-[family-name:var(--font-display)] text-2xl tracking-tight mb-2">Preferences</h2>
+    <p class="text-sm text-[var(--color-fg-muted)] mb-6">Locale, currency, timezone, and theme.</p>
+
+    <%= form_with model: current_user, url: preferences_settings_path, method: :patch, html: { class: "space-y-6" } do |f| %>
+      <% if current_user.errors.any? %>
+        <div class="px-4 py-3 rounded-[var(--radius-md)] border border-[var(--color-danger)] bg-[var(--color-bg-overlay)] text-sm">
+          <ul class="space-y-1 text-[var(--color-fg-muted)]">
+            <% current_user.errors.full_messages.each do |msg| %>
+              <li>• <%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="grid md:grid-cols-2 gap-5">
+        <div>
+          <%= f.label :timezone, class: label_class %>
+          <%= f.time_zone_select :timezone, ActiveSupport::TimeZone.all, {}, class: input_class %>
+          <p class="<%= hint_class %>">Affects how dates and times are displayed.</p>
+        </div>
+
+        <div>
+          <%= f.label :currency, "Currency code", class: label_class %>
+          <%= f.text_field :currency, maxlength: 3,
+              class: input_class + " uppercase font-mono",
+              style: "text-transform: uppercase;" %>
+          <p class="<%= hint_class %>">ISO 4217 — örn. TRY, USD, EUR.</p>
+        </div>
+
+        <div>
+          <%= f.label :locale, class: label_class %>
+          <%= f.select :locale, [ [ "Türkçe", "tr" ], [ "English", "en" ] ], {}, class: input_class %>
+        </div>
+
+        <div>
+          <%= f.label :theme_preference, "Theme", class: label_class %>
+          <%= f.select :theme_preference,
+              [ [ "Dark (default)", "dark" ], [ "Light", "light" ], [ "Follow system", "system" ] ],
+              {},
+              class: input_class %>
+        </div>
+
+        <div class="md:col-span-2">
+          <%= f.label :weekly_review_day, "Weekly review day", class: label_class %>
+          <%= f.select :weekly_review_day, weekly_days, {}, class: input_class %>
+          <p class="<%= hint_class %>">Pazar günü hatırlatması için kullanılacak (Aşama 8.5).</p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end pt-4 border-t border-[var(--color-border-subtle)]">
+        <%= f.submit "Save preferences",
+            class: "px-4 py-2 bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] transition-colors cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>" class="dark">
+  <head>
+    <title><%= content_for(:title) || "Meridian" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#0A0908">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..900,0..100&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="min-h-screen bg-[var(--color-bg-base)] text-[var(--color-fg-primary)] font-[family-name:var(--font-sans)]">
+    <div class="min-h-screen grid lg:grid-cols-2">
+      <%# Brand side — editorial %>
+      <aside class="hidden lg:flex flex-col justify-between p-12 bg-[var(--color-bg-elevated)] border-r border-[var(--color-border-subtle)]">
+        <div class="flex items-center gap-2">
+          <span class="text-[var(--color-accent-500)] text-2xl">◐</span>
+          <span class="font-[family-name:var(--font-display)] text-2xl tracking-tight">Meridian</span>
+        </div>
+
+        <div class="max-w-md">
+          <p class="font-[family-name:var(--font-display)] text-5xl leading-[1.05] tracking-tight">
+            Your life,<br>
+            <span class="text-[var(--color-accent-500)] italic">beautifully</span> organized.
+          </p>
+          <p class="mt-6 text-[var(--color-fg-muted)] text-lg leading-relaxed">
+            Gelir-gider, alışkanlık, görev, takvim, günlük ve hedeflerin için tek bir lokal yaşam OS'u.
+          </p>
+        </div>
+
+        <p class="text-sm text-[var(--color-fg-faint)]">
+          Local-first · Your data stays with you
+        </p>
+      </aside>
+
+      <%# Form side %>
+      <main class="flex items-center justify-center p-6 md:p-12">
+        <div class="w-full max-w-md">
+          <%= render "shared/flash" %>
+          <%= yield %>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

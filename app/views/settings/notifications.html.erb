@@ -1,0 +1,19 @@
+<% content_for :page_title, "Settings" %>
+
+<div class="max-w-3xl">
+  <div class="mb-6">
+    <h1 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Settings</h1>
+    <p class="mt-1 text-[var(--color-fg-muted)]">Manage your account and preferences.</p>
+  </div>
+
+  <%= render "tabs" %>
+
+  <div class="card">
+    <h2 class="font-[family-name:var(--font-display)] text-2xl tracking-tight mb-2">Notifications</h2>
+    <p class="text-sm text-[var(--color-fg-muted)] mb-6">Tarayıcı bildirim tercihleri (Focus timer, weekly review, backup reminder).</p>
+
+    <div class="p-5 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-base)]">
+      <span class="pill">Aşama 8.5'te aktif olacak</span>
+    </div>
+  </div>
+</div>
