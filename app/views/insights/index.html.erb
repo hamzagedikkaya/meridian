@@ -1,0 +1,106 @@
+<% content_for :page_title, "Insights" %>
+
+<div class="space-y-6">
+  <div class="flex items-end justify-between">
+    <div>
+      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Insights</h2>
+      <p class="text-[var(--color-fg-muted)] mt-1">Son <%= @range_days %> günün cross-module analizi.</p>
+    </div>
+    <div class="flex gap-1 text-sm">
+      <% [ 7, 30, 90 ].each do |d| %>
+        <%= link_to "#{d}d", insights_path(days: d), class: "px-3 py-1.5 border #{@range_days == d ? 'border-[var(--color-accent-500)] text-[var(--color-fg-primary)]' : 'border-[var(--color-border-default)] text-[var(--color-fg-muted)]'} rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Spending weekend vs weekday %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="card">
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-3">Spending: weekend vs weekday</h3>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <p class="text-xs text-[var(--color-fg-muted)]">Weekday avg</p>
+          <p class="stat-number !text-2xl mt-1"><%= money_format(@weekday_avg, currency: current_user.currency) %></p>
+        </div>
+        <div>
+          <p class="text-xs text-[var(--color-fg-muted)]">Weekend avg</p>
+          <p class="stat-number !text-2xl mt-1"><%= money_format(@weekend_avg, currency: current_user.currency) %></p>
+        </div>
+      </div>
+      <% if @weekend_avg > 0 && @weekday_avg > 0 %>
+        <% diff = ((@weekend_avg - @weekday_avg).to_f / @weekday_avg * 100).round %>
+        <p class="text-sm text-[var(--color-fg-muted)] mt-3">
+          Hafta sonu <strong class="text-[var(--color-fg-primary)]"><%= diff.abs %>%</strong> <%= diff.positive? ? "daha fazla" : "daha az" %> harcıyorsun.
+        </p>
+      <% end %>
+    </div>
+
+    <%# Habit streak distribution %>
+    <div class="card">
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-3">Current habit streaks</h3>
+      <% if @habit_streaks.any? %>
+        <ul class="space-y-2">
+          <% @habit_streaks.first(6).each do |name, streak| %>
+            <li class="flex items-center justify-between text-sm">
+              <span class="truncate"><%= name %></span>
+              <span class="text-[var(--color-fg-muted)]">🔥 <%= streak %>d</span>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-sm text-[var(--color-fg-muted)]">No habits yet.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Mood × habit completion %>
+  <% if @mood_completion.any? %>
+    <div class="card">
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-3">Mood × habit completion</h3>
+      <p class="text-sm text-[var(--color-fg-muted)] mb-4">Hangi mood gününde habit'lerin daha yüksek tamamlanıyor.</p>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <% @mood_completion.each do |row| %>
+          <div class="p-4 rounded-[var(--radius-md)] bg-[var(--color-bg-base)] border border-[var(--color-border-subtle)] text-center">
+            <p class="text-2xl"><%= row[:emoji] %></p>
+            <p class="text-2xl font-medium mt-1"><%= row[:rate] %>%</p>
+            <p class="text-xs text-[var(--color-fg-muted)] mt-1"><%= row[:days] %> gün</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Focus by day of week %>
+  <% if @focus_by_dow.any? && @focus_by_dow.values.sum > 0 %>
+    <div class="card">
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-3">Focus minutes by weekday</h3>
+      <%= column_chart @focus_by_dow, colors: [ "#B8860B" ], height: "200px", library: { plugins: { legend: { display: false } }, scales: { x: { ticks: { color: "#A09B8E" }, grid: { display: false } }, y: { ticks: { color: "#A09B8E" }, grid: { color: "rgba(245,241,232,0.06)" } } } } %>
+    </div>
+  <% end %>
+
+  <%# Top spending %>
+  <% if @top_categories.any? %>
+    <div class="card">
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4">Top expense categories</h3>
+      <ul class="space-y-2">
+        <% @top_categories.each do |name, cents| %>
+          <li class="flex items-center justify-between text-sm">
+            <span><%= name %></span>
+            <span class="font-medium"><%= money_format(cents, currency: current_user.currency) %></span>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%# Todo trend %>
+  <% if @todo_weekly.any? %>
+    <div class="card">
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4">Todos weekly</h3>
+      <%= column_chart [
+        { name: "Created",   data: @todo_weekly.map { |w| [ w[:week], w[:created] ] }.to_h },
+        { name: "Completed", data: @todo_weekly.map { |w| [ w[:week], w[:completed] ] }.to_h }
+      ], colors: [ "#A09B8E", "#6B8E5A" ], height: "240px", library: { plugins: { legend: { labels: { color: "#A09B8E" } } }, scales: { x: { ticks: { color: "#A09B8E" }, grid: { display: false } }, y: { ticks: { color: "#A09B8E" }, grid: { color: "rgba(245,241,232,0.06)" } } } } %>
+    </div>
+  <% end %>
+</div>

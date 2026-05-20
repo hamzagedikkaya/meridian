@@ -94,6 +94,32 @@
     outline-offset: 2px;
     border-radius: var(--radius-sm);
   }
+
+  /* Smooth page transitions where the browser supports it */
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+/* ==========================================================================
+   LIGHT MODE
+   .light prefix activated by the theme Stimulus controller
+   ========================================================================== */
+
+html.light {
+  --color-bg-base: #FAF7EE;
+  --color-bg-elevated: #FFFFFF;
+  --color-bg-overlay: #F2EFE5;
+  --color-bg-hover: #F5F1E8;
+
+  --color-fg-primary: #1A1817;
+  --color-fg-muted: #5E574D;
+  --color-fg-faint: #A09B8E;
+  --color-fg-inverse: #F5F1E8;
+
+  --color-border-subtle: rgba(10, 9, 8, 0.08);
+  --color-border-default: rgba(10, 9, 8, 0.14);
+  --color-border-strong: rgba(10, 9, 8, 0.22);
 }
 
 /* ==========================================================================

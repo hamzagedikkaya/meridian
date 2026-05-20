@@ -68,6 +68,9 @@ Rails.application.routes.draw do
   # Focus sessions
   resources :focus_sessions, only: [ :create, :update ]
 
+  # Insights
+  get "insights", to: "insights#index", as: :insights
+
   # Search
   get "search", to: "search#index", defaults: { format: :json }, as: :search
 
