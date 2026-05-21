@@ -14,9 +14,15 @@ class PagesController < ApplicationController
     @active_goals      = current_user.goals.active.ordered.limit(3)
     @today_journal     = current_user.journal_entries.find_by(date: today)
 
-    @spending_series = current_user.transactions.expense
-                                    .where(date: 6.days.ago.to_date..today)
-                                    .group(:date).sum(:amount_cents)
+    # Build a 7-day spending series with string-keyed labels so Chart.js
+    # uses a category axis (no date-adapter dependency required).
+    spending_by_date = current_user.transactions.expense
+                                   .where(date: 6.days.ago.to_date..today)
+                                   .group(:date).sum(:amount_cents)
+    @spending_series = (0..6).each_with_object({}) do |offset, h|
+      d = 6.days.ago.to_date + offset.days
+      h[I18n.l(d, format: "%d %b")] = spending_by_date[d] || 0
+    end
 
     week_start = today.beginning_of_week
     @habit_completion_pct = if current_user.habits.active.any?

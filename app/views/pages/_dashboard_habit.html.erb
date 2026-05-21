@@ -1,0 +1,21 @@
+<%# Single habit row used inside the dashboard "Habits today" widget.
+    The <li> is the direct child of the parent <ul> so space-y-* on the
+    list spaces these rows correctly. The turbo-frame inside isolates the
+    swap target — toggling the checkbox redirects back to the dashboard,
+    Turbo extracts this frame and replaces it in place. %>
+<li>
+  <turbo-frame id="<%= dom_id(habit, :dashboard) %>">
+    <% done = habit.completed_on?(Date.current) %>
+    <div class="flex items-center gap-3">
+      <%= button_to toggle_today_habit_path(habit), method: :patch,
+          form: { class: "flex-shrink-0" },
+          class: "w-5 h-5 rounded border-2 #{done ? 'bg-[var(--color-accent-500)] border-[var(--color-accent-500)] text-[var(--color-bg-base)]' : 'border-[var(--color-border-default)] hover:border-[var(--color-accent-500)]'} flex items-center justify-center cursor-pointer" do %>
+        <% if done %>
+          <%= render Ui::Icon.new(name: "check", size: 11) %>
+        <% end %>
+      <% end %>
+      <span class="text-sm <%= 'text-[var(--color-fg-muted)] line-through' if done %>"><%= habit.name %></span>
+      <span class="ml-auto text-xs text-[var(--color-fg-faint)]"><%= habit.current_streak %><%= t("habits.day_short") %></span>
+    </div>
+  </turbo-frame>
+</li>

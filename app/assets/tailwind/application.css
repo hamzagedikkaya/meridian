@@ -160,3 +160,139 @@ html.light {
     color: var(--color-fg-muted);
   }
 }
+
+/* ==========================================================================
+   SIDEBAR COLLAPSE
+   When the sidebar wrapper has .sidebar-collapsed, every .sidebar-label
+   inside it is hidden — icon-only rail. The Stimulus controller toggles
+   the class; CSS does the rest so labels disappear without re-rendering.
+   ========================================================================== */
+
+.sidebar.sidebar-collapsed .sidebar-label {
+  display: none;
+}
+
+/* ==========================================================================
+   TRIX RICH-TEXT EDITOR
+   The default Trix toolbar icons are dark-colored — invisible on our dark
+   background. Recolor the toolbar surface, buttons, and icons for dark
+   mode (default) and let light mode use Trix's stock styling.
+   ========================================================================== */
+
+trix-toolbar {
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-border-default);
+  border-bottom: none;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  padding: 0.25rem 0.375rem;
+}
+
+trix-toolbar .trix-button-row {
+  flex-wrap: nowrap;
+  gap: 3px;
+  overflow-x: auto;
+}
+
+trix-toolbar .trix-button-group {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xs);
+  margin: 0;
+  flex-shrink: 0;
+}
+
+trix-toolbar .trix-button {
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--color-border-subtle);
+  color: var(--color-fg-primary);
+  height: 1.4em;
+  min-width: 1.4em;
+  padding: 0 0.2em;
+  font-size: 0.8em;
+}
+
+trix-toolbar .trix-button:last-child {
+  border-right: none;
+}
+
+trix-toolbar .trix-button:not(:disabled):hover {
+  background: var(--color-bg-overlay);
+  color: var(--color-accent-400);
+}
+
+trix-toolbar .trix-button.trix-active {
+  background: var(--color-bg-overlay);
+  color: var(--color-accent-500);
+}
+
+trix-toolbar .trix-button:disabled {
+  opacity: 0.35;
+}
+
+/* Trix icons are SVGs embedded via `background-image` in `::before`.
+   They ship dark-on-light; invert + lighten so they read on our palette. */
+html.dark trix-toolbar .trix-button::before {
+  filter: invert(0.92) brightness(1.1);
+}
+
+trix-editor {
+  background: var(--color-bg-base);
+  color: var(--color-fg-primary);
+  border: 1px solid var(--color-border-default);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  padding: 0.75rem;
+  min-height: 8rem;
+  font-family: var(--font-sans);
+}
+
+trix-editor:focus {
+  outline: none;
+  border-color: var(--color-accent-500);
+}
+
+trix-editor h1, trix-editor h2, trix-editor h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+trix-editor a {
+  color: var(--color-accent-400);
+  text-decoration: underline;
+}
+
+trix-editor blockquote {
+  border-left: 2px solid var(--color-border-default);
+  padding-left: 1rem;
+  color: var(--color-fg-muted);
+}
+
+trix-editor pre {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  padding: 0.75rem;
+  font-family: var(--font-mono);
+}
+
+/* Dialog (link prompt) palette */
+trix-toolbar .trix-dialog {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  color: var(--color-fg-primary);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+trix-toolbar .trix-dialog input.trix-input--dialog {
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-border-default);
+  color: var(--color-fg-primary);
+  border-radius: var(--radius-xs);
+}
+
+trix-toolbar .trix-dialog .trix-button {
+  background: var(--color-bg-overlay);
+  border: 1px solid var(--color-border-default);
+  color: var(--color-fg-primary);
+}

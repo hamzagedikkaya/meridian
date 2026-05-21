@@ -1,15 +1,17 @@
 <aside
-  class="hidden md:flex md:flex-col bg-[var(--color-bg-elevated)] border-r border-[var(--color-border-subtle)] <%= collapsed ? 'w-16' : 'w-60' %> transition-all duration-200"
+  class="hidden md:flex md:flex-col bg-[var(--color-bg-elevated)] border-r border-[var(--color-border-subtle)] <%= collapsed ? 'sidebar-collapsed w-16' : 'w-60' %> transition-all duration-200 sidebar overflow-hidden"
   data-controller="sidebar"
-  data-sidebar-collapsed-value="<%= collapsed %>"
 >
   <%# Brand %>
   <div class="px-5 py-6 border-b border-[var(--color-border-subtle)]">
-    <a href="/" class="flex items-center gap-2">
-      <span class="text-[var(--color-accent-500)] text-xl">◐</span>
-      <% unless collapsed %>
-        <span class="font-[family-name:var(--font-display)] text-xl tracking-tight text-[var(--color-fg-primary)]">Meridian</span>
-      <% end %>
+    <a href="/" class="flex items-center gap-2.5">
+      <svg viewBox="0 0 64 64" class="w-7 h-7 flex-shrink-0" fill="none" aria-hidden="true">
+        <circle cx="32" cy="32" r="27" fill="var(--color-bg-base)" stroke="var(--color-accent-500)" stroke-width="3"/>
+        <line x1="5" y1="32" x2="59" y2="32" stroke="var(--color-accent-500)" stroke-width="2.5" stroke-linecap="round"/>
+        <ellipse cx="32" cy="32" rx="13" ry="27" stroke="var(--color-accent-500)" stroke-width="2.5"/>
+        <line x1="32" y1="5" x2="32" y2="59" stroke="var(--color-accent-500)" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <span class="sidebar-label font-[family-name:var(--font-display)] text-xl tracking-tight text-[var(--color-fg-primary)]">Meridian</span>
     </a>
   </div>
 
@@ -20,13 +22,12 @@
         href="<%= item[:path] %>"
         class="flex items-center gap-3 px-3 py-2 rounded-[var(--radius-sm)] text-sm transition-colors <%= active?(item[:key]) ? 'bg-[var(--color-bg-overlay)] text-[var(--color-fg-primary)]' : 'text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)] hover:bg-[var(--color-bg-hover)]' %>"
         data-nav-key="<%= item[:key] %>"
+        title="<%= t(item[:label_key]) %>"
       >
-        <span class="w-5 h-5 flex items-center justify-center text-[var(--color-fg-muted)]">
+        <span class="w-5 h-5 flex items-center justify-center text-[var(--color-fg-muted)] flex-shrink-0">
           <%= render Ui::Icon.new(name: item[:icon], size: 18) %>
         </span>
-        <% unless collapsed %>
-          <span><%= t(item[:label_key]) %></span>
-        <% end %>
+        <span class="sidebar-label whitespace-nowrap"><%= t(item[:label_key]) %></span>
       </a>
     <% end %>
   </nav>
@@ -37,11 +38,10 @@
       type="button"
       class="flex items-center gap-3 px-3 py-2 rounded-[var(--radius-sm)] text-sm text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)] hover:bg-[var(--color-bg-hover)] w-full transition-colors"
       data-action="click->sidebar#toggle"
+      title="<%= t("nav.collapse") %>"
     >
-      <span class="w-5 h-5 flex items-center justify-center">⇔</span>
-      <% unless collapsed %>
-        <span>Collapse</span>
-      <% end %>
+      <span class="w-5 h-5 flex items-center justify-center flex-shrink-0">⇔</span>
+      <span class="sidebar-label whitespace-nowrap"><%= t("nav.collapse") %></span>
     </button>
   </div>
 </aside>

@@ -19,23 +19,25 @@
     <div class="min-h-screen grid lg:grid-cols-2">
       <%# Brand side — editorial %>
       <aside class="hidden lg:flex flex-col justify-between p-12 bg-[var(--color-bg-elevated)] border-r border-[var(--color-border-subtle)]">
-        <div class="flex items-center gap-2">
-          <span class="text-[var(--color-accent-500)] text-2xl">◐</span>
+        <div class="flex items-center gap-2.5">
+          <svg viewBox="0 0 64 64" class="w-8 h-8" fill="none" aria-hidden="true">
+            <circle cx="32" cy="32" r="27" fill="var(--color-bg-base)" stroke="var(--color-accent-500)" stroke-width="3"/>
+            <line x1="5" y1="32" x2="59" y2="32" stroke="var(--color-accent-500)" stroke-width="2.5" stroke-linecap="round"/>
+            <ellipse cx="32" cy="32" rx="13" ry="27" stroke="var(--color-accent-500)" stroke-width="2.5"/>
+            <line x1="32" y1="5" x2="32" y2="59" stroke="var(--color-accent-500)" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
           <span class="font-[family-name:var(--font-display)] text-2xl tracking-tight">Meridian</span>
         </div>
 
         <div class="max-w-md">
-          <p class="font-[family-name:var(--font-display)] text-5xl leading-[1.05] tracking-tight">
-            Your life,<br>
-            <span class="text-[var(--color-accent-500)] italic">beautifully</span> organized.
-          </p>
+          <p class="font-[family-name:var(--font-display)] text-5xl leading-[1.05] tracking-tight"><%= t("meridian.hero_html") %></p>
           <p class="mt-6 text-[var(--color-fg-muted)] text-lg leading-relaxed">
-            One local life OS for your finances, habits, todos, calendar, journal, and goals.
+            <%= t("meridian.brand_caption") %>
           </p>
         </div>
 
         <p class="text-sm text-[var(--color-fg-faint)]">
-          Local-first · Your data stays with you
+          <%= t("meridian.brand_footer") %>
         </p>
       </aside>
 

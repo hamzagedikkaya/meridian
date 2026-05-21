@@ -1,69 +1,68 @@
-<% content_for :page_title, "Dashboard" %>
+<% content_for :page_title, t("nav.dashboard") %>
 <% content_for :nav_key, "dashboard" %>
 
+<%
+  greeting = case Time.current.hour
+             when 0..11  then t("pages.home.greeting_morning")
+             when 12..17 then t("pages.home.greeting_afternoon")
+             else             t("pages.home.greeting_evening")
+             end
+%>
+
 <div class="space-y-6">
-  <%# Hero %>
   <div>
     <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">
-      <%= [ "Good morning", "Good afternoon", "Good evening" ].at(Time.current.hour / 8) %>, <%= current_user.display_name %>.
+      <%= greeting %>, <%= current_user.display_name %>.
     </h2>
-    <p class="text-[var(--color-fg-muted)] mt-1"><%= Date.current.strftime("%A, %d %B %Y") %></p>
+    <p class="text-[var(--color-fg-muted)] mt-1"><%= l(Date.current, format: "%A, %d %B %Y") %></p>
   </div>
 
-  <%# Hero stat row %>
   <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
     <div class="card">
-      <p class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider">Bu ay net</p>
+      <p class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider"><%= t("pages.home.net_this_month") %></p>
       <p class="stat-number mt-2 !text-2xl <%= @month_net_cents >= 0 ? 'text-[var(--color-income)]' : 'text-[var(--color-expense)]' %>"><%= money_format(@month_net_cents, currency: @currency) %></p>
     </div>
     <div class="card">
-      <p class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider">Active streaks</p>
-      <p class="stat-number mt-2 !text-2xl">🔥 <%= @active_streaks %></p>
+      <p class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider"><%= t("pages.home.active_streaks") %></p>
+      <p class="stat-number mt-2 !text-2xl flex items-center gap-2">
+        <span class="text-[var(--color-warning)]"><%= render Ui::Icon.new(name: "flame", size: 22) %></span>
+        <%= @active_streaks %>
+      </p>
     </div>
     <div class="card">
-      <p class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider">Open todos</p>
+      <p class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider"><%= t("pages.home.open_todos") %></p>
       <p class="stat-number mt-2 !text-2xl"><%= @open_todos %></p>
     </div>
     <div class="card">
-      <p class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider">Today's events</p>
+      <p class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider"><%= t("pages.home.todays_events") %></p>
       <p class="stat-number mt-2 !text-2xl"><%= @today_events %></p>
     </div>
   </div>
 
-  <%# Bento grid %>
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-    <%# Today's habits %>
     <div class="card lg:row-span-2">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight">Habits today</h3>
-        <%= link_to "All →", habits_path, class: "text-xs text-[var(--color-accent-400)]" %>
+        <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight"><%= t("pages.home.habits_today") %></h3>
+        <%= link_to t("common.all") + " →", habits_path, class: "text-xs text-[var(--color-accent-400)]" %>
       </div>
       <% if @today_habits.any? %>
-        <ul class="space-y-3">
+        <ul class="space-y-3.5">
           <% @today_habits.each do |habit| %>
-            <% done = habit.completed_on?(Date.current) %>
-            <li class="flex items-center gap-3">
-              <%= button_to toggle_today_habit_path(habit), method: :patch, form: { class: "flex-shrink-0" }, class: "w-5 h-5 rounded border-2 #{done ? 'bg-[var(--color-accent-500)] border-[var(--color-accent-500)] text-[var(--color-bg-base)]' : 'border-[var(--color-border-default)] hover:border-[var(--color-accent-500)]'} flex items-center justify-center cursor-pointer" do %>
-                <% if done %><span class="text-xs leading-none">✓</span><% end %>
-              <% end %>
-              <span class="text-sm <%= 'text-[var(--color-fg-muted)] line-through' if done %>"><%= habit.name %></span>
-              <span class="ml-auto text-xs text-[var(--color-fg-faint)]"><%= habit.current_streak %>d</span>
-            </li>
+            <%= render "pages/dashboard_habit", habit: habit %>
           <% end %>
         </ul>
         <div class="mt-4 pt-3 border-t border-[var(--color-border-subtle)] text-xs text-[var(--color-fg-muted)]">
-          Weekly completion: <strong class="text-[var(--color-fg-primary)]"><%= @habit_completion_pct %>%</strong>
+          <%= t("pages.home.weekly_completion") %>: <strong class="text-[var(--color-fg-primary)]"><%= @habit_completion_pct %>%</strong>
         </div>
       <% else %>
-        <p class="text-sm text-[var(--color-fg-muted)]">No habits yet. <%= link_to "Add one", new_habit_path, class: "text-[var(--color-accent-400)]" %>.</p>
+        <p class="text-sm text-[var(--color-fg-muted)]"><%= t("pages.home.no_habits") %> <%= link_to t("pages.home.add_one"), new_habit_path, class: "text-[var(--color-accent-400)]" %>.</p>
       <% end %>
     </div>
 
-    <%# Upcoming todos %>
     <div class="card">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight">Upcoming todos</h3>
-        <%= link_to "All →", todos_path, class: "text-xs text-[var(--color-accent-400)]" %>
+        <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight"><%= t("pages.home.upcoming_todos") %></h3>
+        <%= link_to t("common.all") + " →", todos_path, class: "text-xs text-[var(--color-accent-400)]" %>
       </div>
       <% if @upcoming_todos.any? %>
         <ul class="space-y-2">
@@ -71,21 +70,20 @@
             <li class="flex items-center gap-2 text-sm">
               <%= link_to t.title, edit_todo_path(t), class: "truncate hover:text-[var(--color-accent-400)]" %>
               <% if t.due_at %>
-                <span class="ml-auto text-xs <%= t.overdue? ? 'text-[var(--color-expense)]' : 'text-[var(--color-fg-faint)]' %>"><%= t.due_at.strftime("%d %b") %></span>
+                <span class="ml-auto text-xs <%= t.overdue? ? 'text-[var(--color-expense)]' : 'text-[var(--color-fg-faint)]' %>"><%= l(t.due_at.to_date, format: "%d %b") %></span>
               <% end %>
             </li>
           <% end %>
         </ul>
       <% else %>
-        <p class="text-sm text-[var(--color-fg-muted)]">All clear.</p>
+        <p class="text-sm text-[var(--color-fg-muted)]"><%= t("pages.home.all_clear") %></p>
       <% end %>
     </div>
 
-    <%# Today's events %>
     <div class="card">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight">Today</h3>
-        <%= link_to "Calendar →", calendar_path, class: "text-xs text-[var(--color-accent-400)]" %>
+        <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight"><%= t("pages.home.today") %></h3>
+        <%= link_to t("nav.calendar") + " →", calendar_path, class: "text-xs text-[var(--color-accent-400)]" %>
       </div>
       <% if @today_events_list.any? %>
         <ul class="space-y-2">
@@ -98,28 +96,26 @@
           <% end %>
         </ul>
       <% else %>
-        <p class="text-sm text-[var(--color-fg-muted)]">No events today.</p>
+        <p class="text-sm text-[var(--color-fg-muted)]"><%= t("pages.home.no_events_today") %></p>
       <% end %>
     </div>
 
-    <%# Finance sparkline %>
     <div class="card">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight">Last 7 days spend</h3>
-        <%= link_to "Finance →", finance_root_path, class: "text-xs text-[var(--color-accent-400)]" %>
+        <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight"><%= t("pages.home.last_7d_spend") %></h3>
+        <%= link_to t("nav.finance") + " →", finance_root_path, class: "text-xs text-[var(--color-accent-400)]" %>
       </div>
       <% if @spending_series.any? %>
         <%= line_chart @spending_series.transform_values { |v| v / 100.0 }, colors: [ "#B85450" ], height: "140px", library: { plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } } %>
       <% else %>
-        <p class="text-sm text-[var(--color-fg-muted)]">No spending this week.</p>
+        <p class="text-sm text-[var(--color-fg-muted)]"><%= t("pages.home.no_spending") %></p>
       <% end %>
     </div>
 
-    <%# Goals %>
     <div class="card">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight">Goals</h3>
-        <%= link_to "All →", goals_path, class: "text-xs text-[var(--color-accent-400)]" %>
+        <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight"><%= t("pages.home.goals") %></h3>
+        <%= link_to t("common.all") + " →", goals_path, class: "text-xs text-[var(--color-accent-400)]" %>
       </div>
       <% if @active_goals.any? %>
         <ul class="space-y-3">
@@ -133,25 +129,24 @@
           <% end %>
         </ul>
       <% else %>
-        <p class="text-sm text-[var(--color-fg-muted)]"><%= link_to "Set a goal →", new_goal_path, class: "text-[var(--color-accent-400)]" %></p>
+        <p class="text-sm text-[var(--color-fg-muted)]"><%= link_to t("pages.home.set_goal"), new_goal_path, class: "text-[var(--color-accent-400)]" %></p>
       <% end %>
     </div>
 
-    <%# Journal CTA %>
     <div class="card">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight">Journal</h3>
-        <%= link_to "All →", journal_entries_path, class: "text-xs text-[var(--color-accent-400)]" %>
+        <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight"><%= t("pages.home.journal") %></h3>
+        <%= link_to t("common.all") + " →", journal_entries_path, class: "text-xs text-[var(--color-accent-400)]" %>
       </div>
       <% if @today_journal %>
         <%= link_to journal_entry_path(@today_journal), class: "block hover:opacity-80" do %>
           <div class="flex items-center gap-2">
             <% if @today_journal.mood %><span class="text-2xl"><%= @today_journal.mood_emoji %></span><% end %>
-            <p class="text-sm"><%= @today_journal.title.presence || "Today's entry" %></p>
+            <p class="text-sm"><%= @today_journal.title.presence || t("pages.home.todays_entry") %></p>
           </div>
         <% end %>
       <% else %>
-        <%= link_to "Write today's entry →", new_journal_entry_path, class: "text-sm text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
+        <%= link_to t("pages.home.write_todays_entry"), new_journal_entry_path, class: "text-sm text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
       <% end %>
     </div>
   </div>
