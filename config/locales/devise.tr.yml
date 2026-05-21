@@ -1,0 +1,63 @@
+tr:
+  devise:
+    confirmations:
+      confirmed: "Hesabın başarıyla onaylandı."
+      send_instructions: "Hesap onay talimatlarını birkaç dakika içinde e-posta ile alacaksın."
+      send_paranoid_instructions: "E-posta adresin sistemimizde varsa, onay talimatları gönderilecek."
+    failure:
+      already_authenticated: "Zaten giriş yaptın."
+      inactive: "Hesabın henüz aktive edilmedi."
+      invalid: "Geçersiz %{authentication_keys} veya şifre."
+      locked: "Hesabın kilitlendi."
+      last_attempt: "Hesabın kilitlenmeden önce bir deneme hakkın daha var."
+      not_found_in_database: "Geçersiz %{authentication_keys} veya şifre."
+      timeout: "Oturumun sona erdi. Devam etmek için lütfen tekrar giriş yap."
+      unauthenticated: "Devam etmek için giriş yapman gerekiyor."
+      unconfirmed: "Devam etmek için hesabını onaylaman gerekiyor."
+    mailer:
+      confirmation_instructions:
+        subject: "Onay talimatları"
+      reset_password_instructions:
+        subject: "Şifre sıfırlama talimatları"
+      unlock_instructions:
+        subject: "Kilit açma talimatları"
+      email_changed:
+        subject: "E-posta değişti"
+      password_change:
+        subject: "Şifre değişti"
+    omniauth_callbacks:
+      failure: "%{kind} hesabından doğrulanamadın çünkü '%{reason}'."
+      success: "%{kind} hesabından başarıyla doğrulandın."
+    passwords:
+      no_token: "Bu sayfaya doğrudan erişemezsin. Şifre sıfırlama e-postasındaki bağlantıdan gelmen gerekiyor."
+      send_instructions: "Şifreni sıfırlama talimatlarını birkaç dakika içinde alacaksın."
+      send_paranoid_instructions: "E-posta adresin sistemimizde varsa, şifreni sıfırlama bağlantısı gönderilecek."
+      updated: "Şifren başarıyla değiştirildi. Şimdi giriş yaptın."
+      updated_not_active: "Şifren başarıyla değiştirildi."
+    registrations:
+      destroyed: "Hoşçakal! Hesabın başarıyla iptal edildi. Yakında görüşürüz!"
+      signed_up: "Hoş geldin! Başarıyla kaydoldun."
+      signed_up_but_inactive: "Başarıyla kaydoldun. Ancak hesabın aktif değil, giriş yapamazsın."
+      signed_up_but_locked: "Başarıyla kaydoldun. Ancak hesabın kilitli, giriş yapamazsın."
+      signed_up_but_unconfirmed: "Onay bağlantısı içeren bir mesaj e-posta adresine gönderildi. Lütfen devam etmek için bağlantıyı aç."
+      update_needs_confirmation: "Hesabını başarıyla güncelledin, ancak yeni e-posta adresini onaylamamız gerekiyor."
+      updated: "Hesabın başarıyla güncellendi."
+      updated_but_not_signed_in: "Hesabın başarıyla güncellendi, ancak şifren değiştiği için tekrar giriş yapman gerekiyor."
+    sessions:
+      signed_in: "Başarıyla giriş yaptın."
+      signed_out: "Başarıyla çıkış yaptın."
+      already_signed_out: "Zaten çıkış yapmıştın."
+    unlocks:
+      send_instructions: "Hesabını açma talimatlarını birkaç dakika içinde alacaksın."
+      send_paranoid_instructions: "Hesabın varsa, kilit açma talimatları yakında alınacak."
+      unlocked: "Hesabın başarıyla kilidi açıldı. Devam etmek için lütfen giriş yap."
+  errors:
+    messages:
+      already_confirmed: "zaten onaylanmış, lütfen giriş yapmayı dene"
+      confirmation_period_expired: "%{period} içinde onaylanmalı, lütfen yeni bir tane iste"
+      expired: "süresi geçmiş, lütfen yeni bir tane iste"
+      not_found: "bulunamadı"
+      not_locked: "kilitli değildi"
+      not_saved:
+        one: "Bir hata %{resource} kaydedilmesine engel oldu:"
+        other: "%{count} hata %{resource} kaydedilmesine engel oldu:"

@@ -18,7 +18,10 @@ module Finance
                          .sum(:amount_cents)
                          .sort_by { |_, v| -v }
 
+      # Use string-keyed labels so the chart uses a category axis (avoids
+      # the Chart.js date-adapter dependency).
       @daily_totals = scope.expense.group_by_day(:date).sum(:amount_cents)
+                           .transform_keys { |d| I18n.l(d, format: "%d %b") }
     end
   end
 end

@@ -1,39 +1,39 @@
-<% content_for :page_title, "Reports" %>
+<% content_for :page_title, t("finance.reports.title") %>
 <% content_for :nav_key, "finance" %>
 
 <div class="space-y-6">
   <div>
-    <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Reports</h2>
-    <p class="text-[var(--color-fg-muted)] mt-1">Category and account breakdown.</p>
+    <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight"><%= t("finance.reports.title") %></h2>
+    <p class="text-[var(--color-fg-muted)] mt-1"><%= t("finance.reports.subtitle") %></p>
   </div>
 
   <div class="card !py-4">
     <%= form_with url: finance_reports_path, method: :get, html: { class: "flex flex-wrap items-end gap-3" } do %>
       <% input_cls = "px-3 py-2 text-sm bg-[var(--color-bg-base)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] focus:outline-none focus:border-[var(--color-accent-500)]" %>
       <div>
-        <label class="block text-xs text-[var(--color-fg-muted)] mb-1">From</label>
+        <label class="block text-xs text-[var(--color-fg-muted)] mb-1"><%= t("finance.reports.from") %></label>
         <%= date_field_tag :from, @from, class: input_cls %>
       </div>
       <div>
-        <label class="block text-xs text-[var(--color-fg-muted)] mb-1">To</label>
+        <label class="block text-xs text-[var(--color-fg-muted)] mb-1"><%= t("finance.reports.to") %></label>
         <%= date_field_tag :to, @to, class: input_cls %>
       </div>
-      <%= submit_tag "Apply", class: "px-3 py-2 text-sm bg-[var(--color-bg-overlay)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] cursor-pointer" %>
+      <%= submit_tag t("finance.reports.apply"), class: "px-3 py-2 text-sm bg-[var(--color-bg-overlay)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] cursor-pointer" %>
     <% end %>
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
     <div class="card">
-      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4">By category</h3>
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4"><%= t("finance.reports.by_category") %></h3>
       <% if @by_category.any? %>
         <%= pie_chart @by_category.map { |(name, _color), cents| [ name, cents / 100.0 ] }, colors: @by_category.map { |(_name, c), _| c || "#B8860B" }, height: "300px", library: { plugins: { legend: { labels: { color: "#A09B8E" } } } } %>
       <% else %>
-        <p class="text-sm text-[var(--color-fg-muted)]">No data.</p>
+        <p class="text-sm text-[var(--color-fg-muted)]"><%= t("finance.reports.no_data") %></p>
       <% end %>
     </div>
 
     <div class="card">
-      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4">By account</h3>
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4"><%= t("finance.reports.by_account") %></h3>
       <% if @by_account.any? %>
         <ul class="space-y-2">
           <% @by_account.each do |(name, color), cents| %>
@@ -44,12 +44,12 @@
           <% end %>
         </ul>
       <% else %>
-        <p class="text-sm text-[var(--color-fg-muted)]">No data.</p>
+        <p class="text-sm text-[var(--color-fg-muted)]"><%= t("finance.reports.no_data") %></p>
       <% end %>
     </div>
 
     <div class="card lg:col-span-2">
-      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4">Daily expense</h3>
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4"><%= t("finance.reports.daily_expense") %></h3>
       <%= line_chart @daily_totals.transform_values { |v| v / 100.0 }, colors: [ "#B85450" ], height: "280px", library: { plugins: { legend: { display: false } }, scales: { x: { ticks: { color: "#A09B8E" }, grid: { display: false } }, y: { ticks: { color: "#A09B8E" }, grid: { color: "rgba(245,241,232,0.06)" } } } } %>
     </div>
   </div>

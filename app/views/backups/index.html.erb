@@ -1,51 +1,49 @@
-<% content_for :page_title, "Backups" %>
+<% content_for :page_title, t("backups.title") %>
 
 <div class="max-w-3xl space-y-6">
   <div class="flex items-end justify-between">
     <div>
-      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Backups</h2>
-      <p class="text-[var(--color-fg-muted)] mt-1">Export or restore your entire data as a single tar.gz file.</p>
+      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight"><%= t("backups.title") %></h2>
+      <p class="text-[var(--color-fg-muted)] mt-1"><%= t("backups.subtitle") %></p>
     </div>
-    <%= button_to "+ Create backup", backups_path, method: :post, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium cursor-pointer" %>
+    <%= button_to t("backups.create"), backups_path, method: :post, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium cursor-pointer" %>
   </div>
 
   <% if @last_succeeded %>
-    <p class="text-sm text-[var(--color-fg-muted)]">Last successful backup: <strong><%= time_ago_in_words(@last_succeeded.created_at) %> ago</strong> · <%= @last_succeeded.display_size %></p>
+    <p class="text-sm text-[var(--color-fg-muted)]"><%= t("backups.last_success_html", ago: time_ago_in_words(@last_succeeded.created_at), size: @last_succeeded.display_size) %></p>
   <% else %>
     <div class="card border-[var(--color-warning)]">
-      <p class="text-sm text-[var(--color-warning)]">No backup yet. Take one now so your data is safe when you move to another machine.</p>
+      <p class="text-sm text-[var(--color-warning)]"><%= t("backups.none_warning") %></p>
     </div>
   <% end %>
 
-  <%# Restore section %>
   <div class="card border-[var(--color-warning)]">
-    <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-2">Restore</h3>
+    <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-2"><%= t("backups.restore") %></h3>
     <p class="text-sm text-[var(--color-fg-muted)] mb-4">
-      ⚠️ This wipes the current DB and rebuilds from the backup file. Take a fresh backup first.
+      <%= t("backups.restore_warning") %>
     </p>
-    <%= form_with url: restore_backups_path, method: :post, multipart: true, html: { class: "flex flex-wrap gap-3 items-center", data: { turbo_confirm: "All current data will be erased. Continue?" } } do %>
+    <%= form_with url: restore_backups_path, method: :post, multipart: true, html: { class: "flex flex-wrap gap-3 items-center", data: { turbo_confirm: t("backups.restore_confirm") } } do %>
       <%= file_field_tag :file, accept: ".tar.gz,application/gzip", required: true, class: "text-sm" %>
-      <%= submit_tag "Restore", class: "px-4 py-2 bg-[var(--color-warning)] hover:opacity-90 text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer" %>
+      <%= submit_tag t("backups.restore_button"), class: "px-4 py-2 bg-[var(--color-warning)] hover:opacity-90 text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer" %>
     <% end %>
   </div>
 
-  <%# Backup list %>
   <div class="card !p-0 overflow-hidden">
     <% if @backups.any? %>
       <table class="w-full text-sm">
         <thead class="border-b border-[var(--color-border-subtle)] text-xs text-[var(--color-fg-muted)] uppercase tracking-wider">
           <tr>
-            <th class="text-left px-4 py-3 font-medium">Date</th>
-            <th class="text-left px-4 py-3 font-medium">Status</th>
-            <th class="text-right px-4 py-3 font-medium">Size</th>
-            <th class="text-left px-4 py-3 font-medium">Schema</th>
+            <th class="text-left px-4 py-3 font-medium"><%= t("backups.table.date") %></th>
+            <th class="text-left px-4 py-3 font-medium"><%= t("backups.table.status") %></th>
+            <th class="text-right px-4 py-3 font-medium"><%= t("backups.table.size") %></th>
+            <th class="text-left px-4 py-3 font-medium"><%= t("backups.table.schema") %></th>
             <th class="px-4 py-3"></th>
           </tr>
         </thead>
         <tbody class="divide-y divide-[var(--color-border-subtle)]">
           <% @backups.each do |b| %>
             <tr class="hover:bg-[var(--color-bg-hover)]">
-              <td class="px-4 py-3 text-[var(--color-fg-muted)]"><%= b.created_at.strftime("%d %b %Y %H:%M") %></td>
+              <td class="px-4 py-3 text-[var(--color-fg-muted)]"><%= l(b.created_at, format: "%d %b %Y %H:%M") %></td>
               <td class="px-4 py-3">
                 <% color = b.status == "succeeded" ? "var(--color-success)" : (b.status == "failed" ? "var(--color-danger)" : "var(--color-warning)") %>
                 <span class="pill" style="color: <%= color %>;"><%= b.status %></span>
@@ -54,16 +52,16 @@
               <td class="px-4 py-3 text-xs text-[var(--color-fg-faint)] font-mono"><%= b.schema_version&.first(10) %></td>
               <td class="px-4 py-3 text-right">
                 <% if b.succeeded? && b.archive.attached? %>
-                  <%= link_to "Download", download_backup_path(b), class: "text-xs text-[var(--color-accent-400)] mr-3" %>
+                  <%= link_to t("backups.download"), download_backup_path(b), class: "text-xs text-[var(--color-accent-400)] mr-3" %>
                 <% end %>
-                <%= button_to "Del", backup_path(b), method: :delete, data: { turbo_confirm: "Delete?" }, class: "text-xs text-[var(--color-expense)] cursor-pointer" %>
+                <%= button_to t("backups.delete"), backup_path(b), method: :delete, data: { turbo_confirm: t("backups.delete_confirm") }, class: "text-xs text-[var(--color-expense)] cursor-pointer" %>
               </td>
             </tr>
           <% end %>
         </tbody>
       </table>
     <% else %>
-      <div class="px-6 py-10 text-center text-[var(--color-fg-muted)]">No backups yet.</div>
+      <div class="px-6 py-10 text-center text-[var(--color-fg-muted)]"><%= t("backups.none") %></div>
     <% end %>
   </div>
 </div>
