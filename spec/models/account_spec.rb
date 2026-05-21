@@ -31,4 +31,20 @@ RSpec.describe Account, type: :model do
       expect(account.balance_cents).to eq(1_300_00)
     end
   end
+
+  describe ".active scope" do
+    let(:user) { create(:user) }
+
+    it "excludes archived accounts" do
+      live      = create(:account, user: user)
+      _archived = create(:account, user: user, archived_at: Time.current)
+      expect(described_class.active).to contain_exactly(live)
+    end
+  end
+
+  describe "#archived?" do
+    it "is true when archived_at is set" do
+      expect(build(:account, archived_at: Time.current)).to be_archived
+    end
+  end
 end

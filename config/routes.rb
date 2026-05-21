@@ -7,8 +7,7 @@ Rails.application.routes.draw do
   patch "settings/profile",       to: "settings#update_profile"
   get "settings/preferences",    to: "settings#preferences",         as: :preferences_settings
   patch "settings/preferences",   to: "settings#update_preferences"
-  get  "settings/data",           to: "settings#data",                as: :data_settings
-  get  "settings/notifications",  to: "settings#notifications",       as: :notifications_settings
+  get "settings/data",           to: "settings#data",                as: :data_settings
 
   # Finance module
   namespace :finance do
@@ -17,7 +16,6 @@ Rails.application.routes.draw do
     resources :accounts
     resources :categories
     resources :subscriptions
-    resource  :transfer, only: [ :new, :create ]
     get "reports", to: "reports#index", as: :reports
     get "export.csv", to: "transactions#export", as: :transactions_export
   end
@@ -33,7 +31,10 @@ Rails.application.routes.draw do
 
   # Goals
   resources :goals do
-    member { patch :recalculate }
+    member do
+      patch :recalculate
+      patch :update_progress
+    end
   end
 
   # Backups
@@ -55,9 +56,16 @@ Rails.application.routes.draw do
 
   # Calendar
   get  "calendar",                  to: "calendar#index", as: :calendar
+  get  "calendar/week",             to: "calendar#week",  as: :calendar_week
+  get  "calendar/week/:date",       to: "calendar#week",  as: :calendar_week_at, constraints: { date: /\d{4}-\d{2}-\d{2}/ }
   get  "calendar/:year/:month",     to: "calendar#index", as: :calendar_month, constraints: { year: /\d{4}/, month: /\d{1,2}/ }
   get  "calendar/feed",             to: "calendar#feed",  as: :calendar_feed
-  resources :events
+  resources :events do
+    member do
+      patch :move
+      patch :reschedule
+    end
+  end
 
   # Quick capture
   resources :quick_captures, only: [ :create ]
