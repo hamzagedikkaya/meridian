@@ -1,29 +1,35 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Collapsible sidebar — persists state in localStorage.
-export default class extends Controller {
-  static values = { collapsed: Boolean }
+// Collapsible sidebar — toggles a `.sidebar-collapsed` class on the aside.
+// CSS in application.tailwind.css hides every `.sidebar-label` inside a
+// collapsed sidebar, so the icon-only rail appears without a page reload.
+// Persists state in localStorage.
+const KEY = "meridian-sidebar-collapsed"
 
+export default class extends Controller {
   connect() {
-    const stored = localStorage.getItem("meridian-sidebar-collapsed")
-    if (stored === "true") {
-      this.element.classList.add("w-16")
-      this.element.classList.remove("w-60")
+    if (localStorage.getItem(KEY) === "true") {
+      this.collapse()
     }
   }
 
   toggle() {
-    const isCollapsed = this.element.classList.contains("w-16")
-    if (isCollapsed) {
-      this.element.classList.remove("w-16")
-      this.element.classList.add("w-60")
-      localStorage.setItem("meridian-sidebar-collapsed", "false")
+    if (this.element.classList.contains("sidebar-collapsed")) {
+      this.expand()
     } else {
-      this.element.classList.add("w-16")
-      this.element.classList.remove("w-60")
-      localStorage.setItem("meridian-sidebar-collapsed", "true")
+      this.collapse()
     }
-    // NOT: Tam state senkronizasyonu için sayfa yeniden render etmek gerekir.
-    // Şimdilik width-only toggle; Aşama 8'de tam server-side state'e taşınacak.
+  }
+
+  collapse() {
+    this.element.classList.add("sidebar-collapsed", "w-16")
+    this.element.classList.remove("w-60")
+    localStorage.setItem(KEY, "true")
+  }
+
+  expand() {
+    this.element.classList.remove("sidebar-collapsed", "w-16")
+    this.element.classList.add("w-60")
+    localStorage.setItem(KEY, "false")
   }
 }

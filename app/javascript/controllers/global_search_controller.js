@@ -1,6 +1,15 @@
 import { Controller } from "@hotwired/stimulus"
 
+// Global ⌘K / "/" search modal. Text labels come from data-*-value
+// attributes set in the layout via t() so the modal speaks the user's locale.
 export default class extends Controller {
+  static values = {
+    placeholder: { type: String, default: "Search…" },
+    hintMin:     { type: String, default: "Type at least 2 characters…" },
+    noResults:   { type: String, default: "No results." },
+    typeToSearch: { type: String, default: "Type to search…" }
+  }
+
   connect() {
     this.boundKeydown = this.handleGlobalKeydown.bind(this)
     document.addEventListener("keydown", this.boundKeydown)
@@ -12,7 +21,6 @@ export default class extends Controller {
   }
 
   handleGlobalKeydown(event) {
-    // Cmd/Ctrl + K
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
       event.preventDefault()
       this.open()
@@ -49,11 +57,14 @@ export default class extends Controller {
 
   async search() {
     const q = this.input.value.trim()
-    if (q.length < 2) { this.list.innerHTML = `<p class="px-4 py-3 text-sm text-[var(--color-fg-muted)]">Type at least 2 characters…</p>`; return }
+    if (q.length < 2) {
+      this.list.innerHTML = `<p class="px-4 py-3 text-sm text-[var(--color-fg-muted)]">${this.escape(this.hintMinValue)}</p>`
+      return
+    }
     const res = await fetch(`/search?q=${encodeURIComponent(q)}`, { headers: { "Accept": "application/json" } })
     const data = await res.json()
     if (data.results.length === 0) {
-      this.list.innerHTML = `<p class="px-4 py-3 text-sm text-[var(--color-fg-muted)]">No results.</p>`
+      this.list.innerHTML = `<p class="px-4 py-3 text-sm text-[var(--color-fg-muted)]">${this.escape(this.noResultsValue)}</p>`
     } else {
       this.list.innerHTML = data.results.map((r, i) => `
         <a href="${r.url}" data-idx="${i}" class="block px-4 py-2.5 hover:bg-[var(--color-bg-hover)] focus:bg-[var(--color-bg-hover)] outline-none">
@@ -97,12 +108,12 @@ export default class extends Controller {
       <div class="w-full max-w-xl bg-[var(--color-bg-elevated)] border border-[var(--color-border-default)] rounded-[var(--radius-md)] overflow-hidden shadow-2xl">
         <div class="border-b border-[var(--color-border-subtle)] px-4 py-3 flex items-center gap-2">
           <span class="text-[var(--color-fg-muted)]">⌕</span>
-          <input type="search" placeholder="Search transactions, todos, journal, events, goals…"
+          <input type="search" placeholder="${this.escape(this.placeholderValue)}"
                  class="flex-1 bg-transparent text-base text-[var(--color-fg-primary)] placeholder-[var(--color-fg-faint)] focus:outline-none">
           <kbd class="text-xs text-[var(--color-fg-muted)] px-1.5 py-0.5 bg-[var(--color-bg-overlay)] rounded">Esc</kbd>
         </div>
         <div data-results class="max-h-96 overflow-y-auto">
-          <p class="px-4 py-3 text-sm text-[var(--color-fg-muted)]">Type to search…</p>
+          <p class="px-4 py-3 text-sm text-[var(--color-fg-muted)]">${this.escape(this.typeToSearchValue)}</p>
         </div>
       </div>
     `
