@@ -1,76 +1,77 @@
-# 🌅 Meridian
+<p align="center"><sub><b>English</b> · <a href="README.tr.md">Türkçe</a></sub></p>
 
-> *Your life, beautifully organized.*
+<h1 align="center">
+  <img src="public/icon.svg" alt="" width="44" valign="middle" />
+  &nbsp;Meridian
+</h1>
 
-Meridian is a self-hosted, local-first personal life OS built with Rails 8. It bundles **finance tracking, todos, habits, calendar, journal, goals, weekly reviews, and pomodoro focus sessions** into a single dark-first Hotwire app — with full backup and restore so you can move your data between machines.
+<p align="center"><i>Your life, beautifully organized.</i></p>
+
+<p align="center">
+  <a href="#-quick-start">Quick start</a> ·
+  <a href="#-features">Features</a> ·
+  <a href="#-backup--restore">Backup</a> ·
+  <a href="#-keyboard-shortcuts">Shortcuts</a>
+</p>
 
 ---
 
+Meridian is a self-hosted, local-first personal life OS. One Rails app gathers the things that usually scatter across half a dozen subscriptions — money, habits, todos, calendar, journal, goals — and keeps them on a machine you control. Backups are a single `tar.gz`, so moving your data is a copy-paste away.
+
+<p align="center">
+  <img src="docs/dashboard.png" alt="Dashboard" width="100%" />
+</p>
+
 ## ✨ Features
 
-- 💰 **Finance** — accounts, categories, transactions, transfers, subscriptions, 6-month trends, CSV export
-- ✅ **Todos** — lists, priorities, due dates, today/week/overdue filters
-- 🔥 **Habits** — daily/weekly tracking, streaks, 12-week heatmap, completion rates
-- 📅 **Calendar** — monthly grid with todos and subscriptions overlay, iCal feed
-- 📓 **Journal** — rich text entries with mood emoji, energy, gratitude, tags
-- 🎯 **Goals** — financial/habit/custom targets with auto-calculated progress
-- 💾 **Backup & Restore** — full `pg_dump` + ActiveStorage archive as `.tar.gz`
-- 🏠 **Dashboard** — bento grid widgets, quick stats, today's overview
-- 🔍 **Global Search** — `⌘K` / `/` instant search across every module
-- ⚡ **Quick Capture** — `c` shortcut, FAB, smart router (numbers → transaction, "habit:" → log, text → todo)
-- 📊 **Weekly Review** — guided reflection with auto-summarized stats
-- 🍅 **Focus Timer** — pomodoro with browser notifications and time tracking
-- 📈 **Insights** — cross-module patterns: weekend vs weekday spending, mood × habit correlation, focus by weekday
-- ⌨️ **Keyboard shortcuts** — vim-style `g d/f/t/h/c/j/g` to navigate
-- 🎨 **Design** — Fraunces + DM Sans, dark-first amber/gold palette, light mode toggle
+- 💰 **Finance** — accounts, categories, transactions, subscriptions, 6-month trends, CSV export
+- ✅ **Todos** — lists, priorities, due dates, today / week / overdue filters
+- 🔥 **Habits** — daily and weekly cadences, streaks, 12-week heatmap, completion rates
+- 📅 **Calendar** — monthly grid plus drag-to-reschedule weekly view, iCal feed
+- 📓 **Journal** — rich-text entries with mood, energy, gratitude, and tags
+- 🎯 **Goals** — financial / habit / custom targets with live-calculated progress
+- 🏠 **Dashboard** — bento-grid widgets that surface today's habits, todos, events, and spend
+- 🔍 **Global search** — `⌘K` instant search across every module
+- ⚡ **Quick capture** — one input, smart router: numbers become transactions, `habit:` becomes a log, freeform becomes a todo
+- 📊 **Weekly review** — guided reflection with auto-summarised stats
+- 🍅 **Focus timer** — pomodoro with browser notifications and per-todo time tracking
+- 📈 **Insights** — cross-module patterns: weekday vs weekend spending, mood × habit correlation, most productive day
+- 💾 **Backup & restore** — `pg_dump` + ActiveStorage blobs bundled into a portable archive
+- 🎨 **Design** — Fraunces + DM Sans, dark-first amber/gold palette, optional light mode
 
 ## 🧰 Tech Stack
 
 | Layer | Tech |
-|-------|------|
-| Backend | Ruby 3.3 + Rails 8 |
+|---|---|
+| Backend | Ruby 3.3 · Rails 8 |
 | Frontend | Hotwire (Turbo + Stimulus), Importmap, Tailwind v4 |
-| DB | PostgreSQL 14+ |
+| Database | PostgreSQL 14+ |
 | Auth | Devise |
-| Charts | Chartkick + Chart.js + groupdate |
+| Charts | Chartkick · Chart.js · groupdate |
 | Money | money-rails |
-| Recurring | ice_cube |
-| Backup | pg_dump + tar.gz + ActiveStorage |
-| Testing | RSpec + FactoryBot + Shoulda + Capybara + SimpleCov |
-| Lint/Security | RuboCop (omakase + rspec) + Brakeman |
+| Recurring rules | ice_cube |
+| Backup | pg_dump · tar.gz · ActiveStorage |
+| Testing | RSpec · FactoryBot · Shoulda · Capybara · SimpleCov |
+| Lint / security | RuboCop (omakase + rspec) · Brakeman |
 
-## 🚀 Local Setup
+## 🚀 Quick Start
 
-### Requirements
-
-- Ruby 3.3.x (managed via `rbenv` or `asdf`)
-- PostgreSQL 14+ running locally
-- Node.js 22+ (only for native Tailwind binary)
-
-### Install
+**Requirements** — Ruby 3.3.x (via `rbenv` / `asdf`), PostgreSQL 14+, Node.js 22+ (only used for the native Tailwind binary).
 
 ```bash
 git clone <your-repo> meridian
 cd meridian
 bundle install
 bin/rails db:create db:migrate db:seed
+bin/dev
 ```
 
-The seed creates two users:
+Open <http://localhost:3000>. The seed creates two accounts:
+
 - `admin@meridian.local` / `password123`
-- `demo@meridian.local` / `demo12345` (pre-populated with sample data)
+- `demo@meridian.local` / `demo12345` — pre-populated with habits, goals, transactions, and journal entries
 
-### Run
-
-```bash
-bin/dev          # starts Tailwind watcher + Rails server (recommended)
-# or
-bin/rails server # just the server (run `bin/rails tailwindcss:build` first if styles look off)
-```
-
-Then open http://localhost:3000.
-
-### Tests & Lint
+### Tests, lint, security
 
 ```bash
 bin/rspec
@@ -80,63 +81,58 @@ bundle exec brakeman -i config/brakeman.ignore
 
 ## 💾 Backup & Restore
 
-### Create a backup
+Backups are first-class: everything that defines "your Meridian" — schema, rows, attachments, app version — lives in a single archive.
 
-1. Navigate to **Settings → Data → Backups** or just `/backups`.
+**Create**
+
+1. Open **Settings → Data**, or go straight to `/backups`.
 2. Click **Create backup**.
 3. Download the resulting `.tar.gz` from the list.
 
 The archive contains:
+
 - `db.dump` — full PostgreSQL dump (custom format)
-- `storage/` — all ActiveStorage blobs (avatars, journal attachments)
-- `metadata.json` — Meridian + schema version, timestamp
+- `storage/` — every ActiveStorage blob (avatars, journal attachments)
+- `metadata.json` — Meridian version, schema version, timestamp
 
-### Restore on another machine
+**Restore** — on the new machine, set up Meridian with the steps above, visit `/backups`, drop the archive into **Restore**, confirm. The app signs you out; sign back in with your original credentials.
 
-1. Set up Meridian on the new machine using **Local Setup** above.
-2. Go to `/backups` → **Restore** card.
-3. Upload your `.tar.gz` file and confirm.
-4. The app signs you out — sign in with your original credentials.
+> ⚠️ Restoring wipes the current database. Take a fresh backup first if there's anything you want to keep.
 
-⚠️ **Restore wipes the current database.** Take a fresh backup first if needed.
+Full archive layout in [docs/backup_format.md](docs/backup_format.md).
 
 ## ⌨️ Keyboard Shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| `⌘K` / `Ctrl+K` / `/` | Open global search |
-| `c` | Open quick capture |
-| `g d` | Dashboard |
-| `g f` | Finance |
-| `g t` | Todos |
-| `g h` | Habits |
-| `g c` | Calendar |
-| `g j` | Journal |
-| `g g` | Goals |
-| `Esc` | Close modals |
+| | |
+|---|---|
+| `⌘K` / `Ctrl+K` / `/` | Global search |
+| `c` | Quick capture |
+| `g d` · `g f` · `g t` · `g h` | Dashboard · Finance · Todos · Habits |
+| `g c` · `g j` · `g g` | Calendar · Journal · Goals |
+| `Esc` | Close any modal |
 
 ## 📂 Module Map
 
 ```
-Dashboard (/)
-├── Finance (/finance)
-│   ├── Transactions, Accounts, Categories, Subscriptions
-│   ├── Transfers, Reports, CSV export
-├── Todos (/todos), TodoLists (/todo_lists)
-├── Habits (/habits)
-├── Calendar (/calendar) + iCal feed (/calendar/feed)
-├── Journal (/journal)
-├── Goals (/goals)
-├── Insights (/insights)
-├── Weekly Reviews (/weekly_reviews)
-├── Backups (/backups)
-└── Settings (/settings)
+Dashboard       (/)
+├─ Finance      (/finance)
+│  ├─ Transactions, Accounts, Categories, Subscriptions
+│  └─ Reports, CSV export
+├─ Todos        (/todos), Todo lists (/todo_lists)
+├─ Habits       (/habits)
+├─ Calendar     (/calendar) — month + week, iCal feed at /calendar/feed
+├─ Journal      (/journal)
+├─ Goals        (/goals)
+├─ Insights     (/insights)
+├─ Weekly review (/weekly_reviews)
+├─ Backups      (/backups)
+└─ Settings     (/settings)
 ```
 
-## 🤝 License
+## 📄 License
 
-Personal use. Not licensed for redistribution.
+Meridian is released under the [**PolyForm Noncommercial License 1.0.0**](LICENSE). Personal, research, educational, and other noncommercial use is free; commercial use is not granted by this license. Open an issue if you'd like to discuss a separate arrangement.
 
 ---
 
-*Meridian — Your life, beautifully organized.*
+<p align="center"><sub>Meridian — your life, beautifully organized.</sub></p>
