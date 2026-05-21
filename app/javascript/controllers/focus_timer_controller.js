@@ -4,7 +4,11 @@ import { Controller } from "@hotwired/stimulus"
 // marks it completed when the timer finishes.
 export default class extends Controller {
   static targets = ["display", "startBtn", "stopBtn"]
-  static values  = { durationMinutes: { type: Number, default: 25 }, todoId: String }
+  static values  = {
+    durationMinutes:   { type: Number, default: 25 },
+    todoId:            String,
+    notificationBody:  { type: String, default: "Focus session done — take a break." }
+  }
 
   connect() {
     this.remaining = this.durationMinutesValue * 60
@@ -47,7 +51,7 @@ export default class extends Controller {
       headers: { "X-CSRF-Token": this.csrfToken() }
     })
     if ("Notification" in window && Notification.permission === "granted") {
-      new Notification("Meridian", { body: "Focus session done — take a break." })
+      new Notification("Meridian", { body: this.notificationBodyValue })
     }
   }
 

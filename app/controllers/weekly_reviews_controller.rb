@@ -4,7 +4,7 @@ class WeeklyReviewsController < ApplicationController
   def create
     @review = current_user.weekly_reviews.find_or_initialize_by(week_starting: params[:weekly_review][:week_starting])
     if @review.update(review_params.merge(completed_at: Time.current))
-      redirect_to weekly_reviews_path, notice: "Review saved."
+      redirect_to weekly_reviews_path, notice: t("flash.saved")
     else
       summarize_week
       render :edit, status: :unprocessable_entity
@@ -33,7 +33,7 @@ class WeeklyReviewsController < ApplicationController
 
   def update
     if @review.update(review_params.merge(completed_at: Time.current))
-      redirect_to weekly_reviews_path, notice: "Review saved."
+      redirect_to weekly_reviews_path, notice: t("flash.saved")
     else
       summarize_week
       render :edit, status: :unprocessable_entity

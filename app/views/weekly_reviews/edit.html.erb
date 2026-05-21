@@ -1,4 +1,4 @@
-<% content_for :page_title, "Weekly review" %>
+<% content_for :page_title, t("weekly_reviews.title") %>
 
 <%
   input_cls = "w-full px-3.5 py-2.5 bg-[var(--color-bg-base)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] text-[var(--color-fg-primary)] focus:outline-none focus:border-[var(--color-accent-500)]"
@@ -6,40 +6,38 @@
 %>
 
 <div class="max-w-3xl space-y-6">
-  <%= link_to "← Reviews", weekly_reviews_path, class: "text-sm text-[var(--color-fg-muted)]" %>
+  <%= link_to t("weekly_reviews.reviews_back"), weekly_reviews_path, class: "text-sm text-[var(--color-fg-muted)]" %>
 
   <div>
-    <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Week of <%= @review.week_starting.strftime("%d %b %Y") %></h2>
-    <p class="text-[var(--color-fg-muted)] mt-1">Review last week in 5 minutes.</p>
+    <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight"><%= t("weekly_reviews.week_of", date: l(@review.week_starting, format: "%d %b %Y")) %></h2>
+    <p class="text-[var(--color-fg-muted)] mt-1"><%= t("weekly_reviews.edit_subtitle") %></p>
   </div>
 
-  <%# Stats summary %>
   <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]">Habits done</p><p class="text-xl font-medium mt-1"><%= @stats[:habits_completed] %></p></div>
-    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]">Todos done</p><p class="text-xl font-medium mt-1"><%= @stats[:todos_completed] %></p></div>
-    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]">Net</p><p class="text-xl font-medium mt-1 <%= @stats[:transactions_net] >= 0 ? 'text-[var(--color-income)]' : 'text-[var(--color-expense)]' %>"><%= money_format(@stats[:transactions_net], currency: current_user.currency) %></p></div>
-    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]">Focus</p><p class="text-xl font-medium mt-1"><%= @stats[:focus_minutes] %><span class="text-xs text-[var(--color-fg-faint)]">m</span></p></div>
+    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]"><%= t("weekly_reviews.stats.habits") %></p><p class="text-xl font-medium mt-1"><%= @stats[:habits_completed] %></p></div>
+    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]"><%= t("weekly_reviews.stats.todos") %></p><p class="text-xl font-medium mt-1"><%= @stats[:todos_completed] %></p></div>
+    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]"><%= t("weekly_reviews.stats.net") %></p><p class="text-xl font-medium mt-1 <%= @stats[:transactions_net] >= 0 ? 'text-[var(--color-income)]' : 'text-[var(--color-expense)]' %>"><%= money_format(@stats[:transactions_net], currency: current_user.currency) %></p></div>
+    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]"><%= t("weekly_reviews.stats.focus") %></p><p class="text-xl font-medium mt-1"><%= @stats[:focus_minutes] %><span class="text-xs text-[var(--color-fg-faint)]">m</span></p></div>
   </div>
 
-  <%# Reflection form %>
-  <%= form_with model: @review, url: (@review.persisted? ? weekly_review_path(@review) : weekly_reviews_path), method: (@review.persisted? ? :patch : :patch), html: { class: "space-y-5 card" } do |f| %>
+  <%= form_with model: @review, url: (@review.persisted? ? weekly_review_path(@review) : weekly_reviews_path), method: :patch, html: { class: "space-y-5 card" } do |f| %>
     <% unless @review.persisted? %>
       <%= f.hidden_field :week_starting, value: @review.week_starting %>
     <% end %>
     <div>
-      <%= f.label :reflection_went_well, "What went well?", class: label_cls %>
+      <%= f.label :reflection_went_well, t("weekly_reviews.prompts.went_well"), class: label_cls %>
       <%= f.text_area :reflection_went_well, rows: 3, class: input_cls %>
     </div>
     <div>
-      <%= f.label :reflection_learned, "What did I learn?", class: label_cls %>
+      <%= f.label :reflection_learned, t("weekly_reviews.prompts.learned"), class: label_cls %>
       <%= f.text_area :reflection_learned, rows: 3, class: input_cls %>
     </div>
     <div>
-      <%= f.label :reflection_next_week, "What is next week?", class: label_cls %>
+      <%= f.label :reflection_next_week, t("weekly_reviews.prompts.next_week"), class: label_cls %>
       <%= f.text_area :reflection_next_week, rows: 3, class: input_cls %>
     </div>
     <div class="flex justify-end pt-3 border-t border-[var(--color-border-subtle)]">
-      <%= f.submit "Save review", class: "px-4 py-2 bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer" %>
+      <%= f.submit t("weekly_reviews.save"), class: "px-4 py-2 bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer" %>
     </div>
   <% end %>
 </div>

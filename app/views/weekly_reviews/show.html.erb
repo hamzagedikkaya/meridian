@@ -1,27 +1,27 @@
-<% content_for :page_title, "Weekly review" %>
+<% content_for :page_title, t("weekly_reviews.title") %>
 
 <div class="max-w-3xl space-y-6">
-  <%= link_to "← Reviews", weekly_reviews_path, class: "text-sm text-[var(--color-fg-muted)]" %>
+  <%= link_to t("weekly_reviews.reviews_back"), weekly_reviews_path, class: "text-sm text-[var(--color-fg-muted)]" %>
 
   <div class="flex items-end justify-between">
     <div>
-      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Week of <%= @review.week_starting.strftime("%d %b %Y") %></h2>
-      <p class="text-[var(--color-fg-muted)] mt-1"><%= @review.completed? ? "Completed #{@review.completed_at.strftime('%d %b %Y')}" : "Draft" %></p>
+      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight"><%= t("weekly_reviews.week_of", date: l(@review.week_starting, format: "%d %b %Y")) %></h2>
+      <p class="text-[var(--color-fg-muted)] mt-1"><%= @review.completed? ? t("weekly_reviews.completed_at", date: l(@review.completed_at.to_date, format: "%d %b %Y")) : t("weekly_reviews.draft") %></p>
     </div>
-    <%= link_to "Edit", edit_weekly_review_path(@review), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
+    <%= link_to t("weekly_reviews.edit"), edit_weekly_review_path(@review), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
   </div>
 
   <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]">Habits</p><p class="text-xl font-medium mt-1"><%= @stats[:habits_completed] %></p></div>
-    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]">Todos</p><p class="text-xl font-medium mt-1"><%= @stats[:todos_completed] %></p></div>
-    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]">Net</p><p class="text-xl font-medium mt-1 <%= @stats[:transactions_net] >= 0 ? 'text-[var(--color-income)]' : 'text-[var(--color-expense)]' %>"><%= money_format(@stats[:transactions_net], currency: current_user.currency) %></p></div>
-    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]">Focus</p><p class="text-xl font-medium mt-1"><%= @stats[:focus_minutes] %>m</p></div>
+    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]"><%= t("weekly_reviews.stats.habits") %></p><p class="text-xl font-medium mt-1"><%= @stats[:habits_completed] %></p></div>
+    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]"><%= t("weekly_reviews.stats.todos") %></p><p class="text-xl font-medium mt-1"><%= @stats[:todos_completed] %></p></div>
+    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]"><%= t("weekly_reviews.stats.net") %></p><p class="text-xl font-medium mt-1 <%= @stats[:transactions_net] >= 0 ? 'text-[var(--color-income)]' : 'text-[var(--color-expense)]' %>"><%= money_format(@stats[:transactions_net], currency: current_user.currency) %></p></div>
+    <div class="card !p-3"><p class="text-xs text-[var(--color-fg-muted)]"><%= t("weekly_reviews.stats.focus") %></p><p class="text-xl font-medium mt-1"><%= @stats[:focus_minutes] %>m</p></div>
   </div>
 
-  <% [ [ "What went well?", @review.reflection_went_well ], [ "What did I learn?", @review.reflection_learned ], [ "What is next week?", @review.reflection_next_week ] ].each do |label, text| %>
+  <% [ [ t("weekly_reviews.prompts.went_well"), @review.reflection_went_well ], [ t("weekly_reviews.prompts.learned"), @review.reflection_learned ], [ t("weekly_reviews.prompts.next_week"), @review.reflection_next_week ] ].each do |label, text| %>
     <div class="card">
       <p class="text-sm font-medium text-[var(--color-fg-muted)] mb-2"><%= label %></p>
-      <p class="text-sm whitespace-pre-wrap"><%= text.presence || "—" %></p>
+      <p class="text-sm whitespace-pre-wrap"><%= text.presence || t("common.none") %></p>
     </div>
   <% end %>
 </div>

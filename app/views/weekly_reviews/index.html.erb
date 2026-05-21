@@ -1,12 +1,12 @@
-<% content_for :page_title, "Weekly review" %>
+<% content_for :page_title, t("weekly_reviews.title") %>
 
 <div class="max-w-3xl space-y-6">
   <div class="flex items-end justify-between">
     <div>
-      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Weekly Review</h2>
-      <p class="text-[var(--color-fg-muted)] mt-1">Pause every weekend, reflect, and prepare for the next.</p>
+      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight"><%= t("weekly_reviews.title") %></h2>
+      <p class="text-[var(--color-fg-muted)] mt-1"><%= t("weekly_reviews.subtitle") %></p>
     </div>
-    <%= link_to (@this_week_review&.completed? ? "Update this week" : "Start this week"), new_weekly_review_path, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium" %>
+    <%= link_to (@this_week_review&.completed? ? t("weekly_reviews.update_this_week") : t("weekly_reviews.start_this_week")), new_weekly_review_path, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium" %>
   </div>
 
   <% if @reviews.any? %>
@@ -14,8 +14,8 @@
       <% @reviews.each do |r| %>
         <%= link_to weekly_review_path(r), class: "card flex items-center justify-between hover:border-[var(--color-border-default)]" do %>
           <div>
-            <p class="text-sm font-medium">Week of <%= r.week_starting.strftime("%d %b %Y") %></p>
-            <p class="text-xs text-[var(--color-fg-muted)] mt-0.5"><%= r.completed? ? "Completed #{r.completed_at.strftime('%d %b')}" : "Draft" %></p>
+            <p class="text-sm font-medium"><%= t("weekly_reviews.week_of", date: l(r.week_starting, format: "%d %b %Y")) %></p>
+            <p class="text-xs text-[var(--color-fg-muted)] mt-0.5"><%= r.completed? ? t("weekly_reviews.completed_at", date: l(r.completed_at.to_date, format: "%d %b")) : t("weekly_reviews.draft") %></p>
           </div>
           <span class="text-xs text-[var(--color-fg-faint)]"><%= r.completed? ? "✓" : "…" %></span>
         <% end %>
@@ -23,8 +23,8 @@
     </div>
   <% else %>
     <div class="card text-center py-12">
-      <p class="text-[var(--color-fg-muted)] mb-3">No reviews yet.</p>
-      <%= link_to "Start this week's review", new_weekly_review_path, class: "text-[var(--color-accent-400)]" %>
+      <p class="text-[var(--color-fg-muted)] mb-3"><%= t("weekly_reviews.none") %></p>
+      <%= link_to t("weekly_reviews.start_first"), new_weekly_review_path, class: "text-[var(--color-accent-400)]" %>
     </div>
   <% end %>
 </div>
