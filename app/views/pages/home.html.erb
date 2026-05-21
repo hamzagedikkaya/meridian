@@ -133,21 +133,5 @@
       <% end %>
     </div>
 
-    <div class="card">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight"><%= t("pages.home.journal") %></h3>
-        <%= link_to t("common.all") + " →", journal_entries_path, class: "text-xs text-[var(--color-accent-400)]" %>
-      </div>
-      <% if @today_journal %>
-        <%= link_to journal_entry_path(@today_journal), class: "block hover:opacity-80" do %>
-          <div class="flex items-center gap-2">
-            <% if @today_journal.mood %><span class="text-2xl"><%= @today_journal.mood_emoji %></span><% end %>
-            <p class="text-sm"><%= @today_journal.title.presence || t("pages.home.todays_entry") %></p>
-          </div>
-        <% end %>
-      <% else %>
-        <%= link_to t("pages.home.write_todays_entry"), new_journal_entry_path, class: "text-sm text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
-      <% end %>
-    </div>
   </div>
 </div>

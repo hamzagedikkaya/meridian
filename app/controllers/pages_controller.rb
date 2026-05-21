@@ -12,7 +12,6 @@ class PagesController < ApplicationController
     @upcoming_todos    = current_user.todos.open.where("due_at <= ?", 7.days.from_now).order(:due_at).limit(6)
     @today_events_list = current_user.events.where(start_at: today.all_day).order(:start_at).limit(4)
     @active_goals      = current_user.goals.active.ordered.limit(3)
-    @today_journal     = current_user.journal_entries.find_by(date: today)
 
     # Build a 7-day spending series with string-keyed labels so Chart.js
     # uses a category axis (no date-adapter dependency required).

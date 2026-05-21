@@ -3,12 +3,12 @@ return unless demo
 return if demo.habits.any?
 
 habits_data = [
-  [ "Sabah egzersizi", "10 dakika streching + yoga.", "daily", "#D4A574", 0.85 ],
-  [ "Kitap oku",       "30 sayfa minimum.",           "daily", "#6B8FA0", 0.70 ],
-  [ "Su iç (2L)",      nil,                            "daily", "#6B8E5A", 0.90 ],
-  [ "Journal yaz",     "Sabah veya akşam günlük.",    "daily", "#B8860B", 0.55 ],
-  [ "Spor salonu",     "Haftada 3 gün.",              "weekly", "#B85450", 0.40 ],
-  [ "Aileyi ara",      nil,                            "weekly", "#8B5A00", 0.95 ]
+  [ "Morning workout",   "10-minute stretch + yoga.",       "daily",  "#D4A574", 0.85 ],
+  [ "Read 30 pages",     "Fiction or non-fiction.",         "daily",  "#6B8FA0", 0.70 ],
+  [ "Drink 2L water",    nil,                                "daily",  "#6B8E5A", 0.90 ],
+  [ "Write in journal",  "A few lines before bed.",         "daily",  "#B8860B", 0.55 ],
+  [ "Meditate 10 min",   "Headspace or just breath work.",  "daily",  "#8B5A00", 0.65 ],
+  [ "Gym session",       "Three times per week.",           "weekly", "#B85450", 0.40 ]
 ]
 
 habits_data.each do |name, desc, freq, color, completion_rate|
