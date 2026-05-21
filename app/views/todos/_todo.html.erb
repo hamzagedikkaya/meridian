@@ -13,7 +13,7 @@
 
   <div class="flex-1 min-w-0">
     <p class="text-sm <%= 'line-through text-[var(--color-fg-muted)]' if todo.done? %>">
-      <%= link_to todo.title, edit_todo_path(todo), class: "hover:text-[var(--color-accent-400)]" %>
+      <%= link_to todo.title, edit_todo_path(todo), data: { turbo_frame: "modal" }, class: "hover:text-[var(--color-accent-400)]" %>
     </p>
     <div class="flex items-center gap-2 mt-1 text-xs text-[var(--color-fg-muted)]">
       <% if todo.due_at %>
@@ -29,7 +29,7 @@
   </div>
 
   <div class="flex items-center gap-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
-    <%= link_to "Edit", edit_todo_path(todo), class: "text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
-    <%= button_to "×", todo_path(todo), method: :delete, data: { turbo_confirm: "Delete?" }, class: "text-[var(--color-expense)] cursor-pointer" %>
+    <%= link_to t("common.edit"), edit_todo_path(todo), data: { turbo_frame: "modal" }, class: "text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
+    <%= button_to "×", todo_path(todo), method: :delete, data: { turbo_confirm: t("common.confirm_delete") }, class: "text-[var(--color-expense)] cursor-pointer" %>
   </div>
 </li>

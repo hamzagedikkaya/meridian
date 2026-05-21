@@ -1,8 +1,2 @@
-<% content_for :page_title, "New entry" %>
 <% content_for :nav_key, "journal" %>
-
-<div class="max-w-3xl space-y-4">
-  <%= link_to "← Journal", journal_entries_path, class: "text-sm text-[var(--color-fg-muted)]" %>
-  <h2 class="font-[family-name:var(--font-display)] text-3xl tracking-tight">New entry</h2>
-  <div class="card"><%= render "form", entry: @entry %></div>
-</div>
+<%= render "modal", entry: @entry %>

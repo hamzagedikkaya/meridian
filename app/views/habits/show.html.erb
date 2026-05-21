@@ -2,7 +2,7 @@
 <% content_for :nav_key, "habits" %>
 
 <div class="max-w-3xl space-y-6">
-  <%= link_to "← Habits", habits_path, class: "text-sm text-[var(--color-fg-muted)]" %>
+  <%= link_to t("common.back"), habits_path, class: "text-sm text-[var(--color-fg-muted)]" %>
 
   <%# Hero %>
   <div class="card">
@@ -15,8 +15,8 @@
         </div>
       </div>
       <div class="flex gap-2">
-        <%= link_to "Edit", edit_habit_path(@habit), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
-        <%= button_to "Delete", habit_path(@habit), method: :delete, data: { turbo_confirm: "Delete habit and logs?" }, class: "px-3 py-2 text-sm border border-[var(--color-expense)] text-[var(--color-expense)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] cursor-pointer" %>
+        <%= link_to t("common.edit"), edit_habit_path(@habit), data: { turbo_frame: "modal" }, class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
+        <%= button_to t("common.delete"), habit_path(@habit), method: :delete, data: { turbo_confirm: t("habits.delete_confirm") }, class: "px-3 py-2 text-sm border border-[var(--color-expense)] text-[var(--color-expense)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] cursor-pointer" %>
       </div>
     </div>
     <% if @habit.description.present? %>
@@ -24,28 +24,30 @@
     <% end %>
   </div>
 
-  <%# Stats %>
   <div class="grid grid-cols-3 gap-4">
     <div class="card">
-      <p class="text-sm text-[var(--color-fg-muted)]">Current streak</p>
-      <p class="stat-number mt-2">🔥 <%= @habit.current_streak %></p>
-      <p class="text-xs text-[var(--color-fg-faint)] mt-1">days</p>
+      <p class="text-sm text-[var(--color-fg-muted)]"><%= t("habits.detail.current_streak") %></p>
+      <p class="stat-number mt-2 flex items-center gap-2">
+        <span class="text-[var(--color-warning)]"><%= render Ui::Icon.new(name: "flame", size: 24) %></span>
+        <%= @habit.current_streak %>
+      </p>
+      <p class="text-xs text-[var(--color-fg-faint)] mt-1"><%= t("habits.days") %></p>
     </div>
     <div class="card">
-      <p class="text-sm text-[var(--color-fg-muted)]">Longest</p>
+      <p class="text-sm text-[var(--color-fg-muted)]"><%= t("habits.detail.longest") %></p>
       <p class="stat-number mt-2"><%= @habit.longest_streak %></p>
-      <p class="text-xs text-[var(--color-fg-faint)] mt-1">days</p>
+      <p class="text-xs text-[var(--color-fg-faint)] mt-1"><%= t("habits.days") %></p>
     </div>
     <div class="card">
-      <p class="text-sm text-[var(--color-fg-muted)]">30d rate</p>
+      <p class="text-sm text-[var(--color-fg-muted)]"><%= t("habits.detail.rate_30d") %></p>
       <p class="stat-number mt-2"><%= @habit.completion_rate(days: 30) %>%</p>
-      <p class="text-xs text-[var(--color-fg-faint)] mt-1">completion</p>
+      <p class="text-xs text-[var(--color-fg-faint)] mt-1"><%= t("habits.detail.completion") %></p>
     </div>
   </div>
 
-  <%# Heatmap - 12 weeks %>
+  <%# Heatmap %>
   <div class="card">
-    <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4">Last 12 weeks</h3>
+    <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4"><%= t("habits.detail.last_12_weeks") %></h3>
     <div class="overflow-x-auto">
       <div class="inline-grid grid-flow-col gap-1" style="grid-template-rows: repeat(7, 14px);">
         <% (0..83).each do |i| %>
@@ -53,13 +55,13 @@
           <% next if date > Date.current %>
           <% log = @logs_by_date[date] %>
           <% completed = log&.completed %>
-          <div title="<%= date.strftime('%d %b %Y') %> <%= completed ? '✓' : '·' %>"
+          <div title="<%= l(date, format: '%d %b %Y') %> <%= completed ? '✓' : '·' %>"
                class="w-3.5 h-3.5 rounded-sm <%= completed ? 'bg-[var(--color-accent-500)]' : 'bg-[var(--color-bg-hover)]' %>"></div>
         <% end %>
       </div>
     </div>
     <p class="text-xs text-[var(--color-fg-faint)] mt-3">
-      <%= @start_date.strftime("%d %b") %> → <%= Date.current.strftime("%d %b %Y") %>
+      <%= l(@start_date, format: "%d %b") %> → <%= l(Date.current, format: "%d %b %Y") %>
     </p>
   </div>
 </div>

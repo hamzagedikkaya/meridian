@@ -3,7 +3,7 @@
   label_cls = "block text-sm font-medium text-[var(--color-fg-muted)] mb-1.5"
 %>
 
-<%= form_with model: [ :finance, account ], html: { class: "space-y-5" } do |f| %>
+<%= form_with model: [ :finance, account ], data: { turbo_frame: "_top" }, html: { class: "space-y-5" } do |f| %>
   <% if account.errors.any? %>
     <div class="px-4 py-3 rounded-[var(--radius-md)] border border-[var(--color-danger)] bg-[var(--color-bg-overlay)] text-sm">
       <ul class="space-y-1 text-[var(--color-fg-muted)]">
@@ -14,33 +14,33 @@
 
   <div class="grid md:grid-cols-2 gap-5">
     <div>
-      <%= f.label :name, class: label_cls %>
+      <%= f.label :name, t("common.name"), class: label_cls %>
       <%= f.text_field :name, class: input_cls %>
     </div>
     <div>
-      <%= f.label :account_type, "Type", class: label_cls %>
-      <%= f.select :account_type, Account::ACCOUNT_TYPES.map { |t| [ t.titleize, t ] }, {}, class: input_cls %>
+      <%= f.label :account_type, t("finance.accounts.type"), class: label_cls %>
+      <%= f.select :account_type, Account::ACCOUNT_TYPES.map { |type| [ type.titleize, type ] }, {}, class: input_cls %>
     </div>
     <div>
-      <%= f.label :currency, class: label_cls %>
+      <%= f.label :currency, t("finance.accounts.currency"), class: label_cls %>
       <%= f.text_field :currency, maxlength: 3, class: input_cls + " uppercase" %>
     </div>
     <div>
-      <%= f.label :initial_balance_cents, "Initial balance (cents)", class: label_cls %>
+      <%= f.label :initial_balance_cents, t("finance.accounts.initial_balance"), class: label_cls %>
       <%= f.number_field :initial_balance_cents, class: input_cls %>
     </div>
     <div>
-      <%= f.label :color, class: label_cls %>
+      <%= f.label :color, t("common.color"), class: label_cls %>
       <%= f.color_field :color, class: input_cls + " h-10" %>
     </div>
     <div>
-      <%= f.label :icon, class: label_cls %>
-      <%= f.text_field :icon, placeholder: "e.g. wallet", class: input_cls %>
+      <%= f.label :icon, t("common.icon"), class: label_cls %>
+      <%= f.text_field :icon, placeholder: t("finance.accounts.icon_placeholder"), class: input_cls %>
     </div>
   </div>
 
   <div class="flex justify-between items-center pt-4 border-t border-[var(--color-border-subtle)]">
-    <%= link_to "Cancel", finance_accounts_path, class: "text-sm text-[var(--color-fg-muted)]" %>
-    <%= f.submit (account.persisted? ? "Update" : "Create"), class: "px-4 py-2 bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer" %>
+    <a href="#" data-action="click->modal#close" class="text-sm text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)]"><%= t("common.cancel") %></a>
+    <%= f.submit (account.persisted? ? t("common.update") : t("common.create")), class: "px-4 py-2 bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer" %>
   </div>
 <% end %>

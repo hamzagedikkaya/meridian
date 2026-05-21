@@ -2,7 +2,7 @@
 <% content_for :nav_key, "todos" %>
 
 <div class="max-w-xl space-y-4">
-  <%= link_to "← Back", todos_path, class: "text-sm text-[var(--color-fg-muted)]" %>
+  <%= link_to t("common.back"), todos_path, class: "text-sm text-[var(--color-fg-muted)]" %>
   <div class="card">
     <p class="text-sm text-[var(--color-fg-muted)] uppercase tracking-wider"><%= @todo.status.titleize %></p>
     <h2 class="font-[family-name:var(--font-display)] text-3xl tracking-tight mt-1"><%= @todo.title %></h2>
@@ -10,21 +10,21 @@
       <p class="mt-4 text-[var(--color-fg-muted)] whitespace-pre-wrap"><%= @todo.body %></p>
     <% end %>
     <dl class="grid grid-cols-2 gap-3 mt-6 text-sm">
-      <div><dt class="text-[var(--color-fg-muted)]">Priority</dt><dd><%= @todo.priority.titleize %></dd></div>
-      <% if @todo.due_at %><div><dt class="text-[var(--color-fg-muted)]">Due</dt><dd><%= @todo.due_at.strftime("%d %b %Y %H:%M") %></dd></div><% end %>
-      <% if @todo.todo_list %><div><dt class="text-[var(--color-fg-muted)]">List</dt><dd><%= @todo.todo_list.name %></dd></div><% end %>
-      <% if @todo.completed_at %><div><dt class="text-[var(--color-fg-muted)]">Completed</dt><dd><%= @todo.completed_at.strftime("%d %b %Y") %></dd></div><% end %>
+      <div><dt class="text-[var(--color-fg-muted)]"><%= t("common.priority") %></dt><dd><%= @todo.priority.titleize %></dd></div>
+      <% if @todo.due_at %><div><dt class="text-[var(--color-fg-muted)]"><%= t("common.due") %></dt><dd><%= l(@todo.due_at, format: "%d %b %Y %H:%M") %></dd></div><% end %>
+      <% if @todo.todo_list %><div><dt class="text-[var(--color-fg-muted)]"><%= t("common.list") %></dt><dd><%= @todo.todo_list.name %></dd></div><% end %>
+      <% if @todo.completed_at %><div><dt class="text-[var(--color-fg-muted)]"><%= t("common.completed") %></dt><dd><%= l(@todo.completed_at.to_date, format: "%d %b %Y") %></dd></div><% end %>
     </dl>
   </div>
 
   <%# Focus timer %>
-  <div class="card" data-controller="focus-timer" data-focus-timer-duration-minutes-value="25" data-focus-timer-todo-id-value="<%= @todo.id %>">
-    <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-3">Focus</h3>
+  <div class="card" data-controller="focus-timer" data-focus-timer-duration-minutes-value="25" data-focus-timer-todo-id-value="<%= @todo.id %>" data-focus-timer-notification-body-value="<%= t("focus.completed_notification") %>">
+    <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-3"><%= t("focus.title") %></h3>
     <div class="flex items-center gap-4">
       <p data-focus-timer-target="display" class="font-[family-name:var(--font-display)] text-4xl tracking-tight">25:00</p>
-      <button type="button" data-action="click->focus-timer#start" class="px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium cursor-pointer">Start</button>
-      <button type="button" data-action="click->focus-timer#stop" class="px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] cursor-pointer">Reset</button>
+      <button type="button" data-action="click->focus-timer#start" class="px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium cursor-pointer"><%= t("focus.start") %></button>
+      <button type="button" data-action="click->focus-timer#stop" class="px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] cursor-pointer"><%= t("focus.reset") %></button>
     </div>
-    <p class="text-xs text-[var(--color-fg-faint)] mt-2">25-minute pomodoro. Browser notification when done.</p>
+    <p class="text-xs text-[var(--color-fg-faint)] mt-2"><%= t("focus.description") %></p>
   </div>
 </div>

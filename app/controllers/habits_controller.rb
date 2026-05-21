@@ -18,7 +18,7 @@ class HabitsController < ApplicationController
   def create
     @habit = current_user.habits.new(habit_params)
     if @habit.save
-      redirect_to habits_path, notice: "Habit added."
+      redirect_to habits_path, notice: t("flash.saved")
     else
       render :new, status: :unprocessable_entity
     end
@@ -29,7 +29,7 @@ class HabitsController < ApplicationController
 
   def update
     if @habit.update(habit_params)
-      redirect_to habits_path, notice: "Habit updated."
+      redirect_to habits_path, notice: t("flash.updated")
     else
       render :edit, status: :unprocessable_entity
     end
@@ -37,7 +37,7 @@ class HabitsController < ApplicationController
 
   def destroy
     @habit.destroy
-    redirect_to habits_path, notice: "Habit deleted."
+    redirect_to habits_path, notice: t("flash.deleted")
   end
 
   def toggle_today

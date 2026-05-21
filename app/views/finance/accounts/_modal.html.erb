@@ -1,0 +1,17 @@
+<% is_new = account.new_record? %>
+
+<turbo-frame id="modal">
+  <div class="w-full max-w-xl bg-[var(--color-bg-elevated)] border border-[var(--color-border-default)] rounded-[var(--radius-md)] shadow-2xl">
+    <div class="px-5 py-4 border-b border-[var(--color-border-subtle)] flex items-center justify-between">
+      <h2 class="font-[family-name:var(--font-display)] text-2xl tracking-tight">
+        <%= is_new ? t("finance.accounts.new_title") : t("finance.accounts.edit_title") %>
+      </h2>
+      <a href="#" data-action="click->modal#close" class="text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)]">
+        <%= render Ui::Icon.new(name: "x", size: 18) %>
+      </a>
+    </div>
+    <div class="p-5">
+      <%= render "form", account: account %>
+    </div>
+  </div>
+</turbo-frame>

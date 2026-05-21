@@ -1,20 +1,20 @@
-<% content_for :page_title, "Categories" %>
+<% content_for :page_title, t("finance.categories.title") %>
 <% content_for :nav_key, "finance" %>
 
 <div class="space-y-6">
   <div class="flex items-end justify-between gap-3">
     <div>
-      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Categories</h2>
-      <p class="text-[var(--color-fg-muted)] mt-1">Gelir ve gider kategorileri.</p>
+      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight"><%= t("finance.categories.title") %></h2>
+      <p class="text-[var(--color-fg-muted)] mt-1"><%= t("finance.categories.subtitle") %></p>
     </div>
     <div class="flex gap-2">
-      <%= link_to "+ Income", new_finance_category_path(kind: "income"), class: "px-3 py-2 text-sm border border-[var(--color-income)] text-[var(--color-income)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
-      <%= link_to "+ Expense", new_finance_category_path(kind: "expense"), class: "px-3 py-2 text-sm border border-[var(--color-expense)] text-[var(--color-expense)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
+      <%= link_to t("finance.categories.new_income"), new_finance_category_path(kind: "income"), data: { turbo_frame: "modal" }, class: "px-3 py-2 text-sm border border-[var(--color-income)] text-[var(--color-income)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
+      <%= link_to t("finance.categories.new_expense"), new_finance_category_path(kind: "expense"), data: { turbo_frame: "modal" }, class: "px-3 py-2 text-sm border border-[var(--color-expense)] text-[var(--color-expense)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
     </div>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <% [ [ "Income", @income_categories, "income" ], [ "Expense", @expense_categories, "expense" ] ].each do |label, cats, kind| %>
+    <% [ [ t("finance.dashboard.income"), @income_categories, "income" ], [ t("finance.dashboard.expense"), @expense_categories, "expense" ] ].each do |label, cats, kind| %>
       <div class="card">
         <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4"><%= label %></h3>
         <% if cats.any? %>
@@ -26,14 +26,14 @@
                   <span class="text-sm truncate"><%= c.name %></span>
                 </div>
                 <div class="flex gap-2 text-xs">
-                  <%= link_to "Edit", edit_finance_category_path(c), class: "text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
-                  <%= button_to "×", finance_category_path(c), method: :delete, data: { turbo_confirm: "Delete category? Transactions remain but lose this category." }, class: "text-[var(--color-expense)] hover:text-[var(--color-fg-primary)] cursor-pointer" %>
+                  <%= link_to t("common.edit"), edit_finance_category_path(c), data: { turbo_frame: "modal" }, class: "text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
+                  <%= button_to "×", finance_category_path(c), method: :delete, data: { turbo_confirm: t("finance.categories.delete_confirm") }, class: "text-[var(--color-expense)] hover:text-[var(--color-fg-primary)] cursor-pointer" %>
                 </div>
               </li>
             <% end %>
           </ul>
         <% else %>
-          <p class="text-sm text-[var(--color-fg-muted)]">No <%= kind %> categories yet.</p>
+          <p class="text-sm text-[var(--color-fg-muted)]"><%= t("finance.categories.none", kind: label.downcase) %></p>
         <% end %>
       </div>
     <% end %>

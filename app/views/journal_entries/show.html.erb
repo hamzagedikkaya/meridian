@@ -1,21 +1,21 @@
-<% content_for :page_title, @entry.title.presence || "Entry" %>
+<% content_for :page_title, @entry.title.presence || t("journal.untitled") %>
 <% content_for :nav_key, "journal" %>
 
 <div class="max-w-3xl space-y-6">
-  <%= link_to "← Journal", journal_entries_path, class: "text-sm text-[var(--color-fg-muted)]" %>
+  <%= link_to t("common.back"), journal_entries_path, class: "text-sm text-[var(--color-fg-muted)]" %>
 
   <div class="card">
     <div class="flex items-start justify-between gap-3">
       <div>
-        <p class="text-sm text-[var(--color-fg-muted)]"><%= @entry.date.strftime("%A, %d %B %Y") %></p>
+        <p class="text-sm text-[var(--color-fg-muted)]"><%= l(@entry.date, format: "%A, %d %B %Y") %></p>
         <div class="flex items-center gap-2 mt-1">
           <% if @entry.mood %><span class="text-3xl"><%= @entry.mood_emoji %></span><% end %>
-          <h2 class="font-[family-name:var(--font-display)] text-3xl tracking-tight"><%= @entry.title.presence || "Untitled" %></h2>
+          <h2 class="font-[family-name:var(--font-display)] text-3xl tracking-tight"><%= @entry.title.presence || t("journal.untitled") %></h2>
         </div>
       </div>
       <div class="flex gap-2">
-        <%= link_to "Edit", edit_journal_entry_path(@entry), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
-        <%= button_to "Delete", journal_entry_path(@entry), method: :delete, data: { turbo_confirm: "Delete?" }, class: "px-3 py-2 text-sm border border-[var(--color-expense)] text-[var(--color-expense)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] cursor-pointer" %>
+        <%= link_to t("common.edit"), edit_journal_entry_path(@entry), data: { turbo_frame: "modal" }, class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
+        <%= button_to t("common.delete"), journal_entry_path(@entry), method: :delete, data: { turbo_confirm: t("common.confirm_delete") }, class: "px-3 py-2 text-sm border border-[var(--color-expense)] text-[var(--color-expense)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] cursor-pointer" %>
       </div>
     </div>
 
@@ -25,7 +25,7 @@
 
     <% if @entry.gratitude.present? %>
       <div class="mt-6 p-4 rounded-[var(--radius-md)] bg-[var(--color-bg-base)] border border-[var(--color-border-subtle)]">
-        <p class="text-xs uppercase tracking-wider text-[var(--color-fg-muted)] mb-2">Gratitude</p>
+        <p class="text-xs uppercase tracking-wider text-[var(--color-fg-muted)] mb-2"><%= t("journal.gratitude") %></p>
         <p class="text-sm whitespace-pre-wrap"><%= @entry.gratitude %></p>
       </div>
     <% end %>

@@ -17,7 +17,7 @@ module Finance
     def create
       @account = current_user.accounts.new(account_params)
       if @account.save
-        redirect_to finance_accounts_path, notice: "Account created."
+        redirect_to finance_accounts_path, notice: t("flash.saved")
       else
         render :new, status: :unprocessable_entity
       end
@@ -28,7 +28,7 @@ module Finance
 
     def update
       if @account.update(account_params)
-        redirect_to finance_accounts_path, notice: "Account updated."
+        redirect_to finance_accounts_path, notice: t("flash.updated")
       else
         render :edit, status: :unprocessable_entity
       end
@@ -36,7 +36,7 @@ module Finance
 
     def destroy
       @account.destroy
-      redirect_to finance_accounts_path, notice: "Account deleted."
+      redirect_to finance_accounts_path, notice: t("flash.deleted")
     end
 
     private

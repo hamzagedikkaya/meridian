@@ -14,7 +14,7 @@ module Finance
     def create
       @category = current_user.finance_categories.new(category_params)
       if @category.save
-        redirect_to finance_categories_path, notice: "Category created."
+        redirect_to finance_categories_path, notice: t("flash.saved")
       else
         render :new, status: :unprocessable_entity
       end
@@ -25,7 +25,7 @@ module Finance
 
     def update
       if @category.update(category_params)
-        redirect_to finance_categories_path, notice: "Category updated."
+        redirect_to finance_categories_path, notice: t("flash.updated")
       else
         render :edit, status: :unprocessable_entity
       end
@@ -33,7 +33,7 @@ module Finance
 
     def destroy
       @category.destroy
-      redirect_to finance_categories_path, notice: "Category deleted."
+      redirect_to finance_categories_path, notice: t("flash.deleted")
     end
 
     private

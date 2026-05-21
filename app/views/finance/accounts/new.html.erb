@@ -1,8 +1,2 @@
-<% content_for :page_title, "New account" %>
 <% content_for :nav_key, "finance" %>
-
-<div class="max-w-xl space-y-4">
-  <%= link_to "← Back", finance_accounts_path, class: "text-sm text-[var(--color-fg-muted)]" %>
-  <h2 class="font-[family-name:var(--font-display)] text-3xl tracking-tight">New account</h2>
-  <div class="card"><%= render "form", account: @account %></div>
-</div>
+<%= render "modal", account: @account %>

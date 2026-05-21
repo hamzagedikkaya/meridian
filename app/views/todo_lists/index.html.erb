@@ -1,13 +1,13 @@
-<% content_for :page_title, "Todo lists" %>
+<% content_for :page_title, t("todo_lists.title") %>
 <% content_for :nav_key, "todos" %>
 
 <div class="space-y-6">
   <div class="flex items-end justify-between">
     <div>
-      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Lists</h2>
-      <p class="text-[var(--color-fg-muted)] mt-1">Organize todos by list.</p>
+      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight"><%= t("todo_lists.title") %></h2>
+      <p class="text-[var(--color-fg-muted)] mt-1"><%= t("todo_lists.subtitle") %></p>
     </div>
-    <%= link_to "+ New list", new_todo_list_path, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium" %>
+    <%= link_to t("todo_lists.new"), new_todo_list_path, data: { turbo_frame: "modal" }, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium" %>
   </div>
 
   <% if @lists.any? %>
@@ -20,18 +20,18 @@
               <p class="text-lg font-medium truncate"><%= l.name %></p>
             </div>
             <div class="flex gap-2 text-xs">
-              <%= link_to "Edit", edit_todo_list_path(l), class: "text-[var(--color-accent-400)]" %>
-              <%= button_to "×", todo_list_path(l), method: :delete, data: { turbo_confirm: "Delete list? Todos remain unlisted." }, class: "text-[var(--color-expense)] cursor-pointer" %>
+              <%= link_to t("common.edit"), edit_todo_list_path(l), data: { turbo_frame: "modal" }, class: "text-[var(--color-accent-400)]" %>
+              <%= button_to "×", todo_list_path(l), method: :delete, data: { turbo_confirm: t("todo_lists.delete_confirm") }, class: "text-[var(--color-expense)] cursor-pointer" %>
             </div>
           </div>
-          <p class="text-sm text-[var(--color-fg-muted)] mt-2"><%= pluralize(l.todos.open.count, "open todo") %></p>
+          <p class="text-sm text-[var(--color-fg-muted)] mt-2"><%= t("todo_lists.open_count", count: l.todos.open.count) %></p>
         </div>
       <% end %>
     </div>
   <% else %>
     <div class="card text-center py-12">
-      <p class="text-[var(--color-fg-muted)] mb-3">No lists yet.</p>
-      <%= link_to "Create your first list", new_todo_list_path, class: "text-[var(--color-accent-400)]" %>
+      <p class="text-[var(--color-fg-muted)] mb-3"><%= t("todo_lists.none") %></p>
+      <%= link_to t("todo_lists.create_first"), new_todo_list_path, data: { turbo_frame: "modal" }, class: "text-[var(--color-accent-400)]" %>
     </div>
   <% end %>
 </div>

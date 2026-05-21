@@ -1,8 +1,2 @@
-<% content_for :page_title, "Edit category" %>
 <% content_for :nav_key, "finance" %>
-
-<div class="max-w-xl space-y-4">
-  <%= link_to "← Back", finance_categories_path, class: "text-sm text-[var(--color-fg-muted)]" %>
-  <h2 class="font-[family-name:var(--font-display)] text-3xl tracking-tight">Edit category</h2>
-  <div class="card"><%= render "form", category: @category %></div>
-</div>
+<%= render "modal", category: @category %>

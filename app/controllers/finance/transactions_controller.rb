@@ -32,7 +32,7 @@ module Finance
       @transaction = current_user.transactions.new(transaction_params)
 
       if @transaction.save
-        redirect_to finance_transactions_path, notice: "Transaction recorded."
+        redirect_to finance_transactions_path, notice: t("flash.saved")
       else
         load_form_data
         render :new, status: :unprocessable_entity
@@ -45,7 +45,7 @@ module Finance
 
     def update
       if @transaction.update(transaction_params)
-        redirect_to finance_transactions_path, notice: "Transaction updated."
+        redirect_to finance_transactions_path, notice: t("flash.updated")
       else
         load_form_data
         render :edit, status: :unprocessable_entity
@@ -54,7 +54,7 @@ module Finance
 
     def destroy
       @transaction.destroy
-      redirect_to finance_transactions_path, notice: "Transaction deleted."
+      redirect_to finance_transactions_path, notice: t("flash.deleted")
     end
 
     def export

@@ -1,29 +1,29 @@
-<% content_for :page_title, "Todos" %>
+<% content_for :page_title, t("todos.title") %>
 <% content_for :nav_key, "todos" %>
 
 <%
   filters = [
-    [ "open",    "Open" ],
-    [ "today",   "Today" ],
-    [ "week",    "This week" ],
-    [ "overdue", "Overdue" ],
-    [ "done",    "Done" ]
+    [ "open",    t("todos.filters.open") ],
+    [ "today",   t("todos.filters.today") ],
+    [ "week",    t("todos.filters.week") ],
+    [ "overdue", t("todos.filters.overdue") ],
+    [ "done",    t("todos.filters.done") ]
   ]
+  current_filter_label = t("todos.filters.#{@filter}", default: @filter.humanize)
 %>
 
 <div class="space-y-6">
   <div class="flex flex-wrap items-end justify-between gap-3">
     <div>
-      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Todos</h2>
-      <p class="text-[var(--color-fg-muted)] mt-1"><%= pluralize(@todos.count, "task") %> in <em><%= @filter.humanize %></em></p>
+      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight"><%= t("todos.title") %></h2>
+      <p class="text-[var(--color-fg-muted)] mt-1"><%= @todos.count %> <%= t("todos.tasks") %> · <em><%= current_filter_label %></em></p>
     </div>
     <div class="flex gap-2">
-      <%= link_to "Lists", todo_lists_path, class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
-      <%= link_to "+ New todo", new_todo_path, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium" %>
+      <%= link_to t("todos.lists"), todo_lists_path, class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
+      <%= link_to t("todos.new"), new_todo_path, data: { turbo_frame: "modal" }, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium" %>
     </div>
   </div>
 
-  <%# Filter tabs %>
   <div class="flex gap-1 border-b border-[var(--color-border-subtle)] overflow-x-auto">
     <% filters.each do |key, label| %>
       <% active = @filter == key %>
@@ -40,8 +40,8 @@
       </ul>
     <% else %>
       <div class="text-center py-10">
-        <p class="text-[var(--color-fg-muted)]">No <%= @filter.humanize.downcase %> todos.</p>
-        <%= link_to "Add one", new_todo_path, class: "mt-2 inline-block text-[var(--color-accent-400)]" %>
+        <p class="text-[var(--color-fg-muted)]"><%= t("todos.none", filter: current_filter_label.downcase) %></p>
+        <%= link_to t("todos.add_one"), new_todo_path, data: { turbo_frame: "modal" }, class: "mt-2 inline-block text-[var(--color-accent-400)]" %>
       </div>
     <% end %>
   </div>

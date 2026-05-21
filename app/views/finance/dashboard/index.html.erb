@@ -1,53 +1,50 @@
-<% content_for :page_title, "Finance" %>
+<% content_for :page_title, t("finance.dashboard.title") %>
 <% content_for :nav_key, "finance" %>
 
 <div class="space-y-6">
   <%# Header + quick actions %>
   <div class="flex flex-wrap items-end justify-between gap-3">
     <div>
-      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Finance</h2>
-      <p class="text-[var(--color-fg-muted)] mt-1"><%= Date.current.strftime("%B %Y") %> · <%= @currency %></p>
+      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight"><%= t("finance.dashboard.title") %></h2>
+      <p class="text-[var(--color-fg-muted)] mt-1"><%= l(Date.current, format: "%B %Y") %> · <%= @currency %></p>
     </div>
     <div class="flex gap-2 flex-wrap">
-      <%= link_to "New income", new_finance_transaction_path(kind: "income"), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] transition-colors" %>
-      <%= link_to "New expense", new_finance_transaction_path(kind: "expense"), class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium transition-colors" %>
-      <%= link_to "Transfer", new_finance_transfer_path, class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] transition-colors" %>
+      <%= link_to t("finance.dashboard.new_income"), new_finance_transaction_path(kind: "income"), data: { turbo_frame: "modal" }, class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] transition-colors" %>
+      <%= link_to t("finance.dashboard.new_expense"), new_finance_transaction_path(kind: "expense"), data: { turbo_frame: "modal" }, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium transition-colors" %>
     </div>
   </div>
 
-  <%# Hero stats %>
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <div class="card">
-      <p class="text-sm text-[var(--color-fg-muted)]">Net this month</p>
+      <p class="text-sm text-[var(--color-fg-muted)]"><%= t("finance.dashboard.net_this_month") %></p>
       <p class="stat-number mt-2 <%= @month_net >= 0 ? 'text-[var(--color-income)]' : 'text-[var(--color-expense)]' %>">
         <%= money_format(@month_net, currency: @currency) %>
       </p>
-      <p class="text-xs text-[var(--color-fg-faint)] mt-2"><%= Date.current.strftime("%B") %></p>
+      <p class="text-xs text-[var(--color-fg-faint)] mt-2"><%= l(Date.current, format: "%B") %></p>
     </div>
     <div class="card">
-      <p class="text-sm text-[var(--color-fg-muted)]">Income</p>
+      <p class="text-sm text-[var(--color-fg-muted)]"><%= t("finance.dashboard.income") %></p>
       <p class="stat-number mt-2 text-[var(--color-income)]"><%= money_format(@month_income, currency: @currency) %></p>
-      <p class="text-xs text-[var(--color-fg-faint)] mt-2">This month</p>
+      <p class="text-xs text-[var(--color-fg-faint)] mt-2"><%= t("finance.dashboard.this_month") %></p>
     </div>
     <div class="card">
-      <p class="text-sm text-[var(--color-fg-muted)]">Expense</p>
+      <p class="text-sm text-[var(--color-fg-muted)]"><%= t("finance.dashboard.expense") %></p>
       <p class="stat-number mt-2 text-[var(--color-expense)]"><%= money_format(@month_expense, currency: @currency) %></p>
-      <p class="text-xs text-[var(--color-fg-faint)] mt-2">This month</p>
+      <p class="text-xs text-[var(--color-fg-faint)] mt-2"><%= t("finance.dashboard.this_month") %></p>
     </div>
   </div>
 
-  <%# 6-month chart + Top categories %>
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
     <div class="card lg:col-span-2">
-      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4">6-month trend</h3>
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4"><%= t("finance.dashboard.six_month_trend") %></h3>
       <%= column_chart [
-        { name: "Income",  data: @six_month_series[:labels].zip(@six_month_series[:income]).to_h },
-        { name: "Expense", data: @six_month_series[:labels].zip(@six_month_series[:expense]).to_h }
+        { name: t("finance.dashboard.income"),  data: @six_month_series[:labels].zip(@six_month_series[:income]).to_h },
+        { name: t("finance.dashboard.expense"), data: @six_month_series[:labels].zip(@six_month_series[:expense]).to_h }
       ], colors: [ "#6B8E5A", "#B85450" ], height: "280px", library: { plugins: { legend: { labels: { color: "#A09B8E" } } }, scales: { x: { ticks: { color: "#A09B8E" }, grid: { display: false } }, y: { ticks: { color: "#A09B8E" }, grid: { color: "rgba(245,241,232,0.06)" } } } } %>
     </div>
 
     <div class="card">
-      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4">Top expense categories</h3>
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4"><%= t("finance.dashboard.top_expense_categories") %></h3>
       <% if @top_expense_categories.any? %>
         <ul class="space-y-3">
           <% @top_expense_categories.each do |(name, color), amount| %>
@@ -61,17 +58,16 @@
           <% end %>
         </ul>
       <% else %>
-        <p class="text-sm text-[var(--color-fg-muted)]">No expenses yet this month.</p>
+        <p class="text-sm text-[var(--color-fg-muted)]"><%= t("finance.dashboard.no_expenses_month") %></p>
       <% end %>
     </div>
   </div>
 
-  <%# Recent transactions + Upcoming subscriptions %>
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
     <div class="card lg:col-span-2">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight">Recent transactions</h3>
-        <%= link_to "All →", finance_transactions_path, class: "text-sm text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
+        <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight"><%= t("finance.dashboard.recent_transactions") %></h3>
+        <%= link_to t("common.all") + " →", finance_transactions_path, class: "text-sm text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
       </div>
       <% if @recent_transactions.any? %>
         <ul class="divide-y divide-[var(--color-border-subtle)]">
@@ -79,21 +75,21 @@
             <li class="py-3 flex items-center justify-between gap-3">
               <div class="min-w-0">
                 <p class="text-sm truncate"><%= t.description.presence || t.finance_category&.name || t.kind.titleize %></p>
-                <p class="text-xs text-[var(--color-fg-muted)]"><%= t.date.strftime("%d %b") %> · <%= t.account.name %><%= " → #{t.related_account.name}" if t.kind == 'transfer' && t.related_account %></p>
+                <p class="text-xs text-[var(--color-fg-muted)]"><%= l(t.date, format: "%d %b") %> · <%= t.account.name %><%= " → #{t.related_account.name}" if t.kind == 'transfer' && t.related_account %></p>
               </div>
               <span class="text-sm font-medium <%= signed_amount_class(t.kind) %>"><%= signed_amount_prefix(t.kind) %><%= money_format(t.amount_cents, currency: t.account_currency) %></span>
             </li>
           <% end %>
         </ul>
       <% else %>
-        <p class="text-sm text-[var(--color-fg-muted)]">No transactions yet. <%= link_to "Add one", new_finance_transaction_path, class: "text-[var(--color-accent-400)]" %>.</p>
+        <p class="text-sm text-[var(--color-fg-muted)]"><%= t("finance.dashboard.no_transactions") %> <%= link_to t("finance.dashboard.add_one"), new_finance_transaction_path, class: "text-[var(--color-accent-400)]" %>.</p>
       <% end %>
     </div>
 
     <div class="card">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight">Upcoming subs</h3>
-        <%= link_to "All →", finance_subscriptions_path, class: "text-sm text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
+        <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight"><%= t("finance.dashboard.upcoming_subs") %></h3>
+        <%= link_to t("common.all") + " →", finance_subscriptions_path, class: "text-sm text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
       </div>
       <% if @upcoming_subscriptions.any? %>
         <ul class="space-y-3">
@@ -101,14 +97,14 @@
             <li class="flex items-center justify-between gap-3">
               <div class="min-w-0">
                 <p class="text-sm truncate"><%= sub.name %></p>
-                <p class="text-xs text-[var(--color-fg-muted)]"><%= sub.next_charge_on&.strftime("%d %b") %> · <%= sub.frequency %></p>
+                <p class="text-xs text-[var(--color-fg-muted)]"><%= sub.next_charge_on&.then { |d| l(d, format: "%d %b") } %> · <%= sub.frequency %></p>
               </div>
               <span class="text-sm font-medium text-[var(--color-expense)]"><%= money_format(sub.amount_cents, currency: sub.account_currency) %></span>
             </li>
           <% end %>
         </ul>
       <% else %>
-        <p class="text-sm text-[var(--color-fg-muted)]">No active subscriptions.</p>
+        <p class="text-sm text-[var(--color-fg-muted)]"><%= t("finance.dashboard.no_active_subs") %></p>
       <% end %>
     </div>
   </div>

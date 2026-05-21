@@ -3,7 +3,7 @@
   label_cls = "block text-sm font-medium text-[var(--color-fg-muted)] mb-1.5"
 %>
 
-<%= form_with model: habit, html: { class: "space-y-5" } do |f| %>
+<%= form_with model: habit, data: { turbo_frame: "_top" }, html: { class: "space-y-5" } do |f| %>
   <% if habit.errors.any? %>
     <div class="px-4 py-3 rounded-[var(--radius-md)] border border-[var(--color-danger)] bg-[var(--color-bg-overlay)] text-sm">
       <ul class="space-y-1 text-[var(--color-fg-muted)]"><% habit.errors.full_messages.each { |m| %><li>• <%= m %></li><% } %></ul>
@@ -11,30 +11,30 @@
   <% end %>
 
   <div>
-    <%= f.label :name, class: label_cls %>
+    <%= f.label :name, t("common.name"), class: label_cls %>
     <%= f.text_field :name, autofocus: true, class: input_cls %>
   </div>
   <div>
-    <%= f.label :description, class: label_cls %>
+    <%= f.label :description, t("common.description"), class: label_cls %>
     <%= f.text_area :description, rows: 2, class: input_cls %>
   </div>
   <div class="grid md:grid-cols-3 gap-5">
     <div>
-      <%= f.label :frequency, class: label_cls %>
+      <%= f.label :frequency, t("finance.subscriptions.frequency"), class: label_cls %>
       <%= f.select :frequency, Habit::FREQUENCIES.map { |fr| [ fr.titleize, fr ] }, {}, class: input_cls %>
     </div>
     <div>
-      <%= f.label :target_count, "Target", class: label_cls %>
+      <%= f.label :target_count, t("habits.target"), class: label_cls %>
       <%= f.number_field :target_count, min: 1, class: input_cls %>
     </div>
     <div>
-      <%= f.label :color, class: label_cls %>
+      <%= f.label :color, t("common.color"), class: label_cls %>
       <%= f.color_field :color, class: input_cls + " h-10" %>
     </div>
   </div>
 
   <div class="flex justify-between items-center pt-4 border-t border-[var(--color-border-subtle)]">
-    <%= link_to "Cancel", habits_path, class: "text-sm text-[var(--color-fg-muted)]" %>
-    <%= f.submit (habit.persisted? ? "Update" : "Create"), class: "px-4 py-2 bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer" %>
+    <a href="#" data-action="click->modal#close" class="text-sm text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)]"><%= t("common.cancel") %></a>
+    <%= f.submit (habit.persisted? ? t("common.update") : t("common.create")), class: "px-4 py-2 bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer" %>
   </div>
 <% end %>

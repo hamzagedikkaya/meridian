@@ -21,7 +21,7 @@ module Finance
     def create
       @subscription = current_user.subscriptions.new(subscription_params)
       if @subscription.save
-        redirect_to finance_subscriptions_path, notice: "Subscription added."
+        redirect_to finance_subscriptions_path, notice: t("flash.saved")
       else
         load_form_data
         render :new, status: :unprocessable_entity
@@ -34,7 +34,7 @@ module Finance
 
     def update
       if @subscription.update(subscription_params)
-        redirect_to finance_subscriptions_path, notice: "Subscription updated."
+        redirect_to finance_subscriptions_path, notice: t("flash.updated")
       else
         load_form_data
         render :edit, status: :unprocessable_entity
@@ -43,7 +43,7 @@ module Finance
 
     def destroy
       @subscription.destroy
-      redirect_to finance_subscriptions_path, notice: "Subscription deleted."
+      redirect_to finance_subscriptions_path, notice: t("flash.deleted")
     end
 
     private

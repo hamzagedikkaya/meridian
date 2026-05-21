@@ -1,8 +1,8 @@
-<% content_for :page_title, "Transaction" %>
+<% content_for :page_title, t("finance.transactions.title") %>
 <% content_for :nav_key, "finance" %>
 
 <div class="max-w-2xl space-y-6">
-  <%= link_to "← Back", finance_transactions_path, class: "text-sm text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)]" %>
+  <%= link_to t("common.back"), finance_transactions_path, class: "text-sm text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)]" %>
 
   <div class="card">
     <p class="text-sm text-[var(--color-fg-muted)] uppercase tracking-wider"><%= @transaction.kind.titleize %></p>
@@ -10,22 +10,22 @@
     <p class="mt-2 text-lg"><%= @transaction.description %></p>
 
     <dl class="grid grid-cols-2 gap-4 mt-6 text-sm">
-      <div><dt class="text-[var(--color-fg-muted)]">Date</dt><dd><%= @transaction.date.strftime("%d %b %Y") %></dd></div>
-      <div><dt class="text-[var(--color-fg-muted)]">Account</dt><dd><%= @transaction.account.name %></dd></div>
-      <% if @transaction.finance_category %><div><dt class="text-[var(--color-fg-muted)]">Category</dt><dd><%= @transaction.finance_category.name %></dd></div><% end %>
-      <% if @transaction.related_account %><div><dt class="text-[var(--color-fg-muted)]">Transfer to</dt><dd><%= @transaction.related_account.name %></dd></div><% end %>
+      <div><dt class="text-[var(--color-fg-muted)]"><%= t("common.date") %></dt><dd><%= l(@transaction.date, format: "%d %b %Y") %></dd></div>
+      <div><dt class="text-[var(--color-fg-muted)]"><%= t("common.account") %></dt><dd><%= @transaction.account.name %></dd></div>
+      <% if @transaction.finance_category %><div><dt class="text-[var(--color-fg-muted)]"><%= t("common.category") %></dt><dd><%= @transaction.finance_category.name %></dd></div><% end %>
+      <% if @transaction.related_account %><div><dt class="text-[var(--color-fg-muted)]"><%= t("finance.dashboard.transfer") %></dt><dd><%= @transaction.related_account.name %></dd></div><% end %>
     </dl>
 
     <% if @transaction.note.present? %>
       <div class="mt-6 pt-4 border-t border-[var(--color-border-subtle)]">
-        <p class="text-sm text-[var(--color-fg-muted)] mb-1">Note</p>
+        <p class="text-sm text-[var(--color-fg-muted)] mb-1"><%= t("common.note") %></p>
         <p class="text-sm whitespace-pre-wrap"><%= @transaction.note %></p>
       </div>
     <% end %>
 
     <div class="flex justify-end gap-2 mt-6 pt-4 border-t border-[var(--color-border-subtle)]">
-      <%= link_to "Edit", edit_finance_transaction_path(@transaction), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
-      <%= button_to "Delete", finance_transaction_path(@transaction), method: :delete, data: { turbo_confirm: "Delete?" }, class: "px-3 py-2 text-sm border border-[var(--color-expense)] text-[var(--color-expense)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] cursor-pointer" %>
+      <%= link_to t("common.edit"), edit_finance_transaction_path(@transaction), data: { turbo_frame: "modal" }, class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
+      <%= button_to t("common.delete"), finance_transaction_path(@transaction), method: :delete, data: { turbo_confirm: t("common.confirm_delete") }, class: "px-3 py-2 text-sm border border-[var(--color-expense)] text-[var(--color-expense)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] cursor-pointer" %>
     </div>
   </div>
 </div>

@@ -12,7 +12,7 @@ class TodoListsController < ApplicationController
   def create
     @list = current_user.todo_lists.new(list_params)
     if @list.save
-      redirect_to todo_lists_path, notice: "List created."
+      redirect_to todo_lists_path, notice: t("flash.saved")
     else
       render :new, status: :unprocessable_entity
     end
@@ -23,7 +23,7 @@ class TodoListsController < ApplicationController
 
   def update
     if @list.update(list_params)
-      redirect_to todo_lists_path, notice: "List updated."
+      redirect_to todo_lists_path, notice: t("flash.updated")
     else
       render :edit, status: :unprocessable_entity
     end
@@ -31,7 +31,7 @@ class TodoListsController < ApplicationController
 
   def destroy
     @list.destroy
-    redirect_to todo_lists_path, notice: "List deleted."
+    redirect_to todo_lists_path, notice: t("flash.deleted")
   end
 
   private

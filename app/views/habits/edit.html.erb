@@ -1,8 +1,2 @@
-<% content_for :page_title, "Edit habit" %>
 <% content_for :nav_key, "habits" %>
-
-<div class="max-w-xl space-y-4">
-  <%= link_to "← Back", habits_path, class: "text-sm text-[var(--color-fg-muted)]" %>
-  <h2 class="font-[family-name:var(--font-display)] text-3xl tracking-tight">Edit habit</h2>
-  <div class="card"><%= render "form", habit: @habit %></div>
-</div>
+<%= render "modal", habit: @habit %>

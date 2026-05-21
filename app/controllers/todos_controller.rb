@@ -30,7 +30,7 @@ class TodosController < ApplicationController
   def create
     @todo = current_user.todos.new(todo_params)
     if @todo.save
-      redirect_to todos_path, notice: "Todo added."
+      redirect_to todos_path, notice: t("flash.saved")
     else
       @lists = current_user.todo_lists.active.ordered
       render :new, status: :unprocessable_entity
@@ -43,7 +43,7 @@ class TodosController < ApplicationController
 
   def update
     if @todo.update(todo_params)
-      redirect_to todos_path, notice: "Todo updated."
+      redirect_to todos_path, notice: t("flash.updated")
     else
       @lists = current_user.todo_lists.active.ordered
       render :edit, status: :unprocessable_entity
@@ -52,7 +52,7 @@ class TodosController < ApplicationController
 
   def destroy
     @todo.destroy
-    redirect_to todos_path, notice: "Todo deleted."
+    redirect_to todos_path, notice: t("flash.deleted")
   end
 
   def toggle

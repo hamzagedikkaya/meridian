@@ -1,71 +1,69 @@
-<% content_for :page_title, "Transactions" %>
+<% content_for :page_title, t("finance.transactions.title") %>
 <% content_for :nav_key, "finance" %>
 
 <div class="space-y-6">
   <div class="flex flex-wrap items-end justify-between gap-3">
     <div>
-      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Transactions</h2>
-      <p class="text-[var(--color-fg-muted)] mt-1"><%= pluralize(@total_count, "record") %></p>
+      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight"><%= t("finance.transactions.title") %></h2>
+      <p class="text-[var(--color-fg-muted)] mt-1"><%= @total_count %> <%= t("finance.transactions.records") %></p>
     </div>
     <div class="flex gap-2">
-      <%= link_to "Export CSV", finance_transactions_export_path(format: :csv), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] transition-colors" %>
-      <%= link_to "+ New", new_finance_transaction_path, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium transition-colors" %>
+      <%= link_to t("finance.transactions.export_csv"), finance_transactions_export_path(format: :csv), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] transition-colors" %>
+      <%= link_to t("finance.transactions.new"), new_finance_transaction_path, data: { turbo_frame: "modal" }, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium transition-colors" %>
     </div>
   </div>
 
-  <%# Filters %>
   <div class="card !py-4">
     <%= form_with url: finance_transactions_path, method: :get, html: { class: "flex flex-wrap gap-3 items-end" } do |f| %>
       <%
         input_cls = "px-3 py-2 text-sm bg-[var(--color-bg-base)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] focus:outline-none focus:border-[var(--color-accent-500)]"
       %>
       <div>
-        <label class="block text-xs text-[var(--color-fg-muted)] mb-1">Kind</label>
+        <label class="block text-xs text-[var(--color-fg-muted)] mb-1"><%= t("finance.transactions.filters.kind") %></label>
         <select name="kind" class="<%= input_cls %>">
-          <option value="">All</option>
+          <option value=""><%= t("finance.transactions.filters.all") %></option>
           <% %w[income expense transfer].each do |k| %>
             <option value="<%= k %>" <%= "selected" if params[:kind] == k %>><%= k.titleize %></option>
           <% end %>
         </select>
       </div>
       <div>
-        <label class="block text-xs text-[var(--color-fg-muted)] mb-1">From</label>
+        <label class="block text-xs text-[var(--color-fg-muted)] mb-1"><%= t("finance.transactions.filters.from") %></label>
         <input type="date" name="from" value="<%= params[:from] %>" class="<%= input_cls %>">
       </div>
       <div>
-        <label class="block text-xs text-[var(--color-fg-muted)] mb-1">To</label>
+        <label class="block text-xs text-[var(--color-fg-muted)] mb-1"><%= t("finance.transactions.filters.to") %></label>
         <input type="date" name="to" value="<%= params[:to] %>" class="<%= input_cls %>">
       </div>
-      <button type="submit" class="px-3 py-2 text-sm bg-[var(--color-bg-overlay)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] transition-colors">Filter</button>
-      <%= link_to "Clear", finance_transactions_path, class: "px-3 py-2 text-sm text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)]" %>
+      <button type="submit" class="px-3 py-2 text-sm bg-[var(--color-bg-overlay)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] transition-colors"><%= t("finance.transactions.filters.apply") %></button>
+      <%= link_to t("finance.transactions.filters.clear"), finance_transactions_path, class: "px-3 py-2 text-sm text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)]" %>
     <% end %>
   </div>
 
-  <%# Table %>
   <div class="card !p-0 overflow-hidden">
     <% if @transactions.any? %>
       <table class="w-full text-sm">
         <thead class="border-b border-[var(--color-border-subtle)] text-xs text-[var(--color-fg-muted)] uppercase tracking-wider">
           <tr>
-            <th class="text-left px-4 py-3 font-medium">Date</th>
-            <th class="text-left px-4 py-3 font-medium">Description</th>
-            <th class="text-left px-4 py-3 font-medium">Category</th>
-            <th class="text-left px-4 py-3 font-medium">Account</th>
-            <th class="text-right px-4 py-3 font-medium">Amount</th>
+            <th class="text-left px-4 py-3 font-medium"><%= t("finance.transactions.table.date") %></th>
+            <th class="text-left px-4 py-3 font-medium"><%= t("finance.transactions.table.description") %></th>
+            <th class="text-left px-4 py-3 font-medium"><%= t("finance.transactions.table.category") %></th>
+            <th class="text-left px-4 py-3 font-medium"><%= t("finance.transactions.table.account") %></th>
+            <th class="text-right px-4 py-3 font-medium"><%= t("finance.transactions.table.amount") %></th>
             <th class="px-4 py-3"></th>
           </tr>
         </thead>
         <tbody class="divide-y divide-[var(--color-border-subtle)]">
           <% @transactions.each do |t| %>
             <tr class="hover:bg-[var(--color-bg-hover)]">
-              <td class="px-4 py-3 text-[var(--color-fg-muted)]"><%= t.date.strftime("%d %b %Y") %></td>
-              <td class="px-4 py-3"><%= t.description.presence || "—" %></td>
-              <td class="px-4 py-3 text-[var(--color-fg-muted)]"><%= t.finance_category&.name || "—" %></td>
+              <td class="px-4 py-3 text-[var(--color-fg-muted)]"><%= l(t.date, format: "%d %b %Y") %></td>
+              <td class="px-4 py-3"><%= t.description.presence || t("common.none") %></td>
+              <td class="px-4 py-3 text-[var(--color-fg-muted)]"><%= t.finance_category&.name || t("common.none") %></td>
               <td class="px-4 py-3 text-[var(--color-fg-muted)]"><%= t.account.name %></td>
               <td class="px-4 py-3 text-right font-medium <%= signed_amount_class(t.kind) %>"><%= signed_amount_prefix(t.kind) %><%= money_format(t.amount_cents, currency: t.account_currency) %></td>
               <td class="px-4 py-3 text-right">
-                <%= link_to "Edit", edit_finance_transaction_path(t), class: "text-xs text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)] mr-3" %>
-                <%= button_to "Del", finance_transaction_path(t), method: :delete, form: { data: { turbo_confirm: "Delete this transaction?" }, class: "inline" }, class: "text-xs text-[var(--color-expense)] hover:underline cursor-pointer" %>
+                <%= link_to t("common.edit"), edit_finance_transaction_path(t), data: { turbo_frame: "modal" }, class: "text-xs text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)] mr-3" %>
+                <%= button_to t("common.delete"), finance_transaction_path(t), method: :delete, form: { data: { turbo_confirm: t("common.confirm_delete") }, class: "inline" }, class: "text-xs text-[var(--color-expense)] hover:underline cursor-pointer" %>
               </td>
             </tr>
           <% end %>
@@ -73,17 +71,17 @@
       </table>
       <% if @total_count > Finance::TransactionsController::PAGE_LIMIT %>
         <div class="px-4 py-3 border-t border-[var(--color-border-subtle)] text-xs text-[var(--color-fg-muted)] flex items-center justify-between">
-          <span>Page <%= @page %> of <%= (@total_count.to_f / Finance::TransactionsController::PAGE_LIMIT).ceil %></span>
+          <span><%= t("pagination.page_of", current: @page, total: (@total_count.to_f / Finance::TransactionsController::PAGE_LIMIT).ceil) %></span>
           <div class="flex gap-2">
-            <% if @page > 1 %><%= link_to "← Prev", request.params.merge(page: @page - 1), class: "text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %><% end %>
-            <% if @page * Finance::TransactionsController::PAGE_LIMIT < @total_count %><%= link_to "Next →", request.params.merge(page: @page + 1), class: "text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %><% end %>
+            <% if @page > 1 %><%= link_to t("pagination.prev"), request.params.merge(page: @page - 1), class: "text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %><% end %>
+            <% if @page * Finance::TransactionsController::PAGE_LIMIT < @total_count %><%= link_to t("pagination.next"), request.params.merge(page: @page + 1), class: "text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %><% end %>
           </div>
         </div>
       <% end %>
     <% else %>
       <div class="px-6 py-12 text-center">
-        <p class="text-[var(--color-fg-muted)]">No transactions match these filters.</p>
-        <%= link_to "Add your first transaction", new_finance_transaction_path, class: "mt-2 inline-block text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
+        <p class="text-[var(--color-fg-muted)]"><%= t("finance.transactions.no_match") %></p>
+        <%= link_to t("finance.transactions.add_first"), new_finance_transaction_path, data: { turbo_frame: "modal" }, class: "mt-2 inline-block text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
       </div>
     <% end %>
   </div>

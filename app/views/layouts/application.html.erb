@@ -24,8 +24,11 @@
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
 
-    <%# Chart.js + Chartkick (UMD scripts — kept out of importmap to avoid ESM module-scope ReferenceError that broke Stimulus) %>
+    <%# Chart.js + Chartkick (UMD scripts — kept out of importmap to avoid ESM module-scope ReferenceError that broke Stimulus).
+        chartjs-adapter-date-fns is required by Chart.js v4 for any time-based axis — Chartkick auto-detects date-like keys, so even
+        string-formatted dates trigger it. Loading the adapter once globally lets every chart work without per-call options. %>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" data-turbo-track="reload"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js" data-turbo-track="reload"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartkick@5.0.1/dist/chartkick.min.js" data-turbo-track="reload"></script>
   </head>
 
@@ -44,12 +47,21 @@
 
       <%= render ::Layouts::BottomNav.new(active: content_for(:nav_key)&.to_sym) %>
 
+      <%# Quick capture is still available via the "c" keyboard shortcut. %>
       <% if user_signed_in? %>
-        <div data-controller="quick-capture" class="fixed bottom-20 right-4 md:bottom-8 md:right-8 z-40">
-          <button type="button" data-action="click->quick-capture#open" aria-label="Quick capture"
-                  class="w-14 h-14 rounded-full bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] text-2xl shadow-xl transition-colors">+</button>
-        </div>
+        <div data-controller="quick-capture"
+             data-quick-capture-placeholder-value="<%= t('quick_capture.placeholder') %>"
+             data-quick-capture-hint-value="<%= t('quick_capture.hint') %>"
+             data-quick-capture-button-value="<%= t('quick_capture.button') %>"
+             class="hidden"></div>
       <% end %>
+
+      <%# Global Turbo Frame modal — populated by links with data-turbo-frame="modal" %>
+      <div data-controller="modal" class="hidden">
+        <div data-modal-target="centerer">
+          <turbo-frame id="modal"></turbo-frame>
+        </div>
+      </div>
     </div>
   </body>
 </html>
