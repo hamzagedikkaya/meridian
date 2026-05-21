@@ -4,12 +4,12 @@ return if demo.journal_entries.any?
 
 moods = JournalEntry::MOODS
 samples = [
-  [ "Iyi bir başlangıç",     "good",    "Sabah yoga ile başladım, gün boyu enerjim yerindeydi." ],
-  [ "Yoğun toplantı günü",   "neutral", "Üç tane back-to-back toplantı. Akşam tükenmiş hissettim." ],
-  [ "Hafta sonu kaçamağı",   "great",   "Arkadaşlarla kahvaltı, akşam sinema. Tam bir reset günü." ],
-  [ "Düşük enerji",          "bad",     "Uyumakta zorlandım, gün boyu yorgundum." ],
-  [ "Yeni kitap başladım",   "good",    "The Pragmatic Engineer'ın ilk üç bölümü çok iyi." ],
-  [ "Yağmurlu Pazar",        "neutral", "Evde ders çalıştım, sakin geçti." ]
+  [ "Great start to the day",  "good",    "Started with morning yoga, energy stayed up all day." ],
+  [ "Heavy meeting day",       "neutral", "Three back-to-back meetings. Felt drained by evening." ],
+  [ "Weekend reset",           "great",   "Brunch with friends, movie in the evening. Full reset." ],
+  [ "Low energy",              "bad",     "Trouble sleeping, tired the whole day." ],
+  [ "New book on the go",      "good",    "First three chapters of The Pragmatic Engineer — really good." ],
+  [ "Rainy Sunday",            "neutral", "Stayed home, did some reading. Calm day." ]
 ]
 
 samples.each_with_index do |(title, mood, text), i|
@@ -18,7 +18,7 @@ samples.each_with_index do |(title, mood, text), i|
     title: title,
     mood: mood,
     energy_level: rand(2..5),
-    gratitude: "1. Sağlığım\n2. Aile desteği\n3. İşim",
+    gratitude: "1. Good health\n2. Family support\n3. Work I enjoy",
     tags: [ "reflection", "personal" ].sample(2).join(", ")
   )
   entry.body = "<p>#{text}</p>"

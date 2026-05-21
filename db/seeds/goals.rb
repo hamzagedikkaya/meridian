@@ -3,7 +3,7 @@ return unless demo
 return if demo.goals.any?
 
 # Link each goal to a real source where possible so progress is computed live.
-savings_account = demo.accounts.find_by(name: "Birikim")
+savings_account = demo.accounts.find_by(name: "Savings")
 read_habit      = demo.habits.find_by(name: "Read 30 pages")
 
 specs = [
