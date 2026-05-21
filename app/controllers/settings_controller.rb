@@ -8,8 +8,15 @@ class SettingsController < ApplicationController
   end
 
   def update_profile
-    if current_user.update(profile_params)
-      redirect_to profile_settings_path, notice: "Profile updated."
+    attrs = profile_params.to_h
+    if attrs["password"].blank?
+      attrs.delete("password")
+      attrs.delete("password_confirmation")
+    end
+
+    if current_user.update(attrs)
+      bypass_sign_in(current_user) if attrs["password"].present?
+      redirect_to profile_settings_path, notice: t("flash.updated")
     else
       render :profile, status: :unprocessable_entity
     end
@@ -21,7 +28,7 @@ class SettingsController < ApplicationController
 
   def update_preferences
     if current_user.update(preferences_params)
-      redirect_to preferences_settings_path, notice: "Preferences updated."
+      redirect_to preferences_settings_path, notice: t("flash.updated")
     else
       render :preferences, status: :unprocessable_entity
     end
@@ -32,14 +39,10 @@ class SettingsController < ApplicationController
     render :data
   end
 
-  def notifications
-    render :notifications
-  end
-
   private
 
   def profile_params
-    params.require(:user).permit(:name, :email, :avatar)
+    params.require(:user).permit(:name, :email, :avatar, :password, :password_confirmation)
   end
 
   def preferences_params

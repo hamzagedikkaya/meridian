@@ -57,11 +57,4 @@ RSpec.describe "Settings", type: :request do
       expect(response.body).to include("Backup")
     end
   end
-
-  describe "GET /settings/notifications" do
-    it "renders the notifications tab" do
-      get notifications_settings_path
-      expect(response).to have_http_status(:success)
-    end
-  end
 end

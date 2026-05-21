@@ -1,50 +1,45 @@
-<% content_for :page_title, "Settings" %>
+<% content_for :page_title, t("settings.title") %>
 
-<div class="max-w-3xl">
-  <div class="mb-6">
-    <h1 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Settings</h1>
-    <p class="mt-1 text-[var(--color-fg-muted)]">Manage your account and preferences.</p>
-  </div>
-
-  <%= render "tabs" %>
-
-  <div class="card">
-    <h2 class="font-[family-name:var(--font-display)] text-2xl tracking-tight mb-2">Data</h2>
-    <p class="text-sm text-[var(--color-fg-muted)] mb-6">Backup, restore, and export your Meridian data.</p>
+<%= render layout: "shell" do %>
+  <section class="card">
+    <header class="mb-6">
+      <h2 class="font-[family-name:var(--font-display)] text-2xl tracking-tight"><%= t("settings.data.title") %></h2>
+      <p class="text-sm text-[var(--color-fg-muted)] mt-1"><%= t("settings.data.subtitle") %></p>
+    </header>
 
     <div class="space-y-4">
       <div class="p-5 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-base)]">
         <div class="flex items-start justify-between gap-3">
           <div>
-            <p class="text-sm font-medium text-[var(--color-fg-primary)] mb-1">Backup & Restore</p>
-            <p class="text-sm text-[var(--color-fg-muted)]">Move your data with a pg_dump + ActiveStorage tar.gz archive.</p>
+            <p class="text-sm font-medium text-[var(--color-fg-primary)] mb-1"><%= t("settings.data.backup_title") %></p>
+            <p class="text-sm text-[var(--color-fg-muted)]"><%= t("settings.data.backup_desc") %></p>
             <% if @last_backup %>
-              <p class="text-xs text-[var(--color-fg-faint)] mt-2">Last backup: <%= time_ago_in_words(@last_backup.created_at) %> ago · <%= @last_backup.display_size %></p>
+              <p class="text-xs text-[var(--color-fg-faint)] mt-2"><%= t("settings.data.backup_last", ago: time_ago_in_words(@last_backup.created_at), size: @last_backup.display_size) %></p>
             <% end %>
           </div>
-          <%= link_to "Open Backups →", backups_path, class: "text-sm text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)] flex-shrink-0" %>
+          <%= link_to t("settings.data.open_backups"), backups_path, class: "text-sm text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)] flex-shrink-0" %>
         </div>
       </div>
 
       <div class="p-5 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-base)]">
         <div class="flex items-start justify-between gap-3">
           <div>
-            <p class="text-sm font-medium text-[var(--color-fg-primary)] mb-1">CSV export</p>
-            <p class="text-sm text-[var(--color-fg-muted)]">Export finance transactions as CSV.</p>
+            <p class="text-sm font-medium text-[var(--color-fg-primary)] mb-1"><%= t("settings.data.csv_title") %></p>
+            <p class="text-sm text-[var(--color-fg-muted)]"><%= t("settings.data.csv_desc") %></p>
           </div>
-          <%= link_to "Export CSV →", finance_transactions_export_path(format: :csv), class: "text-sm text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)] flex-shrink-0" %>
+          <%= link_to t("settings.data.export_csv"), finance_transactions_export_path(format: :csv), class: "text-sm text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)] flex-shrink-0" %>
         </div>
       </div>
 
       <div class="p-5 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-base)]">
         <div class="flex items-start justify-between gap-3">
           <div>
-            <p class="text-sm font-medium text-[var(--color-fg-primary)] mb-1">iCal feed</p>
-            <p class="text-sm text-[var(--color-fg-muted)]">Eventleri telefonun takvimine read-only feed olarak abone et.</p>
+            <p class="text-sm font-medium text-[var(--color-fg-primary)] mb-1"><%= t("settings.data.ical_title") %></p>
+            <p class="text-sm text-[var(--color-fg-muted)]"><%= t("settings.data.ical_desc") %></p>
           </div>
-          <%= link_to "Open feed →", calendar_feed_path, class: "text-sm text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)] flex-shrink-0" %>
+          <%= link_to t("settings.data.open_feed"), calendar_feed_path, class: "text-sm text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)] flex-shrink-0" %>
         </div>
       </div>
     </div>
-  </div>
-</div>
+  </section>
+<% end %>

@@ -1,23 +1,21 @@
 <%
   tabs = [
-    { key: :profile,       label: "Profile",       path: profile_settings_path },
-    { key: :preferences,   label: "Preferences",   path: preferences_settings_path },
-    { key: :data,          label: "Data",          path: data_settings_path },
-    { key: :notifications, label: "Notifications", path: notifications_settings_path }
+    { key: :profile,     label: t("settings.tabs.profile"),     path: profile_settings_path,     icon: "user" },
+    { key: :preferences, label: t("settings.tabs.preferences"), path: preferences_settings_path, icon: "settings" },
+    { key: :data,        label: t("settings.tabs.data"),        path: data_settings_path,        icon: "database" }
   ]
 %>
 
-<div class="border-b border-[var(--color-border-subtle)] mb-8">
-  <nav class="flex gap-1 -mb-px">
-    <% tabs.each do |tab| %>
-      <% is_active = action_name == tab[:key].to_s || action_name == "update_#{tab[:key]}" %>
-      <%= link_to tab[:path],
-          class: "px-4 py-3 text-sm font-medium border-b-2 transition-colors " +
-                 (is_active ?
-                   "border-[var(--color-accent-500)] text-[var(--color-fg-primary)]" :
-                   "border-transparent text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)] hover:border-[var(--color-border-default)]") do %>
-        <%= tab[:label] %>
-      <% end %>
+<nav class="inline-flex items-center gap-1 p-1 bg-[var(--color-bg-elevated)] border border-[var(--color-border-subtle)] rounded-[var(--radius-sm)]">
+  <% tabs.each do |tab| %>
+    <% is_active = action_name == tab[:key].to_s || action_name == "update_#{tab[:key]}" %>
+    <%= link_to tab[:path],
+        class: "inline-flex items-center gap-2 px-3.5 py-2 rounded-[var(--radius-sm)] text-sm font-medium transition-colors " +
+               (is_active ?
+                 "bg-[var(--color-bg-overlay)] text-[var(--color-fg-primary)]" :
+                 "text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)]") do %>
+      <%= render Ui::Icon.new(name: tab[:icon], size: 16) %>
+      <span><%= tab[:label] %></span>
     <% end %>
-  </nav>
-</div>
+  <% end %>
+</nav>
