@@ -1,25 +1,33 @@
-<% content_for :page_title, "Calendar" %>
+<% content_for :page_title, t("calendar.title") %>
 <% content_for :nav_key, "calendar" %>
 
-<div class="space-y-6">
+<div class="space-y-6" data-controller="calendar">
   <%# Header with nav %>
-  <div class="flex items-end justify-between">
+  <div class="flex flex-wrap items-end justify-between gap-3">
     <div>
-      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight"><%= @month_start.strftime("%B %Y") %></h2>
-      <p class="text-[var(--color-fg-muted)] mt-1">Monthly view</p>
+      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight"><%= l(@month_start, format: "%B %Y") %></h2>
+      <p class="text-[var(--color-fg-muted)] mt-1"><%= t("calendar.monthly_view") %></p>
     </div>
     <div class="flex gap-2 items-center">
-      <%= link_to "←", calendar_month_path(@prev_month.year, @prev_month.month), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
-      <%= link_to "Today", calendar_path, class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
-      <%= link_to "→", calendar_month_path(@next_month.year, @next_month.month), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
-      <%= link_to "+ Event", new_event_path, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium" %>
+      <%= link_to calendar_month_path(@prev_month.year, @prev_month.month), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] inline-flex items-center" do %>
+        <%= render Ui::Icon.new(name: "chevron-left", size: 16) %>
+      <% end %>
+      <%= link_to t("calendar.today"), calendar_path, class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
+      <%= link_to calendar_month_path(@next_month.year, @next_month.month), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] inline-flex items-center" do %>
+        <%= render Ui::Icon.new(name: "chevron-right", size: 16) %>
+      <% end %>
+      <%= link_to calendar_week_path, class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" do %>
+        <%= t("calendar.week_view", default: "Week") %>
+      <% end %>
+      <%= link_to t("calendar.new_event"), new_event_path, data: { turbo_frame: "modal" },
+                  class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium" %>
     </div>
   </div>
 
   <%# Weekday headers %>
   <div class="grid grid-cols-7 gap-px text-xs text-[var(--color-fg-muted)] uppercase tracking-wider">
-    <% %w[Mon Tue Wed Thu Fri Sat Sun].each do |d| %>
-      <div class="px-2 py-2"><%= d %></div>
+    <% %i[mon tue wed thu fri sat sun].each do |d| %>
+      <div class="px-2 py-2"><%= t("calendar.weekdays.#{d}") %></div>
     <% end %>
   </div>
 
@@ -30,29 +38,48 @@
       <% is_current_month = date.month == @month_start.month %>
       <% is_today = date == Date.current %>
       <% events = @events_by_date[date] || [] %>
-      <%= link_to new_event_path(date: date), class: "min-h-[100px] bg-[var(--color-bg-elevated)] p-2 hover:bg-[var(--color-bg-hover)] transition-colors block #{is_current_month ? '' : 'opacity-40'}" do %>
+      <div
+        class="min-h-[110px] bg-[var(--color-bg-elevated)] p-2 hover:bg-[var(--color-bg-hover)] transition-colors <%= is_current_month ? '' : 'opacity-40' %>"
+        data-calendar-target="dayCell"
+        data-date="<%= date.iso8601 %>"
+        data-action="dragover->calendar#dayDragOver drop->calendar#dayDrop dragleave->calendar#dayDragLeave"
+      >
         <div class="flex items-start justify-between mb-1">
-          <span class="text-xs font-medium <%= is_today ? 'w-6 h-6 rounded-full bg-[var(--color-accent-500)] text-[var(--color-bg-base)] flex items-center justify-center' : '' %>"><%= date.day %></span>
+          <%= link_to new_event_path(date: date), data: { turbo_frame: "modal" },
+                       class: "text-xs font-medium #{is_today ? 'w-6 h-6 rounded-full bg-[var(--color-accent-500)] text-[var(--color-bg-base)] flex items-center justify-center' : 'hover:text-[var(--color-accent-400)]'}" do %>
+            <%= date.day %>
+          <% end %>
         </div>
         <div class="space-y-0.5">
           <% events.first(3).each do |e| %>
-            <div class="text-[10px] truncate px-1.5 py-0.5 rounded" style="background: <%= e.color %>22; color: <%= e.color %>;">
-              <%= e.title %>
-            </div>
+            <% if e.is_a?(Event) %>
+              <%= link_to edit_event_path(e),
+                  data: { turbo_frame: "modal", event_id: e.id, action: "dragstart->calendar#eventDragStart dragend->calendar#eventDragEnd" },
+                  draggable: "true",
+                  class: "text-[11px] truncate px-1.5 py-0.5 rounded block cursor-grab active:cursor-grabbing",
+                  style: "background: #{e.color}22; color: #{e.color};" do %>
+                <%= e.title %>
+              <% end %>
+            <% else %>
+              <div class="text-[11px] truncate px-1.5 py-0.5 rounded"
+                   style="background: <%= e.color %>22; color: <%= e.color %>;">
+                <%= e.title %>
+              </div>
+            <% end %>
           <% end %>
           <% if events.size > 3 %>
-            <div class="text-[10px] text-[var(--color-fg-muted)]">+<%= events.size - 3 %> more</div>
+            <div class="text-[10px] text-[var(--color-fg-muted)]"><%= t("calendar.more", count: events.size - 3) %></div>
           <% end %>
         </div>
-      <% end %>
+      </div>
     <% end %>
   </div>
 
   <%# Legend %>
   <div class="flex flex-wrap gap-3 text-xs text-[var(--color-fg-muted)]">
-    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[var(--color-accent-500)]"></span>Event</span>
-    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background: #A09B8E"></span>Todo</span>
-    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background: #B85450"></span>Subscription</span>
-    <span class="ml-auto"><%= link_to "iCal feed →", calendar_feed_path, class: "text-[var(--color-accent-400)]" %></span>
+    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[var(--color-accent-500)]"></span><%= t("calendar.legend.event") %></span>
+    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background: #A09B8E"></span><%= t("calendar.legend.todo") %></span>
+    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background: #B85450"></span><%= t("calendar.legend.subscription") %></span>
+    <span class="ml-auto"><%= link_to t("calendar.ical_feed"), calendar_feed_path, class: "text-[var(--color-accent-400)]" %></span>
   </div>
 </div>

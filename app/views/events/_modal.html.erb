@@ -1,0 +1,90 @@
+<%
+  input_cls = "w-full px-3.5 py-2.5 bg-[var(--color-bg-base)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] text-[var(--color-fg-primary)] focus:outline-none focus:border-[var(--color-accent-500)]"
+  label_cls = "block text-sm font-medium text-[var(--color-fg-muted)] mb-1.5"
+  is_new = event.new_record?
+%>
+
+<turbo-frame id="modal">
+  <div class="w-full max-w-xl bg-[var(--color-bg-elevated)] border border-[var(--color-border-default)] rounded-[var(--radius-md)] overflow-hidden shadow-2xl"
+       data-controller="dialog">
+    <div class="px-5 py-4 border-b border-[var(--color-border-subtle)] flex items-center justify-between">
+      <h2 class="font-[family-name:var(--font-display)] text-2xl tracking-tight">
+        <%= is_new ? t("events.new_title") : t("events.edit_title") %>
+      </h2>
+      <a href="#" data-action="click->modal#close" class="text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)]">
+        <%= render Ui::Icon.new(name: "x", size: 18) %>
+      </a>
+    </div>
+
+    <%= form_with model: event,
+                  url: (is_new ? events_path : event_path(event)),
+                  method: (is_new ? :post : :patch),
+                  data: { turbo_frame: "_top" },
+                  html: { class: "p-5 space-y-4" } do |f| %>
+      <% if event.errors.any? %>
+        <div class="px-4 py-3 rounded-[var(--radius-md)] border border-[var(--color-danger)] bg-[var(--color-bg-base)] text-sm">
+          <ul class="space-y-1 text-[var(--color-fg-muted)]">
+            <% event.errors.full_messages.each { |m| %><li>• <%= m %></li><% } %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div>
+        <%= f.label :title, t("events.title_label"), class: label_cls %>
+        <%= f.text_field :title, autofocus: true, class: input_cls %>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <%= f.label :start_at, t("events.start_at"), class: label_cls %>
+          <%= f.datetime_local_field :start_at, class: input_cls %>
+        </div>
+        <div>
+          <%= f.label :end_at, t("events.end_at"), class: label_cls %>
+          <%= f.datetime_local_field :end_at, class: input_cls %>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <%= f.label :event_type, t("events.type"), class: label_cls %>
+          <%= f.select :event_type, Event::EVENT_TYPES.map { |t_| [ t_.titleize, t_ ] }, {}, class: input_cls %>
+        </div>
+        <div>
+          <%= f.label :color, t("events.color"), class: label_cls %>
+          <%= f.color_field :color, class: input_cls + " h-10" %>
+        </div>
+      </div>
+
+      <div>
+        <%= f.label :location, t("events.location"), class: label_cls %>
+        <%= f.text_field :location, class: input_cls %>
+      </div>
+
+      <div>
+        <%= f.label :description, t("events.description"), class: label_cls %>
+        <%= f.text_area :description, rows: 2, class: input_cls %>
+      </div>
+
+      <label class="flex items-center gap-2 text-sm">
+        <%= f.check_box :all_day %>
+        <span><%= t("events.all_day") %></span>
+      </label>
+
+      <div class="flex items-center justify-between pt-3 border-t border-[var(--color-border-subtle)]">
+        <% if !is_new %>
+          <%= button_to t("common.delete"), event_path(event), method: :delete,
+              data: { turbo_confirm: t("events.delete_confirm"), turbo_frame: "_top" },
+              class: "px-3 py-2 text-sm text-[var(--color-expense)] border border-[var(--color-expense)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] cursor-pointer" %>
+        <% else %>
+          <span></span>
+        <% end %>
+        <div class="flex gap-2">
+          <a href="#" data-action="click->modal#close" class="px-3 py-2 text-sm text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)]"><%= t("common.cancel") %></a>
+          <%= f.submit (is_new ? t("events.save") : t("events.update")),
+              class: "px-4 py-2 bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</turbo-frame>

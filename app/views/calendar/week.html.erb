@@ -1,0 +1,91 @@
+<% content_for :page_title, t("calendar.title") %>
+<% content_for :nav_key, "calendar" %>
+
+<%
+  # Each hour row is 48px tall — keep these in sync with the Stimulus controller.
+  hour_height = 48
+%>
+
+<div class="space-y-6" data-controller="calendar-week" data-calendar-week-hour-height-value="<%= hour_height %>" data-calendar-week-day-start-value="<%= @hours.first %>">
+  <div class="flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">
+        <%= l(@week_start, format: "%d %b") %> – <%= l(@week_end, format: "%d %b %Y") %>
+      </h2>
+      <p class="text-[var(--color-fg-muted)] mt-1"><%= t("calendar.week_view", default: "Week view") %></p>
+    </div>
+    <div class="flex gap-2 items-center">
+      <%= link_to calendar_week_at_path(@prev_week.iso8601), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] inline-flex items-center" do %>
+        <%= render Ui::Icon.new(name: "chevron-left", size: 16) %>
+      <% end %>
+      <%= link_to t("calendar.today"), calendar_week_path, class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
+      <%= link_to calendar_week_at_path(@next_week.iso8601), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] inline-flex items-center" do %>
+        <%= render Ui::Icon.new(name: "chevron-right", size: 16) %>
+      <% end %>
+      <%= link_to calendar_path, class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" do %>
+        <%= t("calendar.month_view", default: "Month") %>
+      <% end %>
+      <%= link_to t("calendar.new_event"), new_event_path, data: { turbo_frame: "modal" },
+                  class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium" %>
+    </div>
+  </div>
+
+  <%# Day headers %>
+  <div class="grid" style="grid-template-columns: 60px repeat(7, 1fr);">
+    <div></div>
+    <% (0..6).each do |i| %>
+      <% d = @week_start + i.days %>
+      <% is_today = d == Date.current %>
+      <div class="px-2 py-2 text-center border-b border-[var(--color-border-subtle)]">
+        <div class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider"><%= l(d, format: "%a") %></div>
+        <div class="font-[family-name:var(--font-display)] text-2xl mt-0.5 <%= 'text-[var(--color-accent-500)]' if is_today %>"><%= d.day %></div>
+      </div>
+    <% end %>
+  </div>
+
+  <%# Hour grid with events %>
+  <div class="grid relative" style="grid-template-columns: 60px repeat(7, 1fr);">
+    <%# Hour labels column %>
+    <div>
+      <% @hours.each do |h| %>
+        <div class="text-xs text-[var(--color-fg-muted)] text-right pr-2" style="height: <%= hour_height %>px;">
+          <span class="-mt-1.5 inline-block"><%= "%02d:00" % h %></span>
+        </div>
+      <% end %>
+    </div>
+
+    <%# Day columns %>
+    <% (0..6).each do |i| %>
+      <% day = @week_start + i.days %>
+      <% day_events = @events_by_day[day] || [] %>
+      <div class="relative border-l border-[var(--color-border-subtle)]"
+           data-calendar-week-target="dayColumn"
+           data-date="<%= day.iso8601 %>"
+           data-action="dragover->calendar-week#dayDragOver drop->calendar-week#dayDrop">
+        <% @hours.each_with_index do |h, j| %>
+          <div class="border-b border-[var(--color-border-subtle)]" style="height: <%= hour_height %>px;"></div>
+        <% end %>
+
+        <%# Events absolutely positioned by start hour %>
+        <% day_events.each do |e| %>
+          <%
+            start_minutes = e.start_at.hour * 60 + e.start_at.min - @hours.first * 60
+            next if start_minutes < 0 || start_minutes >= @hours.size * 60
+            top = (start_minutes.to_f / 60.0 * hour_height).round
+            duration_min = e.end_at ? ((e.end_at - e.start_at) / 60).to_i : 60
+            height = [ [ duration_min, 30 ].max, @hours.size * 60 - start_minutes ].min * hour_height / 60
+          %>
+          <div class="absolute left-1 right-1 rounded-[var(--radius-sm)] px-2 py-1 text-xs cursor-grab active:cursor-grabbing overflow-hidden"
+               style="top: <%= top %>px; height: <%= height %>px; background: <%= e.color %>33; border-left: 3px solid <%= e.color %>; color: <%= e.color %>;"
+               draggable="true"
+               data-event-id="<%= e.id %>"
+               data-duration-minutes="<%= duration_min %>"
+               data-action="dragstart->calendar-week#eventDragStart dragend->calendar-week#eventDragEnd click->calendar-week#openEvent">
+            <p class="font-medium truncate"><%= e.title %></p>
+            <p class="text-[10px] opacity-80"><%= e.start_at.strftime("%H:%M") %><%= " – #{e.end_at.strftime("%H:%M")}" if e.end_at %></p>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

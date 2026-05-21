@@ -11,44 +11,44 @@
   <% end %>
 
   <div>
-    <%= f.label :title, class: label_cls %>
+    <%= f.label :title, t("events.title_label"), class: label_cls %>
     <%= f.text_field :title, autofocus: true, class: input_cls %>
   </div>
 
   <div class="grid md:grid-cols-2 gap-5">
     <div>
-      <%= f.label :start_at, class: label_cls %>
+      <%= f.label :start_at, t("events.start_at"), class: label_cls %>
       <%= f.datetime_local_field :start_at, class: input_cls %>
     </div>
     <div>
-      <%= f.label :end_at, class: label_cls %>
+      <%= f.label :end_at, t("events.end_at"), class: label_cls %>
       <%= f.datetime_local_field :end_at, class: input_cls %>
     </div>
     <div>
-      <%= f.label :event_type, "Type", class: label_cls %>
+      <%= f.label :event_type, t("events.type"), class: label_cls %>
       <%= f.select :event_type, Event::EVENT_TYPES.map { |t| [ t.titleize, t ] }, {}, class: input_cls %>
     </div>
     <div>
-      <%= f.label :color, class: label_cls %>
+      <%= f.label :color, t("events.color"), class: label_cls %>
       <%= f.color_field :color, class: input_cls + " h-10" %>
     </div>
     <div class="md:col-span-2">
-      <%= f.label :location, class: label_cls %>
+      <%= f.label :location, t("events.location"), class: label_cls %>
       <%= f.text_field :location, class: input_cls %>
     </div>
     <div class="md:col-span-2">
-      <%= f.label :description, class: label_cls %>
+      <%= f.label :description, t("events.description"), class: label_cls %>
       <%= f.text_area :description, rows: 3, class: input_cls %>
     </div>
   </div>
 
   <label class="flex items-center gap-2 text-sm">
     <%= f.check_box :all_day %>
-    <span>All day</span>
+    <span><%= t("events.all_day") %></span>
   </label>
 
   <div class="flex justify-between items-center pt-4 border-t border-[var(--color-border-subtle)]">
-    <%= link_to "Cancel", calendar_path, class: "text-sm text-[var(--color-fg-muted)]" %>
-    <%= f.submit (event.persisted? ? "Update" : "Create"), class: "px-4 py-2 bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer" %>
+    <a href="#" data-action="click->modal#close" class="text-sm text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)]"><%= t("common.cancel") %></a>
+    <%= f.submit (event.persisted? ? t("events.update") : t("events.save")), class: "px-4 py-2 bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer" %>
   </div>
 <% end %>

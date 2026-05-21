@@ -1,8 +1,2 @@
-<% content_for :page_title, "New event" %>
 <% content_for :nav_key, "calendar" %>
-
-<div class="max-w-2xl space-y-4">
-  <%= link_to "← Back", calendar_path, class: "text-sm text-[var(--color-fg-muted)]" %>
-  <h2 class="font-[family-name:var(--font-display)] text-3xl tracking-tight">New event</h2>
-  <div class="card"><%= render "form", event: @event %></div>
-</div>
+<%= render "modal", event: @event %>

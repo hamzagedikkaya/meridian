@@ -33,6 +33,25 @@ class CalendarController < ApplicationController
     end
   end
 
+  # Weekly view — vertical hour grid with draggable events.
+  def week
+    anchor = params[:date].present? ? Date.parse(params[:date]) : Date.current
+    @week_start = anchor.beginning_of_week(:monday)
+    @week_end   = @week_start + 6.days
+    @prev_week  = @week_start - 7.days
+    @next_week  = @week_start + 7.days
+
+    @hours = (6..22).to_a # 6 AM to 10 PM
+
+    @events_by_day = Hash.new { |h, k| h[k] = [] }
+    current_user.events.where(start_at: @week_start.beginning_of_day..@week_end.end_of_day)
+                       .order(:start_at).each do |e|
+      @events_by_day[e.start_at.to_date] << e
+    end
+  rescue ArgumentError
+    redirect_to calendar_week_path
+  end
+
   def feed
     events = current_user.events.upcoming
     ical = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Meridian//EN\r\n"
