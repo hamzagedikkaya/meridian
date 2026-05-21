@@ -2,21 +2,21 @@
 <% content_for :nav_key, "goals" %>
 
 <div class="max-w-2xl space-y-6">
-  <%= link_to "← Goals", goals_path, class: "text-sm text-[var(--color-fg-muted)]" %>
+  <%= link_to t("common.back"), goals_path, class: "text-sm text-[var(--color-fg-muted)]" %>
 
+  <%# Hero %>
   <div class="card">
     <div class="flex items-start justify-between gap-3">
       <div class="flex items-center gap-3">
         <span class="w-4 h-4 rounded-full" style="background: <%= @goal.color %>"></span>
         <div>
-          <p class="text-sm text-[var(--color-fg-muted)] uppercase tracking-wider"><%= @goal.target_type.titleize %></p>
+          <p class="text-sm text-[var(--color-fg-muted)] uppercase tracking-wider"><%= t("goals.types.#{@goal.target_type}", default: @goal.target_type.titleize) %></p>
           <h2 class="font-[family-name:var(--font-display)] text-3xl tracking-tight"><%= @goal.name %></h2>
         </div>
       </div>
       <div class="flex gap-2">
-        <%= button_to "Recalculate", recalculate_goal_path(@goal), method: :patch, class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] cursor-pointer" %>
-        <%= link_to "Edit", edit_goal_path(@goal), class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
-        <%= button_to "Delete", goal_path(@goal), method: :delete, data: { turbo_confirm: "Delete?" }, class: "px-3 py-2 text-sm border border-[var(--color-expense)] text-[var(--color-expense)] rounded-[var(--radius-sm)] cursor-pointer" %>
+        <%= link_to t("common.edit"), edit_goal_path(@goal), data: { turbo_frame: "modal" }, class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" %>
+        <%= button_to t("common.delete"), goal_path(@goal), method: :delete, data: { turbo_confirm: t("common.confirm_delete") }, class: "px-3 py-2 text-sm border border-[var(--color-expense)] text-[var(--color-expense)] rounded-[var(--radius-sm)] cursor-pointer" %>
       </div>
     </div>
 
@@ -29,9 +29,121 @@
     </div>
 
     <dl class="grid grid-cols-3 gap-3 mt-6 text-sm">
-      <div><dt class="text-[var(--color-fg-muted)]">Status</dt><dd><%= @goal.status.titleize %></dd></div>
-      <% if @goal.deadline %><div><dt class="text-[var(--color-fg-muted)]">Deadline</dt><dd><%= @goal.deadline.strftime("%d %b %Y") %></dd></div><% end %>
-      <% if @goal.days_remaining %><div><dt class="text-[var(--color-fg-muted)]">Remaining</dt><dd><%= @goal.days_remaining %> days</dd></div><% end %>
+      <div><dt class="text-[var(--color-fg-muted)]"><%= t("common.status") %></dt><dd><%= t("goals.statuses.#{@goal.status}", default: @goal.status.titleize) %></dd></div>
+      <% if @goal.deadline %><div><dt class="text-[var(--color-fg-muted)]"><%= t("goals.deadline") %></dt><dd><%= l(@goal.deadline, format: "%d %b %Y") %></dd></div><% end %>
+      <% if @goal.days_remaining %><div><dt class="text-[var(--color-fg-muted)]"><%= t("goals.days_remaining") %></dt><dd><%= @goal.days_remaining %> <%= t("habits.days") %></dd></div><% end %>
     </dl>
   </div>
+
+  <%# Progress logging UI — varies by target_type %>
+  <% case @goal.target_type %>
+  <% when "custom" %>
+    <div class="card">
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-2"><%= t("goals.log.title") %></h3>
+      <p class="text-sm text-[var(--color-fg-muted)] mb-4"><%= t("goals.log.custom_help") %></p>
+
+      <%# Manual value form %>
+      <%= form_with url: update_progress_goal_path(@goal), method: :patch, html: { class: "flex flex-wrap items-end gap-3" } do %>
+        <div class="flex-1 min-w-[150px]">
+          <label class="block text-xs text-[var(--color-fg-muted)] mb-1"><%= t("goals.current_value") %> (<%= @goal.unit %>)</label>
+          <input type="number" name="current_value" value="<%= @goal.current_value.to_f %>" step="0.01" min="0"
+                 class="w-full px-3.5 py-2.5 bg-[var(--color-bg-base)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] text-[var(--color-fg-primary)] focus:outline-none focus:border-[var(--color-accent-500)]">
+        </div>
+        <button type="submit" class="px-4 py-2.5 bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer"><%= t("goals.log.save") %></button>
+      <% end %>
+
+      <%# Quick adjusters %>
+      <div class="mt-4 pt-4 border-t border-[var(--color-border-subtle)]">
+        <p class="text-xs text-[var(--color-fg-muted)] mb-2"><%= t("goals.log.quick_adjust") %></p>
+        <div class="flex gap-2">
+          <% [ -10, -1, 1, 10 ].each do |delta| %>
+            <%= button_to "#{delta.positive? ? '+' : ''}#{delta}", update_progress_goal_path(@goal, delta: delta), method: :patch,
+                class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] cursor-pointer font-mono" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+  <% when "habit" %>
+    <div class="card">
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-2"><%= t("goals.log.title") %></h3>
+      <% if @goal.related.is_a?(Habit) %>
+        <p class="text-sm text-[var(--color-fg-muted)] mb-4"><%= t("goals.log.habit_linked_html", name: link_to(@goal.related.name, habit_path(@goal.related), class: "text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]")).html_safe %></p>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <p class="text-xs text-[var(--color-fg-muted)]"><%= t("habits.detail.current_streak") %></p>
+            <p class="text-2xl font-medium mt-1 flex items-center gap-2">
+              <span class="text-[var(--color-warning)]"><%= render Ui::Icon.new(name: "flame", size: 20) %></span>
+              <%= @goal.related.current_streak %>
+            </p>
+          </div>
+          <div>
+            <p class="text-xs text-[var(--color-fg-muted)]"><%= t("goals.log.completed_days") %></p>
+            <p class="text-2xl font-medium mt-1"><%= @goal.related.habit_logs.where(completed: true).count %> / <%= @goal.target_value.to_f.to_i %></p>
+          </div>
+        </div>
+
+        <div class="flex gap-2 flex-wrap">
+          <%= button_to t("goals.log.mark_today"), toggle_today_habit_path(@goal.related), method: :patch,
+              class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer" %>
+          <%= button_to t("goals.recalculate"), recalculate_goal_path(@goal), method: :patch,
+              class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] cursor-pointer" %>
+        </div>
+      <% else %>
+        <p class="text-sm text-[var(--color-warning)] mb-4"><%= t("goals.log.no_habit_linked") %></p>
+        <%= form_with url: goal_path(@goal), method: :patch, html: { class: "flex flex-wrap items-end gap-3" } do %>
+          <div class="flex-1 min-w-[200px]">
+            <label class="block text-xs text-[var(--color-fg-muted)] mb-1"><%= t("goals.log.link_habit") %></label>
+            <select name="goal[related]" class="w-full px-3.5 py-2.5 bg-[var(--color-bg-base)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] focus:outline-none focus:border-[var(--color-accent-500)]">
+              <option value=""><%= t("common.optional") %>…</option>
+              <% @linkable_habits.each do |h| %>
+                <option value="Habit-<%= h.id %>"><%= h.name %></option>
+              <% end %>
+            </select>
+          </div>
+          <button type="submit" class="px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer"><%= t("goals.log.link_button") %></button>
+        <% end %>
+      <% end %>
+    </div>
+
+  <% when "financial" %>
+    <div class="card">
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-2"><%= t("goals.log.title") %></h3>
+      <% if @goal.related.is_a?(Account) %>
+        <p class="text-sm text-[var(--color-fg-muted)] mb-4"><%= t("goals.log.financial_linked_html", name: link_to(@goal.related.name, finance_account_path(@goal.related), class: "text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]")).html_safe %></p>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <p class="text-xs text-[var(--color-fg-muted)]"><%= t("finance.accounts.current_balance") %></p>
+            <p class="text-2xl font-medium mt-1"><%= money_format(@goal.related.balance_cents, currency: @goal.related.currency) %></p>
+          </div>
+          <div>
+            <p class="text-xs text-[var(--color-fg-muted)]"><%= t("goals.target_value") %></p>
+            <p class="text-2xl font-medium mt-1"><%= money_format((@goal.target_value.to_f * 100).round, currency: @goal.related.currency) %></p>
+          </div>
+        </div>
+
+        <div class="flex gap-2 flex-wrap">
+          <%= link_to t("goals.log.add_transaction"), new_finance_transaction_path(kind: "income", account_id: @goal.related.id), class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)]" %>
+          <%= button_to t("goals.recalculate"), recalculate_goal_path(@goal), method: :patch,
+              class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] cursor-pointer" %>
+        </div>
+      <% else %>
+        <p class="text-sm text-[var(--color-warning)] mb-4"><%= t("goals.log.no_account_linked") %></p>
+        <%= form_with url: goal_path(@goal), method: :patch, html: { class: "flex flex-wrap items-end gap-3" } do %>
+          <div class="flex-1 min-w-[200px]">
+            <label class="block text-xs text-[var(--color-fg-muted)] mb-1"><%= t("goals.log.link_account") %></label>
+            <select name="goal[related]" class="w-full px-3.5 py-2.5 bg-[var(--color-bg-base)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] focus:outline-none focus:border-[var(--color-accent-500)]">
+              <option value=""><%= t("common.optional") %>…</option>
+              <% @linkable_accounts.each do |a| %>
+                <option value="Account-<%= a.id %>"><%= a.name %> (<%= money_format(a.balance_cents, currency: a.currency) %>)</option>
+              <% end %>
+            </select>
+          </div>
+          <button type="submit" class="px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer"><%= t("goals.log.link_button") %></button>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
 </div>

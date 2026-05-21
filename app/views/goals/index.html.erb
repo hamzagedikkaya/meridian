@@ -1,13 +1,13 @@
-<% content_for :page_title, "Goals" %>
+<% content_for :page_title, t("goals.title") %>
 <% content_for :nav_key, "goals" %>
 
 <div class="space-y-6">
   <div class="flex items-end justify-between">
     <div>
-      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight">Goals</h2>
-      <p class="text-[var(--color-fg-muted)] mt-1">Hedeflerini takip et.</p>
+      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight"><%= t("goals.title") %></h2>
+      <p class="text-[var(--color-fg-muted)] mt-1"><%= t("goals.subtitle") %></p>
     </div>
-    <%= link_to "+ New goal", new_goal_path, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium" %>
+    <%= link_to t("goals.new"), new_goal_path, data: { turbo_frame: "modal" }, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium" %>
   </div>
 
   <% if @active_goals.any? %>
@@ -29,14 +29,14 @@
     </div>
   <% else %>
     <div class="card text-center py-12">
-      <p class="text-[var(--color-fg-muted)] mb-3">No active goals.</p>
-      <%= link_to "Set your first goal", new_goal_path, class: "text-[var(--color-accent-400)]" %>
+      <p class="text-[var(--color-fg-muted)] mb-3"><%= t("goals.none") %></p>
+      <%= link_to t("goals.create_first"), new_goal_path, data: { turbo_frame: "modal" }, class: "text-[var(--color-accent-400)]" %>
     </div>
   <% end %>
 
   <% if @achieved_goals.any? %>
     <div class="card">
-      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4 text-[var(--color-success)]">Achieved ✓</h3>
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4 text-[var(--color-success)]"><%= t("goals.achieved") %></h3>
       <ul class="space-y-2">
         <% @achieved_goals.each do |g| %>
           <li class="flex items-center justify-between text-sm">
