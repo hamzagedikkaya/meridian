@@ -9,7 +9,11 @@ module ApplicationHelper
     when Numeric then Money.from_amount(value, currency || Money.default_currency)
     else nil
     end
-    money&.format(symbol: true, no_cents_if_whole: false) || value.to_s
+    return value.to_s unless money
+
+    opts = { symbol: true, no_cents_if_whole: false }
+    opts[:format] = "%n %u" if money.currency.symbol_first == false
+    money.format(opts)
   end
 
   def signed_amount_class(kind)

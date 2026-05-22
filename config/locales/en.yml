@@ -236,6 +236,12 @@ en:
       new_title: "New account"
       edit_title: "Edit account"
       type: "Type"
+      types:
+        cash: "Cash"
+        bank: "Bank"
+        credit_card: "Credit card"
+        savings: "Savings"
+        crypto: "Crypto"
       currency: "Currency"
       initial_balance: "Initial balance (cents)"
       recent: "Recent transactions"

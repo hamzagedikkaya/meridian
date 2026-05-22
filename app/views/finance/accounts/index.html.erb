@@ -16,7 +16,7 @@
         <%= link_to finance_account_path(acc), class: "card hover:border-[var(--color-border-default)] block #{'opacity-60' if acc.archived?}" do %>
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-              <p class="text-sm text-[var(--color-fg-muted)]"><%= acc.account_type.titleize %></p>
+              <p class="text-sm text-[var(--color-fg-muted)]"><%= t("finance.accounts.types.#{acc.account_type}") %></p>
               <p class="text-lg font-medium mt-1 truncate"><%= acc.name %></p>
             </div>
             <span class="w-3 h-3 rounded-full flex-shrink-0 mt-1.5" style="background: <%= acc.color %>;"></span>

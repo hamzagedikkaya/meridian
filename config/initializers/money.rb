@@ -1,3 +1,13 @@
+Money::Currency.register(
+  iso_code:              "GAU",
+  name:                  "Gram Altın",
+  symbol:                "gr",
+  subunit:               "Gram",
+  subunit_to_unit:       1,
+  symbol_first:          false,
+  smallest_denomination: 1
+)
+
 MoneyRails.configure do |config|
   config.default_currency = :try
 

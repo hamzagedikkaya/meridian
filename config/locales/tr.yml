@@ -253,6 +253,12 @@ tr:
       new_title: "Yeni hesap"
       edit_title: "Hesabı düzenle"
       type: "Tür"
+      types:
+        cash: "Nakit"
+        bank: "Banka"
+        credit_card: "Kredi kartı"
+        savings: "Birikim"
+        crypto: "Kripto"
       currency: "Para birimi"
       initial_balance: "Başlangıç bakiyesi (kuruş)"
       recent: "Son işlemler"

@@ -19,7 +19,7 @@
     </div>
     <div>
       <%= f.label :account_type, t("finance.accounts.type"), class: label_cls %>
-      <%= f.select :account_type, Account::ACCOUNT_TYPES.map { |type| [ type.titleize, type ] }, {}, class: input_cls %>
+      <%= f.select :account_type, Account::ACCOUNT_TYPES.map { |type| [ t("finance.accounts.types.#{type}"), type ] }, {}, class: input_cls %>
     </div>
     <div>
       <%= f.label :currency, t("finance.accounts.currency"), class: label_cls %>
