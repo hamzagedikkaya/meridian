@@ -59,6 +59,9 @@ group :development, :test do
   # Security scanner
   gem "brakeman", require: false
 
+  # N+1 static analysis (AST)
+  gem "eager_eye", require: false
+
   # Linting
   gem "rubocop-rails-omakase", require: false
   gem "rubocop-rspec", require: false

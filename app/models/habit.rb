@@ -11,6 +11,30 @@ class Habit < ApplicationRecord
 
   scope :active, -> { where(archived_at: nil) }
 
+  # Batched streak calculation — one query for many habits instead of N.
+  def self.streaks_for(habits)
+    habit_ids = habits.map(&:id)
+    return {} if habit_ids.empty?
+
+    today = Date.current
+    rows = HabitLog.where(habit_id: habit_ids, completed: true, date: ..today)
+                   .order(date: :desc).pluck(:habit_id, :date)
+    by_habit = rows.group_by(&:first).transform_values { |arr| arr.map(&:last) }
+
+    habit_ids.index_with do |hid|
+      dates = by_habit[hid] || []
+      cutoff = dates.include?(today) ? today : today - 1.day
+      relevant = dates.drop_while { |d| d > cutoff }
+      next 0 if relevant.empty? || relevant.first != cutoff
+
+      streak = 1
+      relevant.each_cons(2) do |a, b|
+        (a - b).to_i == 1 ? streak += 1 : break
+      end
+      streak
+    end
+  end
+
   def log_for(date)
     habit_logs.find_or_initialize_by(date: date)
   end

@@ -8,7 +8,7 @@ class SearchController < ApplicationController
     pattern = "%#{q}%"
     results = []
 
-    current_user.transactions.where("description ILIKE ? OR note ILIKE ?", pattern, pattern).limit(5).each do |t|
+    current_user.transactions.includes(:account).where("description ILIKE ? OR note ILIKE ?", pattern, pattern).limit(5).each do |t|
       results << { type: "Transaction", id: t.id, title: t.description.presence || t.kind.titleize, subtitle: "#{t.date} · #{t.account.name}", url: finance_transaction_path(t) }
     end
 
@@ -28,8 +28,10 @@ class SearchController < ApplicationController
       results << { type: "Goal", id: g.id, title: g.name, subtitle: "#{g.progress_percent}% complete", url: goal_path(g) }
     end
 
-    current_user.habits.where("name ILIKE ? OR description ILIKE ?", pattern, pattern).limit(5).each do |h|
-      results << { type: "Habit", id: h.id, title: h.name, subtitle: "🔥 #{h.current_streak}d streak", url: habit_path(h) }
+    matching_habits = current_user.habits.where("name ILIKE ? OR description ILIKE ?", pattern, pattern).limit(5).to_a
+    habit_streaks = Habit.streaks_for(matching_habits)
+    matching_habits.each do |h|
+      results << { type: "Habit", id: h.id, title: h.name, subtitle: "🔥 #{habit_streaks[h.id]}d streak", url: habit_path(h) }
     end
 
     current_user.subscriptions.where("name ILIKE ? OR vendor ILIKE ?", pattern, pattern).limit(5).each do |s|

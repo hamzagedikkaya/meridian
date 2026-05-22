@@ -6,7 +6,7 @@ module Finance
     def self.call(scope: Subscription.active, today: Date.current)
       created = 0
 
-      scope.where(next_charge_on: ..today).find_each do |sub|
+      scope.where(next_charge_on: ..today).includes(:user, :account, :finance_category).find_each do |sub|
         while sub.next_charge_on && sub.next_charge_on <= today
           ::Transaction.create!(
             user: sub.user,
@@ -20,7 +20,7 @@ module Finance
             occurred_at: sub.next_charge_on.to_time,
             recurring: true
           )
-          sub.advance_next_charge!
+          sub.advance_next_charge! # eager_eye:disable LoopAssociation,CustomMethodQuery -- per-record save! is intentional
           created += 1
         end
       end

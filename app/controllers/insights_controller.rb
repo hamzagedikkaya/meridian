@@ -15,7 +15,9 @@ class InsightsController < ApplicationController
     @weekday_avg = weekday_days.zero? ? 0 : weekday_spend / weekday_days
 
     # Habit streaks distribution
-    @habit_streaks = current_user.habits.active.map { |h| [ h.name, h.current_streak ] }
+    active_habits = current_user.habits.active.to_a
+    streaks = Habit.streaks_for(active_habits)
+    @habit_streaks = active_habits.map { |h| [ h.name, streaks[h.id] ] }
                                   .sort_by { |(_, s)| -s }
 
     # Mood vs habit completion (last 30 days)
