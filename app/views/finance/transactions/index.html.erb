@@ -23,7 +23,7 @@
         <select name="kind" class="<%= input_cls %>">
           <option value=""><%= t("finance.transactions.filters.all") %></option>
           <% %w[income expense transfer].each do |k| %>
-            <option value="<%= k %>" <%= "selected" if params[:kind] == k %>><%= k.titleize %></option>
+            <option value="<%= k %>" <%= "selected" if params[:kind] == k %>><%= t("enums.transaction_kind.#{k}") %></option>
           <% end %>
         </select>
       </div>

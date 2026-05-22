@@ -30,8 +30,9 @@ module Finance
 
     def create
       @transaction = current_user.transactions.new(transaction_params)
+      linked_params = build_linked_params(@transaction)
 
-      if @transaction.save
+      if save_with_linked(@transaction, linked_params)
         redirect_to finance_transactions_path, notice: t("flash.saved")
       else
         load_form_data
@@ -60,7 +61,7 @@ module Finance
     def export
       transactions = current_user.transactions.includes(:account, :finance_category).recent
       csv_data = CSV.generate(headers: true) do |csv|
-        csv << [ "Date", "Kind", "Account", "Category", "Description", "Amount", "Currency", "Note" ]
+        csv << [ "Date", "Kind", "Account", "Category", "Description", "Amount", "Currency" ]
         transactions.each do |t|
           csv << [
             t.date,
@@ -69,8 +70,7 @@ module Finance
             t.finance_category&.name,
             t.description,
             (t.amount_cents / 100.0),
-            t.account_currency,
-            t.note
+            t.account_currency
           ]
         end
       end
@@ -92,12 +92,43 @@ module Finance
     def transaction_params
       params.require(:transaction).permit(
         :account_id, :related_account_id, :finance_category_id,
-        :amount, :amount_cents, :kind, :description, :note, :date
+        :amount, :amount_cents, :kind, :description, :date
       ).tap do |p|
         if p[:amount].present? && p[:amount_cents].blank?
           p[:amount_cents] = (p.delete(:amount).to_f * 100).round
         end
       end
+    end
+
+    def build_linked_params(primary)
+      raw = params.dig(:transaction, :linked)
+      return nil unless raw.present? && ActiveModel::Type::Boolean.new.cast(raw[:enabled])
+
+      permitted = raw.permit(:account_id, :finance_category_id, :amount).to_h
+      return nil if permitted[:account_id].blank? || permitted[:amount].blank?
+
+      {
+        account_id:          permitted[:account_id],
+        finance_category_id: permitted[:finance_category_id].presence,
+        amount_cents:        (permitted[:amount].to_f * 100).round,
+        kind:                primary.kind == "income" ? "expense" : "income",
+        description:         primary.description,
+        date:                primary.date
+      }
+    end
+
+    def save_with_linked(primary, linked_attrs)
+      return primary.save unless linked_attrs
+
+      ActiveRecord::Base.transaction do
+        primary.save!
+        linked = current_user.transactions.new(linked_attrs.merge(parent_transaction_id: primary.id))
+        linked.save!
+      end
+      true
+    rescue ActiveRecord::RecordInvalid => e
+      primary.errors.add(:base, t("finance.transactions.linked.invalid", message: e.record.errors.full_messages.join(", "))) if e.record != primary
+      false
     end
   end
 end

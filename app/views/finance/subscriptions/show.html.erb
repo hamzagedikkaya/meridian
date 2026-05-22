@@ -4,7 +4,7 @@
 <div class="max-w-xl space-y-4">
   <%= link_to t("common.back"), finance_subscriptions_path, class: "text-sm text-[var(--color-fg-muted)]" %>
   <div class="card">
-    <p class="text-sm text-[var(--color-fg-muted)] uppercase tracking-wider"><%= @subscription.frequency.titleize %></p>
+    <p class="text-sm text-[var(--color-fg-muted)] uppercase tracking-wider"><%= t("enums.frequency.#{@subscription.frequency}") %></p>
     <h2 class="font-[family-name:var(--font-display)] text-3xl tracking-tight mt-1"><%= @subscription.name %></h2>
     <p class="stat-number mt-4 text-[var(--color-expense)]"><%= money_format(@subscription.amount_cents, currency: @subscription.account_currency) %></p>
     <p class="text-sm text-[var(--color-fg-muted)] mt-1"><%= money_format(@subscription.yearly_amount_cents, currency: @subscription.account_currency) %> <%= t("finance.subscriptions.yearly") %></p>

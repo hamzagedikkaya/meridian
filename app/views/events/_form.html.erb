@@ -26,7 +26,7 @@
     </div>
     <div>
       <%= f.label :event_type, t("events.type"), class: label_cls %>
-      <%= f.select :event_type, Event::EVENT_TYPES.map { |t| [ t.titleize, t ] }, {}, class: input_cls %>
+      <%= f.select :event_type, Event::EVENT_TYPES.map { |type| [ t("enums.event_type.#{type}"), type ] }, {}, class: input_cls %>
     </div>
     <div>
       <%= f.label :color, t("events.color"), class: label_cls %>

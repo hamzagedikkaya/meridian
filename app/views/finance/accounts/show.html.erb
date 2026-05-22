@@ -26,7 +26,7 @@
         <% @transactions.each do |t| %>
           <li class="py-3 flex items-center justify-between gap-3">
             <div class="min-w-0">
-              <p class="text-sm truncate"><%= t.description.presence || t.finance_category&.name || t.kind.titleize %></p>
+              <p class="text-sm truncate"><%= t.description.presence || t.finance_category&.name || I18n.t("enums.transaction_kind.#{t.kind}") %></p>
               <p class="text-xs text-[var(--color-fg-muted)]"><%= l(t.date, format: "%d %b %Y") %></p>
             </div>
             <span class="text-sm font-medium <%= signed_amount_class(t.kind) %>"><%= signed_amount_prefix(t.kind) %><%= money_format(t.amount_cents, currency: t.account_currency) %></span>

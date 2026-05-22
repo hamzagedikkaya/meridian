@@ -4,7 +4,7 @@
 <div class="max-w-xl space-y-4">
   <%= link_to t("common.back"), calendar_path, class: "text-sm text-[var(--color-fg-muted)]" %>
   <div class="card">
-    <p class="text-sm text-[var(--color-fg-muted)] uppercase tracking-wider"><%= @event.event_type.titleize %></p>
+    <p class="text-sm text-[var(--color-fg-muted)] uppercase tracking-wider"><%= t("enums.event_type.#{@event.event_type}") %></p>
     <h2 class="font-[family-name:var(--font-display)] text-3xl tracking-tight mt-1"><%= @event.title %></h2>
     <p class="text-sm text-[var(--color-fg-muted)] mt-2">
       <%= l(@event.start_at, format: "%A, %d %B %Y · %H:%M") %>

@@ -34,7 +34,7 @@
             <div class="flex-1 min-w-0">
               <%= link_to habit.name, habit_path(habit), class: "text-base font-medium hover:text-[var(--color-accent-400)]" %>
               <p class="text-xs text-[var(--color-fg-muted)] mt-0.5">
-                <%= habit.frequency.titleize %>
+                <%= t("enums.frequency.#{habit.frequency}") %>
                 <% if habit.description.present? %> · <%= habit.description %><% end %>
               </p>
             </div>

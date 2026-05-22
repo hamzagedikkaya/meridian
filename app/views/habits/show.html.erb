@@ -10,7 +10,7 @@
       <div class="flex items-center gap-3">
         <span class="w-4 h-4 rounded-full" style="background: <%= @habit.color %>"></span>
         <div>
-          <p class="text-sm text-[var(--color-fg-muted)] uppercase tracking-wider"><%= @habit.frequency.titleize %></p>
+          <p class="text-sm text-[var(--color-fg-muted)] uppercase tracking-wider"><%= t("enums.frequency.#{@habit.frequency}") %></p>
           <h2 class="font-[family-name:var(--font-display)] text-3xl tracking-tight"><%= @habit.name %></h2>
         </div>
       </div>

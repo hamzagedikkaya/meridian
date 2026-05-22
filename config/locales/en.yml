@@ -1,4 +1,31 @@
 en:
+  enums:
+    transaction_kind:
+      income: "Income"
+      expense: "Expense"
+      transfer: "Transfer"
+    frequency:
+      daily: "Daily"
+      weekly: "Weekly"
+      monthly: "Monthly"
+      yearly: "Yearly"
+    todo_priority:
+      low: "Low"
+      medium: "Medium"
+      high: "High"
+      urgent: "Urgent"
+    todo_status:
+      pending: "Pending"
+      in_progress: "In progress"
+      done: "Done"
+      cancelled: "Cancelled"
+    event_type:
+      personal: "Personal"
+      work: "Work"
+      health: "Health"
+      finance: "Finance"
+      other: "Other"
+
   meridian:
     tagline: "Your life, beautifully organized."
     brand_caption: "One local life OS for your finances, habits, todos, calendar, journal, and goals."
@@ -222,11 +249,15 @@ en:
       account: "Account"
       category: "Category"
       description: "Description"
-      note: "Note"
       save: "Save"
       update: "Update"
       manage_accounts: "Manage accounts"
       manage_categories: "Manage categories"
+      linked:
+        toggle: "Link a counter-transaction"
+        hint: "Useful for cross-account movements (e.g. buying gold with cash). The counter-side uses the opposite kind."
+        title: "Linked transaction"
+        invalid: "Linked side invalid: %{message}"
     accounts:
       title: "Accounts"
       subtitle: "Manage wallets, bank accounts, credit cards, and savings."
@@ -548,3 +579,14 @@ en:
     hint_min: "Type at least 2 characters…"
     no_results: "No results."
     type_to_search: "Type to search…"
+    types:
+      Transaction: "Transaction"
+      Todo: "Todo"
+      Journal: "Journal"
+      Event: "Event"
+      Goal: "Goal"
+      Habit: "Habit"
+      Subscription: "Subscription"
+    journal_default: "Entry"
+    goal_progress: "%{percent}% complete"
+    habit_streak: "🔥 %{days}d streak"

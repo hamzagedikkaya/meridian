@@ -27,11 +27,11 @@
     </div>
     <div>
       <%= f.label :priority, t("common.priority"), class: label_cls %>
-      <%= f.select :priority, Todo::PRIORITIES.map { |p| [ p.titleize, p ] }, {}, class: input_cls %>
+      <%= f.select :priority, Todo::PRIORITIES.map { |p| [ t("enums.todo_priority.#{p}"), p ] }, {}, class: input_cls %>
     </div>
     <div>
       <%= f.label :status, t("common.status"), class: label_cls %>
-      <%= f.select :status, Todo::STATUSES.map { |s| [ s.titleize, s ] }, {}, class: input_cls %>
+      <%= f.select :status, Todo::STATUSES.map { |s| [ t("enums.todo_status.#{s}"), s ] }, {}, class: input_cls %>
     </div>
     <div class="md:col-span-3">
       <%= f.label :todo_list_id, t("common.list"), class: label_cls %>

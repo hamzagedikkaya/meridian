@@ -6,7 +6,7 @@ class Transaction < ApplicationRecord
   belongs_to :finance_category, optional: true
   belongs_to :related_account, class_name: "Account", optional: true
   belongs_to :parent_transaction, class_name: "Transaction", optional: true
-  has_many :child_transactions, class_name: "Transaction", foreign_key: :parent_transaction_id, dependent: :nullify
+  has_many :child_transactions, class_name: "Transaction", foreign_key: :parent_transaction_id, dependent: :destroy
 
   monetize :amount_cents, with_model_currency: :account_currency
 

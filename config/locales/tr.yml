@@ -1,4 +1,31 @@
 tr:
+  enums:
+    transaction_kind:
+      income: "Gelir"
+      expense: "Gider"
+      transfer: "Transfer"
+    frequency:
+      daily: "Günlük"
+      weekly: "Haftalık"
+      monthly: "Aylık"
+      yearly: "Yıllık"
+    todo_priority:
+      low: "Düşük"
+      medium: "Orta"
+      high: "Yüksek"
+      urgent: "Acil"
+    todo_status:
+      pending: "Bekliyor"
+      in_progress: "Devam ediyor"
+      done: "Tamamlandı"
+      cancelled: "İptal"
+    event_type:
+      personal: "Kişisel"
+      work: "İş"
+      health: "Sağlık"
+      finance: "Finans"
+      other: "Diğer"
+
   date:
     abbr_day_names: [Paz, Pzt, Sal, Çar, Per, Cum, Cmt]
     abbr_month_names: [~, Oca, Şub, Mar, Nis, May, Haz, Tem, Ağu, Eyl, Eki, Kas, Ara]
@@ -239,11 +266,15 @@ tr:
       account: "Hesap"
       category: "Kategori"
       description: "Açıklama"
-      note: "Not"
       save: "Kaydet"
       update: "Güncelle"
       manage_accounts: "Hesapları yönet"
       manage_categories: "Kategorileri yönet"
+      linked:
+        toggle: "Karşı işlem bağla"
+        hint: "Hesaplar arası geçişler için (ör. nakit ile altın alımı). Karşı taraf ters türü kullanır."
+        title: "Bağlantılı işlem"
+        invalid: "Bağlantılı taraf geçersiz: %{message}"
     accounts:
       title: "Hesaplar"
       subtitle: "Cüzdan, banka, kredi kartı ve birikim hesaplarını yönet."
@@ -564,3 +595,14 @@ tr:
     hint_min: "En az 2 karakter yaz…"
     no_results: "Sonuç yok."
     type_to_search: "Aramak için yaz…"
+    types:
+      Transaction: "İşlem"
+      Todo: "Görev"
+      Journal: "Günlük"
+      Event: "Etkinlik"
+      Goal: "Hedef"
+      Habit: "Alışkanlık"
+      Subscription: "Abonelik"
+    journal_default: "Kayıt"
+    goal_progress: "%{percent}% tamamlandı"
+    habit_streak: "🔥 %{days}g seri"

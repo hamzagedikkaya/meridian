@@ -16,7 +16,7 @@
         <%= link_to goal_path(g), class: "card hover:border-[var(--color-border-default)] block" do %>
           <div class="flex items-start justify-between gap-3 mb-3">
             <div class="min-w-0">
-              <p class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider"><%= g.target_type.titleize %></p>
+              <p class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider"><%= t("goals.types.#{g.target_type}", default: g.target_type.titleize) %></p>
               <p class="text-lg font-medium mt-1 truncate"><%= g.name %></p>
             </div>
             <% if g.deadline %>

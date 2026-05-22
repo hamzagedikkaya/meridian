@@ -25,7 +25,7 @@
     </div>
     <div>
       <%= f.label :frequency, t("finance.subscriptions.frequency"), class: label_cls %>
-      <%= f.select :frequency, Subscription::FREQUENCIES.map { |fr| [ fr.titleize, fr ] }, {}, class: input_cls %>
+      <%= f.select :frequency, Subscription::FREQUENCIES.map { |fr| [ t("enums.frequency.#{fr}"), fr ] }, {}, class: input_cls %>
     </div>
     <div>
       <%= f.label :account_id, t("common.account"), class: label_cls %>

@@ -21,7 +21,7 @@
   <div class="grid md:grid-cols-3 gap-5">
     <div>
       <%= f.label :frequency, t("finance.subscriptions.frequency"), class: label_cls %>
-      <%= f.select :frequency, Habit::FREQUENCIES.map { |fr| [ fr.titleize, fr ] }, {}, class: input_cls %>
+      <%= f.select :frequency, Habit::FREQUENCIES.map { |fr| [ t("enums.frequency.#{fr}"), fr ] }, {}, class: input_cls %>
     </div>
     <div>
       <%= f.label :target_count, t("habits.target"), class: label_cls %>

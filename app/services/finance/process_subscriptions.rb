@@ -15,12 +15,11 @@ module Finance
             amount_cents: sub.amount_cents,
             kind: "expense",
             description: sub.name,
-            note: "Auto-generated from subscription ##{sub.id}",
             date: sub.next_charge_on,
             occurred_at: sub.next_charge_on.to_time,
             recurring: true
           )
-          sub.advance_next_charge! # eager_eye:disable LoopAssociation,CustomMethodQuery -- per-record save! is intentional
+          sub.advance_next_charge! # eager_eye:disable LoopAssociation,CustomMethodQuery
           created += 1
         end
       end

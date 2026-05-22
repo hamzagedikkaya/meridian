@@ -29,7 +29,7 @@
           <li class="py-3 flex items-center justify-between gap-3">
             <div class="min-w-0">
               <p class="text-sm font-medium truncate"><%= sub.name %></p>
-              <p class="text-xs text-[var(--color-fg-muted)]"><%= sub.frequency.titleize %> · <%= sub.account.name %><%= " · #{sub.finance_category.name}" if sub.finance_category %></p>
+              <p class="text-xs text-[var(--color-fg-muted)]"><%= t("enums.frequency.#{sub.frequency}") %> · <%= sub.account.name %><%= " · #{sub.finance_category.name}" if sub.finance_category %></p>
               <p class="text-xs text-[var(--color-fg-faint)]"><%= t("finance.subscriptions.next") %> <%= sub.next_charge_on&.then { |d| l(d, format: "%d %b %Y") } || t("common.none") %></p>
             </div>
             <div class="text-right">
