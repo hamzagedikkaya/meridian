@@ -222,6 +222,15 @@ en:
       add_one: "Add one"
       upcoming_subs: "Upcoming subs"
       no_active_subs: "No active subscriptions."
+      spending_breakdown: "Spending breakdown"
+      no_expenses_range: "No expenses in this range."
+      range:
+        m1: "1m"
+        m6: "6m"
+        y1: "1y"
+      view:
+        pie: "Category pie"
+        trend: "Income vs expense trend"
     transactions:
       title: "Transactions"
       records: "records"

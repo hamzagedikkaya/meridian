@@ -34,32 +34,93 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-    <div class="card lg:col-span-2">
-      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4"><%= t("finance.dashboard.six_month_trend") %></h3>
-      <%= column_chart [
-        { name: t("finance.dashboard.income"),  data: @six_month_series[:labels].zip(@six_month_series[:income]).to_h },
-        { name: t("finance.dashboard.expense"), data: @six_month_series[:labels].zip(@six_month_series[:expense]).to_h }
-      ], colors: [ "#6B8E5A", "#B85450" ], height: "280px", library: { plugins: { legend: { labels: { color: "#A09B8E" } } }, scales: { x: { ticks: { color: "#A09B8E" }, grid: { display: false } }, y: { ticks: { color: "#A09B8E" }, grid: { color: "rgba(245,241,232,0.06)" } } } } %>
+  <%
+    pill_btn = "px-2.5 py-1 text-xs rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-overlay)] transition-colors cursor-pointer"
+    trend_income_data  = @six_month_series[:labels].zip(@six_month_series[:income]).to_h
+    trend_expense_data = @six_month_series[:labels].zip(@six_month_series[:expense]).to_h
+  %>
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:items-stretch">
+    <div class="card flex flex-col lg:col-span-3"
+         data-controller="finance-chart"
+         data-finance-chart-pie-m1-value="<%= @category_pie_series[:m1].to_json %>"
+         data-finance-chart-pie-m6-value="<%= @category_pie_series[:m6].to_json %>"
+         data-finance-chart-pie-y1-value="<%= @category_pie_series[:y1].to_json %>"
+         data-finance-chart-trend-income-value="<%= trend_income_data.to_json %>"
+         data-finance-chart-trend-expense-value="<%= trend_expense_data.to_json %>"
+         data-finance-chart-income-label-value="<%= t("finance.dashboard.income") %>"
+         data-finance-chart-expense-label-value="<%= t("finance.dashboard.expense") %>"
+         data-finance-chart-currency-symbol-value="<%= Money::Currency.find(@currency)&.symbol.presence || @currency %>"
+         data-finance-chart-locale-value="<%= I18n.locale %>">
+      <div class="flex items-start justify-between gap-3 mb-4">
+        <div>
+          <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight"><%= t("finance.dashboard.spending_breakdown") %></h3>
+          <div class="flex gap-1 mt-2" data-finance-chart-target="rangeControls">
+            <% %w[m1 m6 y1].each do |r| %>
+              <button type="button" class="<%= pill_btn %>" data-range="<%= r %>" data-finance-chart-target="rangeButton" data-action="click->finance-chart#setRange"><%= t("finance.dashboard.range.#{r}") %></button>
+            <% end %>
+          </div>
+        </div>
+        <div class="flex gap-1 flex-shrink-0">
+          <button type="button" class="<%= pill_btn %>" data-view="pie" data-finance-chart-target="viewButton" data-action="click->finance-chart#setView" title="<%= t("finance.dashboard.view.pie") %>">
+            <%= render Ui::Icon.new(name: "pie-chart", size: 16) %>
+          </button>
+          <button type="button" class="<%= pill_btn %>" data-view="trend" data-finance-chart-target="viewButton" data-action="click->finance-chart#setView" title="<%= t("finance.dashboard.view.trend") %>">
+            <%= render Ui::Icon.new(name: "bar-chart-2", size: 16) %>
+          </button>
+        </div>
+      </div>
+      <div class="relative flex-1 min-h-[240px]">
+        <div data-finance-chart-target="chart" class="w-full h-full"></div>
+        <div data-finance-chart-target="emptyState" class="hidden absolute inset-0 flex items-center justify-center text-sm text-[var(--color-fg-muted)]">
+          <%= t("finance.dashboard.no_expenses_range") %>
+        </div>
+      </div>
     </div>
 
-    <div class="card">
-      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4"><%= t("finance.dashboard.top_expense_categories") %></h3>
-      <% if @top_expense_categories.any? %>
-        <ul class="space-y-3">
-          <% @top_expense_categories.each do |(name, color), amount| %>
-            <li class="flex items-center justify-between gap-3">
-              <div class="flex items-center gap-2 min-w-0">
-                <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: <%= color %>;"></span>
-                <span class="text-sm truncate"><%= name %></span>
-              </div>
-              <span class="text-sm font-medium"><%= money_format(amount, currency: @currency) %></span>
-            </li>
-          <% end %>
-        </ul>
-      <% else %>
-        <p class="text-sm text-[var(--color-fg-muted)]"><%= t("finance.dashboard.no_expenses_month") %></p>
-      <% end %>
+    <div class="flex flex-col gap-4 min-h-0">
+      <div class="card flex-1 min-h-0 flex flex-col">
+        <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight mb-4"><%= t("finance.dashboard.top_expense_categories") %></h3>
+        <% if @top_expense_categories.any? %>
+          <ul class="space-y-3 overflow-y-auto pr-1 -mr-1 min-h-0">
+            <% @top_expense_categories.each do |(name, color), amount| %>
+              <li class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: <%= color %>;"></span>
+                  <span class="text-sm truncate"><%= name %></span>
+                </div>
+                <span class="text-sm font-medium"><%= money_format(amount, currency: @currency) %></span>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="text-sm text-[var(--color-fg-muted)]"><%= t("finance.dashboard.no_expenses_month") %></p>
+        <% end %>
+      </div>
+
+      <div class="card flex-1 min-h-0 flex flex-col">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight"><%= t("finance.accounts.title") %></h3>
+          <%= link_to t("common.all") + " →", finance_accounts_path, class: "text-sm text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
+        </div>
+        <% if @active_accounts.any? %>
+          <ul class="space-y-2 overflow-y-auto pr-1 -mr-1 min-h-0">
+            <% @active_accounts.each do |acc| %>
+              <%= link_to finance_account_path(acc), class: "flex items-center justify-between gap-3 px-2.5 py-2 -mx-2.5 rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" do %>
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: <%= acc.color %>;"></span>
+                  <div class="min-w-0">
+                    <p class="text-sm truncate"><%= acc.name %></p>
+                    <p class="text-xs text-[var(--color-fg-muted)] truncate"><%= t("finance.accounts.types.#{acc.account_type}") %></p>
+                  </div>
+                </div>
+                <span class="text-sm font-medium flex-shrink-0"><%= money_format(acc.balance_cents, currency: acc.currency) %></span>
+              <% end %>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="text-sm text-[var(--color-fg-muted)]"><%= t("finance.accounts.none") %></p>
+        <% end %>
+      </div>
     </div>
   </div>
 

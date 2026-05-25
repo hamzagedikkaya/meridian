@@ -239,6 +239,15 @@ tr:
       add_one: "Bir tane ekle"
       upcoming_subs: "Yaklaşan abonelikler"
       no_active_subs: "Aktif abonelik yok."
+      spending_breakdown: "Harcama dağılımı"
+      no_expenses_range: "Bu aralıkta gider yok."
+      range:
+        m1: "1 ay"
+        m6: "6 ay"
+        y1: "1 yıl"
+      view:
+        pie: "Kategori pasta grafiği"
+        trend: "Gelir/gider trendi"
     transactions:
       title: "İşlemler"
       records: "kayıt"
