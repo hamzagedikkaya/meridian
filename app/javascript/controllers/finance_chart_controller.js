@@ -1,9 +1,9 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Drives the finance dashboard's main chart card: toggles between a category
-// pie chart (1m / 6m / 1y ranges) and the existing income-vs-expense trend.
-// Data for every range and the trend is pre-serialized in data-values so we
-// can swap charts without a round-trip to the server.
+// Finance dashboard chart card — driven by Apache ECharts for the richer motion
+// (radial gradients per slice, segment-explode on hover, smooth scale-in entrance,
+// elastic transitions between ranges, animated bar entrance on the trend view).
+// Chart.js + Chartkick are still loaded for simpler widgets elsewhere in the app.
 export default class extends Controller {
   static targets = ["chart", "rangeButton", "viewButton", "rangeControls", "emptyState"]
   static values = {
@@ -23,30 +23,17 @@ export default class extends Controller {
   }
 
   connect() {
-    this.chart = null
-    this.registerDataLabels()
+    if (!window.echarts) return
+    this.chart = window.echarts.init(this.chartTarget, null, { renderer: "canvas" })
+    this.resizeObserver = new ResizeObserver(() => this.chart && this.chart.resize())
+    this.resizeObserver.observe(this.chartTarget)
     this.refresh()
   }
 
-  registerDataLabels() {
-    if (!window.ChartDataLabels || !window.Chart) return
-    if (!window.Chart.registry.plugins.get("datalabels")) {
-      window.Chart.register(window.ChartDataLabels)
-      // Default OFF for every chart in the app — opt in explicitly where needed.
-      window.Chart.defaults.set("plugins.datalabels", { display: false })
-    }
-  }
-
-  formatMoney(value) {
-    const formatted = value.toLocaleString(this.localeValue || "tr", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    })
-    return this.currencySymbolValue ? `${formatted} ${this.currencySymbolValue}` : formatted
-  }
-
   disconnect() {
-    this.destroyChart()
+    this.resizeObserver?.disconnect()
+    this.chart?.dispose()
+    this.chart = null
   }
 
   setRange(event) {
@@ -64,7 +51,7 @@ export default class extends Controller {
   }
 
   refresh() {
-    this.destroyChart()
+    if (!this.chart) return
     this.syncButtonStyles()
     this.toggleRangeControls()
     if (this.currentViewValue === "pie") {
@@ -74,88 +61,172 @@ export default class extends Controller {
     }
   }
 
-  destroyChart() {
-    if (this.chart && typeof this.chart.destroy === "function") this.chart.destroy()
-    this.chart = null
-    if (this.hasChartTarget) this.chartTarget.innerHTML = ""
-  }
-
   renderPie() {
     const dataset = this.currentPieDataset()
     if (!dataset || dataset.length === 0) {
+      this.chart.clear()
       this.showEmptyState()
       return
     }
     this.hideEmptyState()
-
-    const data = dataset.map(d => [d.name, Number((d.amount / 100).toFixed(2))])
-    const colors = dataset.map(d => d.color)
-
-    const format = (v) => this.formatMoney(v)
-    this.chart = new Chartkick.PieChart(this.chartTarget, data, {
-      colors: colors,
-      height: "240px",
-      library: {
-        plugins: {
-          legend: {
-            position: "bottom",
-            labels: { color: "#A09B8E", padding: 12, boxWidth: 12 }
-          },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => {
-                const total = ctx.dataset.data.reduce((a, b) => a + b, 0)
-                const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0
-                return `${ctx.label}: ${format(ctx.parsed)} (${pct}%)`
-              }
-            }
-          },
-          datalabels: {
-            display: "auto",
-            color: "#FFFFFF",
-            font: { size: 10, weight: "500" },
-            textAlign: "center",
-            anchor: "center",
-            align: "center",
-            formatter: (value, ctx) => {
-              const total = ctx.dataset.data.reduce((a, b) => a + b, 0)
-              if (total === 0) return ""
-              const pct = (value / total) * 100
-              if (pct < 5) return ""
-              const name = ctx.chart.data.labels[ctx.dataIndex] || ""
-              return [ name, `${pct.toFixed(0)}%` ]
-            }
-          }
-        }
-      }
-    })
+    this.chart.setOption(this.pieOption(dataset), true)
   }
 
   renderTrend() {
     this.hideEmptyState()
+    this.chart.setOption(this.trendOption(), true)
+  }
+
+  pieOption(dataset) {
     const format = (v) => this.formatMoney(v)
-    this.chart = new Chartkick.ColumnChart(this.chartTarget, [
-      { name: this.incomeLabelValue, data: this.trendIncomeValue },
-      { name: this.expenseLabelValue, data: this.trendExpenseValue }
-    ], {
-      colors: [this.incomeColorValue, this.expenseColorValue],
-      height: "240px",
-      library: {
-        plugins: {
-          legend: { labels: { color: "#A09B8E" } },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => `${ctx.dataset.label}: ${format(ctx.parsed.y)}`
-            }
-          },
-          datalabels: { display: false }
+    return {
+      backgroundColor: "transparent",
+      tooltip: {
+        trigger: "item",
+        backgroundColor: "rgba(20,18,15,0.95)",
+        borderColor: "rgba(245,241,232,0.1)",
+        textStyle: { color: "#F5F1E8" },
+        formatter: (p) => `<div style="font-weight:500;margin-bottom:4px">${p.name}</div>${format(p.value)} <span style="opacity:.6">(${p.percent.toFixed(1)}%)</span>`
+      },
+      legend: {
+        orient: "horizontal",
+        bottom: 6,
+        itemWidth: 12,
+        itemHeight: 12,
+        textStyle: { color: "#A09B8E", fontSize: 11 },
+        icon: "circle"
+      },
+      series: [{
+        type: "pie",
+        radius: ["0%", "75%"],
+        center: ["50%", "44%"],
+        avoidLabelOverlap: true,
+        itemStyle: {
+          borderRadius: 4,
+          borderColor: "rgba(20,18,15,0.45)",
+          borderWidth: 2
         },
-        scales: {
-          x: { ticks: { color: "#A09B8E" }, grid: { display: false } },
-          y: { ticks: { color: "#A09B8E" }, grid: { color: "rgba(245,241,232,0.06)" } }
+        label: {
+          show: true,
+          position: "inside",
+          color: "#FFFFFF",
+          fontSize: 11,
+          fontWeight: 500,
+          textShadowColor: "rgba(0,0,0,0.45)",
+          textShadowBlur: 3,
+          formatter: (p) => p.percent < 5 ? "" : `{n|${p.name}}\n{p|${p.percent.toFixed(0)}%}`,
+          rich: {
+            n: { fontSize: 11, fontWeight: 600, color: "#FFFFFF", lineHeight: 14 },
+            p: { fontSize: 10, color: "#FFFFFF", opacity: 0.85, lineHeight: 12 }
+          }
+        },
+        labelLine: { show: false },
+        emphasis: {
+          scale: true,
+          scaleSize: 10,
+          itemStyle: {
+            shadowBlur: 18,
+            shadowColor: "rgba(184, 134, 11, 0.35)"
+          },
+          label: { show: true, fontSize: 12, fontWeight: 700 }
+        },
+        data: dataset.map((d, idx) => ({
+          name: d.name,
+          value: Number((d.amount / 100).toFixed(2)),
+          itemStyle: {
+            color: {
+              type: "radial",
+              x: 0.5, y: 0.5, r: 0.85,
+              colorStops: [
+                { offset: 0, color: this.lighten(d.color, 0.22) },
+                { offset: 1, color: d.color }
+              ]
+            }
+          }
+        })),
+        animationType: "scale",
+        animationDuration: 800,
+        animationEasing: "elasticOut",
+        animationDelay: (idx) => idx * 60,
+        animationDurationUpdate: 600,
+        animationEasingUpdate: "cubicOut"
+      }]
+    }
+  }
+
+  trendOption() {
+    const labels = Object.keys(this.trendIncomeValue)
+    const format = (v) => this.formatMoney(v)
+    return {
+      backgroundColor: "transparent",
+      tooltip: {
+        trigger: "axis",
+        backgroundColor: "rgba(20,18,15,0.95)",
+        borderColor: "rgba(245,241,232,0.1)",
+        textStyle: { color: "#F5F1E8" },
+        axisPointer: { type: "shadow", shadowStyle: { color: "rgba(245,241,232,0.04)" } },
+        formatter: (params) => {
+          const header = `<div style="font-weight:500;margin-bottom:4px">${params[0].axisValue}</div>`
+          const rows = params.map(p => `${p.marker}${p.seriesName}: <b>${format(p.value)}</b>`).join("<br/>")
+          return header + rows
         }
-      }
-    })
+      },
+      legend: {
+        bottom: 6,
+        textStyle: { color: "#A09B8E", fontSize: 11 },
+        icon: "circle",
+        itemWidth: 12,
+        itemHeight: 12
+      },
+      grid: { left: 50, right: 16, top: 14, bottom: 44 },
+      xAxis: {
+        type: "category",
+        data: labels,
+        axisLine: { lineStyle: { color: "rgba(245,241,232,0.12)" } },
+        axisTick: { show: false },
+        axisLabel: { color: "#A09B8E", fontSize: 11 }
+      },
+      yAxis: {
+        type: "value",
+        axisLabel: { color: "#A09B8E", fontSize: 10, formatter: (v) => this.compactNumber(v) },
+        splitLine: { lineStyle: { color: "rgba(245,241,232,0.06)" } }
+      },
+      series: [
+        {
+          name: this.incomeLabelValue,
+          type: "bar",
+          data: labels.map(l => this.trendIncomeValue[l]),
+          itemStyle: {
+            borderRadius: [6, 6, 0, 0],
+            color: { type: "linear", x: 0, y: 0, x2: 0, y2: 1,
+              colorStops: [
+                { offset: 0, color: this.lighten(this.incomeColorValue, 0.18) },
+                { offset: 1, color: this.incomeColorValue }
+              ] }
+          },
+          emphasis: { itemStyle: { shadowBlur: 12, shadowColor: "rgba(107,142,90,0.45)" } },
+          animationDelay: (idx) => idx * 70
+        },
+        {
+          name: this.expenseLabelValue,
+          type: "bar",
+          data: labels.map(l => this.trendExpenseValue[l]),
+          itemStyle: {
+            borderRadius: [6, 6, 0, 0],
+            color: { type: "linear", x: 0, y: 0, x2: 0, y2: 1,
+              colorStops: [
+                { offset: 0, color: this.lighten(this.expenseColorValue, 0.18) },
+                { offset: 1, color: this.expenseColorValue }
+              ] }
+          },
+          emphasis: { itemStyle: { shadowBlur: 12, shadowColor: "rgba(184,84,80,0.45)" } },
+          animationDelay: (idx) => idx * 70 + 35
+        }
+      ],
+      animationDuration: 700,
+      animationEasing: "cubicOut",
+      animationDurationUpdate: 500
+    }
   }
 
   currentPieDataset() {
@@ -164,6 +235,30 @@ export default class extends Controller {
       case "y1": return this.pieY1Value
       default:   return this.pieM1Value
     }
+  }
+
+  formatMoney(value) {
+    const formatted = Number(value).toLocaleString(this.localeValue || "tr", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })
+    return this.currencySymbolValue ? `${formatted} ${this.currencySymbolValue}` : formatted
+  }
+
+  compactNumber(value) {
+    const abs = Math.abs(value)
+    if (abs >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`
+    if (abs >= 1_000)     return `${(value / 1_000).toFixed(1)}k`
+    return value.toString()
+  }
+
+  lighten(hex, amt) {
+    if (!hex || !hex.startsWith("#")) return hex
+    const num = parseInt(hex.slice(1), 16)
+    const r = Math.min(255, (num >> 16) + Math.round(255 * amt))
+    const g = Math.min(255, ((num >> 8) & 0xff) + Math.round(255 * amt))
+    const b = Math.min(255, (num & 0xff) + Math.round(255 * amt))
+    return `rgb(${r}, ${g}, ${b})`
   }
 
   showEmptyState() {
