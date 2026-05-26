@@ -31,6 +31,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js" data-turbo-track="reload"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0" data-turbo-track="reload"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartkick@5.0.1/dist/chartkick.min.js" data-turbo-track="reload"></script>
+    <%# Apache ECharts — used by the finance dashboard chart card for richer motion / pie animations.
+        Chartkick + Chart.js are still loaded for the simpler charts elsewhere. %>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js" data-turbo-track="reload"></script>
   </head>
 
   <body class="min-h-screen bg-[var(--color-bg-base)] text-[var(--color-fg-primary)] font-[family-name:var(--font-sans)]" data-controller="theme keyboard-nav">
