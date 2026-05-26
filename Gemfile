@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 # --- Core ---
-gem "rails", "~> 8.0.2", ">= 8.0.2.1"
+gem "rails", "~> 8.1.3"
 gem "propshaft"
 gem "pg", "~> 1.1"
 gem "puma", ">= 5.0"
@@ -51,7 +51,11 @@ gem "ice_cube"
 # Pagination handled manually (offset/limit) — keep deps lean.
 
 # --- ActiveStorage variants ---
-gem "image_processing", "~> 1.2"
+# image_processing 2.x dropped mini_magick/ruby-vips as runtime deps — declare mini_magick
+# explicitly. ActiveStorage variant_processor is overridden to :mini_magick in
+# config/application.rb since libvips is not installed on the host.
+gem "image_processing", "~> 2.0"
+gem "mini_magick"
 
 group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"

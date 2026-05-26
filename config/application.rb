@@ -43,5 +43,9 @@ module Meridian
     config.i18n.available_locales = [ :en, :tr ]
     config.i18n.default_locale = :en
     config.i18n.fallbacks = [ :en ]
+
+    # ActiveStorage variants — use mini_magick because libvips is not installed on the host.
+    # Switch to :vips after `brew install vips` and adding `gem "ruby-vips"` to the Gemfile.
+    config.active_storage.variant_processor = :mini_magick
   end
 end
