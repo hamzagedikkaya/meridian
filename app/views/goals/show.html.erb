@@ -24,8 +24,8 @@
       <p class="mt-3 text-[var(--color-fg-muted)]"><%= @goal.description %></p>
     <% end %>
 
-    <div class="mt-6">
-      <%= render "progress_bar", goal: @goal %>
+    <div class="mt-6 flex justify-center">
+      <%= render "progress_ring", goal: @goal, size: 220, stroke: 16 %>
     </div>
 
     <dl class="grid grid-cols-3 gap-3 mt-6 text-sm">

@@ -24,8 +24,14 @@
       <ul class="divide-y divide-[var(--color-border-subtle)]">
         <% @habits.each do |habit| %>
           <% done = habit.completed_on?(Date.current) %>
-          <li class="p-4 flex items-center gap-4">
-            <%= button_to toggle_today_habit_path(habit), method: :patch, form: { class: "flex-shrink-0" }, class: "w-7 h-7 rounded-full border-2 #{done ? 'bg-[var(--color-accent-500)] border-[var(--color-accent-500)] text-[var(--color-bg-base)]' : 'border-[var(--color-border-default)] hover:border-[var(--color-accent-500)]'} flex items-center justify-center cursor-pointer transition-colors" do %>
+          <li class="p-4 flex items-center gap-4"
+              data-controller="streak-celebration"
+              data-streak-celebration-habit-id-value="<%= habit.id %>"
+              data-streak-celebration-streak-value="<%= habit.current_streak %>">
+            <%= button_to toggle_today_habit_path(habit), method: :patch,
+                form: { class: "flex-shrink-0" },
+                class: "w-7 h-7 rounded-full border-2 #{done ? 'bg-[var(--color-accent-500)] border-[var(--color-accent-500)] text-[var(--color-bg-base)]' : 'border-[var(--color-border-default)] hover:border-[var(--color-accent-500)]'} flex items-center justify-center cursor-pointer transition-colors",
+                data: { streak_celebration_target: "button", action: "click->streak-celebration#pop" } do %>
               <% if done %>
                 <%= render Ui::Icon.new(name: "check", size: 14) %>
               <% end %>
