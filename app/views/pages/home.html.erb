@@ -17,25 +17,52 @@
     <p class="text-[var(--color-fg-muted)] mt-1"><%= l(Date.current, format: "%A, %d %B %Y") %></p>
   </div>
 
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+  <%
+    currency_symbol = Money::Currency.find(@currency)&.symbol.presence || @currency
+    counter_attrs = ->(value, format: "integer", decimals: 0, with_currency: false) {
+      attrs = {
+        controller: "stat-counter",
+        "stat-counter-end-value": value,
+        "stat-counter-format-value": format,
+        "stat-counter-decimals-value": decimals,
+        "stat-counter-locale-value": I18n.locale
+      }
+      attrs["stat-counter-currency-symbol-value"] = currency_symbol if with_currency
+      attrs.map { |k, v| "data-#{k}=\"#{v}\"" }.join(" ").html_safe
+    }
+  %>
+  <%
+    spark = ->(data, color, type: "area") {
+      "data-controller=\"sparkline\" \
+       data-sparkline-data-value='#{data.to_json}' \
+       data-sparkline-color-value=\"#{color}\" \
+       data-sparkline-type-value=\"#{type}\"".html_safe
+    }
+  %>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3" data-controller="stagger">
     <div class="card">
       <p class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider"><%= t("pages.home.net_this_month") %></p>
-      <p class="stat-number mt-2 !text-2xl <%= @month_net_cents >= 0 ? 'text-[var(--color-income)]' : 'text-[var(--color-expense)]' %>"><%= money_format(@month_net_cents, currency: @currency) %></p>
+      <p class="stat-number mt-2 !text-2xl <%= @month_net_cents >= 0 ? 'text-[var(--color-income)]' : 'text-[var(--color-expense)]' %>"
+         <%= counter_attrs.call(@month_net_cents / 100.0, format: "money", with_currency: true) %>><%= money_format(@month_net_cents, currency: @currency) %></p>
+      <div class="h-8 mt-3" <%= spark.call(@sparkline_net, @month_net_cents >= 0 ? "#6B8E5A" : "#B85450") %>></div>
     </div>
     <div class="card">
       <p class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider"><%= t("pages.home.active_streaks") %></p>
       <p class="stat-number mt-2 !text-2xl flex items-center gap-2">
         <span class="text-[var(--color-warning)]"><%= render Ui::Icon.new(name: "flame", size: 22) %></span>
-        <%= @active_streaks %>
+        <span <%= counter_attrs.call(@active_streaks) %>><%= @active_streaks %></span>
       </p>
+      <div class="h-8 mt-3" <%= spark.call(@sparkline_habits, "#D4915A", type: "bar") %>></div>
     </div>
     <div class="card">
       <p class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider"><%= t("pages.home.open_todos") %></p>
-      <p class="stat-number mt-2 !text-2xl"><%= @open_todos %></p>
+      <p class="stat-number mt-2 !text-2xl" <%= counter_attrs.call(@open_todos) %>><%= @open_todos %></p>
+      <div class="h-8 mt-3" <%= spark.call(@sparkline_todos, "#B8860B", type: "bar") %>></div>
     </div>
     <div class="card">
       <p class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider"><%= t("pages.home.todays_events") %></p>
-      <p class="stat-number mt-2 !text-2xl"><%= @today_events %></p>
+      <p class="stat-number mt-2 !text-2xl" <%= counter_attrs.call(@today_events) %>><%= @today_events %></p>
+      <div class="h-8 mt-3" <%= spark.call(@sparkline_events, "#6B8FA0", type: "bar") %>></div>
     </div>
   </div>
 

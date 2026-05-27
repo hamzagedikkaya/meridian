@@ -33,5 +33,20 @@ class PagesController < ApplicationController
     end
 
     @currency = current_user.currency
+
+    # 7-day sparkline series for the stat cards.
+    range_7d = (6.days.ago.to_date..today).to_a
+    income_by_day  = current_user.transactions.income.where(date: range_7d).group(:date).sum(:amount_cents)
+    expense_by_day = current_user.transactions.expense.where(date: range_7d).group(:date).sum(:amount_cents)
+    habit_logs_by_day = current_user.habit_logs.where(completed: true, date: range_7d).group(:date).count
+    todos_done_by_day = current_user.todos.where(status: "done", completed_at: range_7d.first.beginning_of_day..range_7d.last.end_of_day)
+                                   .group("DATE(completed_at)").count
+    events_by_day     = current_user.events.where(start_at: range_7d.first.beginning_of_day..range_7d.last.end_of_day)
+                                   .group("DATE(start_at)").count
+
+    @sparkline_net    = range_7d.map { |d| ((income_by_day[d] || 0) - (expense_by_day[d] || 0)) / 100.0 }
+    @sparkline_habits = range_7d.map { |d| habit_logs_by_day[d] || 0 }
+    @sparkline_todos  = range_7d.map { |d| todos_done_by_day[d] || 0 }
+    @sparkline_events = range_7d.map { |d| events_by_day[d] || 0 }
   end
 end

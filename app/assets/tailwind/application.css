@@ -296,3 +296,72 @@ trix-toolbar .trix-dialog .trix-button {
   border: 1px solid var(--color-border-default);
   color: var(--color-fg-primary);
 }
+
+/* ==========================================================================
+   MOTION
+   Card entrance stagger, progress ring sweep, habit tap pop.
+   Respect prefers-reduced-motion.
+   ========================================================================== */
+
+@keyframes card-enter {
+  0%   { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ring-sweep {
+  from { stroke-dashoffset: var(--ring-start, 100); }
+  to   { stroke-dashoffset: var(--ring-end, 0); }
+}
+
+@keyframes tap-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+[data-stagger-child] {
+  opacity: 0;
+  animation: card-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--stagger-index, 0) * 60ms);
+}
+
+.tap-pop {
+  animation: tap-pop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes overlay-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modal-pop-in {
+  0%   { opacity: 0; transform: scale(0.95) translateY(8px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-overlay-anim {
+  animation: overlay-fade-in 0.18s ease-out;
+}
+
+.modal-overlay-anim > [data-modal-target="centerer"] > turbo-frame > * {
+  animation: modal-pop-in 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* View Transitions API — gives a soft cross-fade between turbo navigations.
+   Browsers without support just skip the animation gracefully. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.16s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-stagger-child],
+  .tap-pop {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}

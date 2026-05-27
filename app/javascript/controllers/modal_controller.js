@@ -58,7 +58,7 @@ export default class extends Controller {
 
   showOverlay() {
     this.element.classList.remove("hidden")
-    this.element.classList.add(...OVERLAY_CLASSES)
+    this.element.classList.add(...OVERLAY_CLASSES, "modal-overlay-anim")
     if (this.hasCentererTarget) {
       this.centererTarget.classList.add(...CENTERER_CLASSES)
     }
@@ -68,7 +68,7 @@ export default class extends Controller {
 
   hideOverlay() {
     this.element.classList.add("hidden")
-    this.element.classList.remove(...OVERLAY_CLASSES)
+    this.element.classList.remove(...OVERLAY_CLASSES, "modal-overlay-anim")
     if (this.hasCentererTarget) {
       this.centererTarget.classList.remove(...CENTERER_CLASSES)
     }
