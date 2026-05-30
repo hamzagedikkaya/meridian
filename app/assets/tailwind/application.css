@@ -358,6 +358,84 @@ trix-toolbar .trix-dialog .trix-button {
   animation-duration: 0.16s;
 }
 
+/* --- Habit chain (don't-break-the-chain visualisation) --- */
+
+@keyframes chain-link-snap {
+  0%   { transform: scale(0.3); opacity: 0; filter: blur(3px); }
+  60%  { transform: scale(1.12); opacity: 1; filter: blur(0); }
+  100% { transform: scale(1); }
+}
+
+@keyframes chain-pulse-today {
+  0%, 100% { transform: scale(1);    opacity: 1; }
+  50%      { transform: scale(1.18); opacity: 0.85; }
+}
+
+.habit-chain { display: block; overflow: visible; }
+
+/* Each link animates in on its own — staggered via the --i custom property
+   set inline on the <g>. No JavaScript required; the chain shows even if
+   Stimulus fails to load. The controller still wires up the today-pulse
+   pause-on-completion but rendering is JS-independent. */
+.chain-link {
+  transform-box: view-box;
+  animation: chain-link-snap 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: calc(var(--i, 0) * 35ms);
+}
+
+.chain-link--completed .chain-link__ring {
+  stroke: rgba(245, 241, 232, 0.10);
+}
+
+.chain-link--missed .chain-link__fill {
+  fill: transparent;
+}
+.chain-link--missed .chain-link__ring {
+  stroke: var(--color-border-default);
+  stroke-dasharray: 3 2;
+}
+
+.chain-link--today-pending .chain-link__fill {
+  fill: transparent;
+}
+.chain-link--today-pending .chain-link__ring {
+  stroke: var(--color-accent-400);
+  stroke-width: 1.5;
+}
+/* Today-pending breathing pulse — runs immediately after entrance via pure CSS. */
+.chain-link.chain-link--today-pending {
+  animation: chain-link-snap 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+             chain-pulse-today 2.2s ease-in-out 0.8s infinite;
+  animation-delay: calc(var(--i, 0) * 35ms), calc(var(--i, 0) * 35ms + 0.8s);
+}
+
+/* Perfect-day chain variants (rendered through the same component). */
+.chain-link--perfect .chain-link__ring {
+  stroke: rgba(184, 134, 11, 0.25);
+}
+.chain-link--partial .chain-link__fill {
+  fill-opacity: 0.45;
+}
+.chain-link--partial .chain-link__ring {
+  stroke: var(--color-accent-400);
+  stroke-dasharray: 2 2;
+}
+.chain-link--no_habits .chain-link__fill {
+  fill: transparent;
+}
+.chain-link--no_habits .chain-link__ring {
+  stroke: var(--color-border-subtle);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chain-link,
+  .chain-link--enter,
+  .chain-link--pulse {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-stagger-child],
   .tap-pop {

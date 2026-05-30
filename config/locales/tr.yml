@@ -138,6 +138,11 @@ tr:
       set_goal: "Hedef koy →"
       no_transactions: "Henüz işlem yok."
       weekly_completion: "Haftalık tamamlama"
+      perfect_days: "Kusursuz günler"
+      perfect_days_hint: "O gün tüm aktif alışkanlıklar tamamlandı"
+      perfect_streak:
+        one: "%{count} günlük kusursuz seri"
+        other: "%{count} günlük kusursuz seri"
 
   auth:
     welcome_back: "Tekrar hoş geldin"
@@ -404,6 +409,19 @@ tr:
       rate_30d: "30 günlük oran"
       completion: "tamamlama"
       last_12_weeks: "Son 12 hafta"
+    chain:
+      title: "Zincir"
+      aria: "%{name} için tamamlama zinciri"
+      window_30: "Son 30 gün"
+      today_pending: "Bugün — henüz tamamlanmadı"
+      completed_on: "%{date} tarihinde tamamlandı"
+      missed_on: "%{date} tarihinde kaçırıldı"
+      perfect_on: "%{date} tarihinde kusursuz gün"
+      partial_on: "%{date}: %{completed}/%{possible} tamamlandı"
+      no_habits_on: "%{date} tarihinde aktif alışkanlık yok"
+      legend_done: "Tamamlandı"
+      legend_missed: "Kaçırıldı"
+      legend_today: "Bugün"
 
   calendar:
     title: "Takvim"

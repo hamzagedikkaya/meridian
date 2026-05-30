@@ -10,6 +10,32 @@ RSpec.describe "Habits", type: :request do
       get habits_path
       expect(response).to have_http_status(:success)
     end
+
+    it "renders a mini chain for each habit" do
+      create(:habit, user: user)
+      create(:habit, user: user)
+      get habits_path
+      # Each habit row chain + the perfect-day chain at the top.
+      expect(response.body.scan(/class="habit-chain"/).size).to be >= 3
+    end
+
+    it "renders the perfect-day widget when at least one habit exists" do
+      create(:habit, user: user, created_at: 5.days.ago)
+      get habits_path
+      expect(response.body).to include(I18n.t("pages.home.perfect_days"))
+    end
+  end
+
+  describe "GET /habits/:id" do
+    let(:habit) { create(:habit, user: user) }
+
+    it "renders the 30-link chain" do
+      get habit_path(habit)
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('class="habit-chain"')
+      # 30 day window → 30 outer <g class="chain-link chain-link--..."> nodes.
+      expect(response.body.scan(/class="chain-link chain-link--/).size).to eq(30)
+    end
   end
 
   describe "POST /habits" do

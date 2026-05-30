@@ -1,0 +1,40 @@
+<turbo-frame id="<%= dom_id(habit, :index_row) %>">
+  <% done = habit.completed_on?(Date.current) %>
+  <div class="p-4 flex items-center gap-4"
+       data-controller="streak-celebration"
+       data-streak-celebration-habit-id-value="<%= habit.id %>"
+       data-streak-celebration-streak-value="<%= habit.current_streak %>">
+    <%= button_to toggle_today_habit_path(habit), method: :patch,
+        form: { class: "flex-shrink-0" },
+        class: "w-7 h-7 rounded-full border-2 #{done ? 'bg-[var(--color-accent-500)] border-[var(--color-accent-500)] text-[var(--color-bg-base)]' : 'border-[var(--color-border-default)] hover:border-[var(--color-accent-500)]'} flex items-center justify-center cursor-pointer transition-colors",
+        data: { streak_celebration_target: "button", action: "click->streak-celebration#pop" } do %>
+      <% if done %>
+        <%= render Ui::Icon.new(name: "check", size: 14) %>
+      <% end %>
+    <% end %>
+
+    <div class="flex-1 min-w-0">
+      <%= link_to habit.name, habit_path(habit), data: { turbo_frame: "_top" }, class: "text-base font-medium hover:text-[var(--color-accent-400)]" %>
+      <p class="text-xs text-[var(--color-fg-muted)] mt-0.5">
+        <%= t("enums.frequency.#{habit.frequency}") %>
+        <% if habit.description.present? %> · <%= habit.description %><% end %>
+      </p>
+      <div class="mt-2 hidden sm:block">
+        <%= render Ui::HabitChain.new(links: chain, size: :md, aria_label: t("habits.chain.aria", name: habit.name)) %>
+      </div>
+    </div>
+
+    <div class="text-right flex-shrink-0">
+      <p class="text-sm font-medium flex items-center gap-1 justify-end">
+        <span class="text-[var(--color-warning)]"><%= render Ui::Icon.new(name: "flame", size: 14) %></span>
+        <%= habit.current_streak %>
+      </p>
+      <p class="text-xs text-[var(--color-fg-muted)]"><%= habit.completion_rate(days: 30) %>% / <%= t("habits.last_30d") %></p>
+    </div>
+
+    <div class="flex flex-col gap-1 text-xs ml-3">
+      <%= link_to t("common.edit"), edit_habit_path(habit), data: { turbo_frame: "modal" }, class: "text-[var(--color-accent-400)]" %>
+      <%= button_to t("common.delete"), habit_path(habit), method: :delete, data: { turbo_confirm: t("habits.delete_confirm"), turbo_frame: "_top" }, class: "text-[var(--color-expense)] cursor-pointer" %>
+    </div>
+  </div>
+</turbo-frame>

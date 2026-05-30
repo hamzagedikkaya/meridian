@@ -1,0 +1,30 @@
+<svg class="habit-chain"
+     viewBox="0 0 <%= total_width %> <%= total_height %>"
+     preserveAspectRatio="xMinYMid meet"
+     style="height: <%= total_height %>px; max-width: 100%;"
+     data-controller="habit-chain"
+     role="img"
+     <%= "aria-label=\"#{ERB::Util.html_escape(aria_label)}\"".html_safe if aria_label %>>
+  <defs>
+    <% unique_colors.each do |color| %>
+      <radialGradient id="<%= gradient_for(color) %>" cx="35%" cy="30%" r="75%">
+        <stop offset="0%"  stop-color="<%= lighten(color, 0.22) %>"/>
+        <stop offset="100%" stop-color="<%= color %>"/>
+      </radialGradient>
+    <% end %>
+  </defs>
+  <% links.each_with_index do |link, i| %>
+    <g class="<%= status_class(link[:status]) %>" style="--i: <%= i %>; transform-origin: <%= link_cx(i) %>px <%= link_cy %>px;">
+      <circle class="chain-link__fill"
+              cx="<%= link_cx(i) %>" cy="<%= link_cy %>"
+              r="<%= preset[:radius] %>"
+              fill="url(#<%= gradient_for(link[:color]) %>)"/>
+      <circle class="chain-link__ring"
+              cx="<%= link_cx(i) %>" cy="<%= link_cy %>"
+              r="<%= preset[:radius] %>"
+              fill="none"
+              stroke-width="1.25"/>
+      <title><%= title_for(link) %></title>
+    </g>
+  <% end %>
+</svg>

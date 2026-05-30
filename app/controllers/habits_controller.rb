@@ -3,6 +3,12 @@ class HabitsController < ApplicationController
 
   def index
     @habits = current_user.habits.active.includes(:habit_logs).order(:name)
+    @habit_chains = Habit.chain_windows_for(@habits, days: 14)
+
+    perfect_chain_service = PerfectDayChain.new(current_user, days: 30)
+    @perfect_day_chain    = perfect_chain_service.to_a
+    @perfect_streak       = perfect_chain_service.current_perfect_streak
+    @longest_perfect      = perfect_chain_service.longest_perfect_streak
   end
 
   def show

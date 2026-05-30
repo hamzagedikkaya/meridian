@@ -39,4 +39,10 @@ class User < ApplicationRecord
     return "?" if display_name.blank?
     display_name.split(/\s+/).first(2).map { |part| part[0]&.upcase }.join
   end
+
+  # Returns the 30-day "perfect day" chain — a day is perfect when every habit
+  # that was active on that day was completed. See PerfectDayChain for shape.
+  def perfect_day_chain(days: 30, end_date: Date.current)
+    PerfectDayChain.new(self, days: days, end_date: end_date).to_a
+  end
 end
