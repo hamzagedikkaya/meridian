@@ -1,0 +1,25 @@
+<%
+  # Inline +/- counter for habits with target_count > 1. Lives next to the
+  # habit name (not inside the toggle button). Two tiny button_to forms post
+  # to toggle_today with ?delta=±1; Turbo handles the stream response.
+  log = habit.log_for(Date.current)
+  n = log.count.to_i
+  t = habit.target_count
+  complete = n >= t
+  btn_class = "w-5 h-5 rounded border border-[var(--color-border-default)] hover:border-[var(--color-accent-500)] text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)] flex items-center justify-center cursor-pointer text-xs leading-none transition-colors"
+  disabled_class = "opacity-30 cursor-not-allowed hover:border-[var(--color-border-default)] hover:text-[var(--color-fg-muted)]"
+%>
+<div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-[var(--color-border-subtle)] bg-[var(--color-bg-overlay)]"
+     aria-label="<%= t("habits.progress.label", count: n, target: t) %>">
+  <%= button_to toggle_today_habit_path(habit, delta: -1), method: :patch,
+      form: { class: "leading-none" },
+      class: "#{btn_class} #{disabled_class if n.zero?}",
+      disabled: n.zero?,
+      aria: { label: "−1" } do %>−<% end %>
+  <span class="text-xs font-medium tabular-nums min-w-[2.5rem] text-center <%= 'text-[var(--color-accent-400)]' if complete %>"><%= n %> / <%= t %></span>
+  <%= button_to toggle_today_habit_path(habit, delta: 1), method: :patch,
+      form: { class: "leading-none" },
+      class: "#{btn_class} #{disabled_class if complete}",
+      disabled: complete,
+      aria: { label: "+1" } do %>+<% end %>
+</div>

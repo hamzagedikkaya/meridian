@@ -73,6 +73,7 @@ tr:
     update: "Güncelle"
     delete: "Sil"
     edit: "Düzenle"
+    detail: "Detay"
     cancel: "İptal"
     back: "← Geri"
     all: "Tümü"
@@ -408,12 +409,13 @@ tr:
       longest: "En uzun"
       rate_30d: "30 günlük oran"
       completion: "tamamlama"
-      last_12_weeks: "Son 12 hafta"
     chain:
       title: "Zincir"
       aria: "%{name} için tamamlama zinciri"
       window_30: "Son 30 gün"
+      window_84: "Son 12 hafta"
       today_pending: "Bugün — henüz tamamlanmadı"
+      toggle_today_aria: "Bugünün durumunu değiştir"
       completed_on: "%{date} tarihinde tamamlandı"
       missed_on: "%{date} tarihinde kaçırıldı"
       perfect_on: "%{date} tarihinde kusursuz gün"
@@ -422,6 +424,8 @@ tr:
       legend_done: "Tamamlandı"
       legend_missed: "Kaçırıldı"
       legend_today: "Bugün"
+    progress:
+      label: "%{count} / %{target}"
 
   calendar:
     title: "Takvim"

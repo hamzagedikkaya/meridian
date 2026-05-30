@@ -1,0 +1,22 @@
+<%
+  # Binary toggle button for habits with target_count == 1.
+  # `size` is :lg (index row, w-7) or :sm (dashboard widget, w-5).
+  done = habit.completed_on?(Date.current)
+  if size == :sm
+    box = "w-5 h-5 rounded"
+    icon_size = 11
+  else
+    box = "w-7 h-7 rounded-full"
+    icon_size = 14
+  end
+  active = "bg-[var(--color-accent-500)] border-[var(--color-accent-500)] text-[var(--color-bg-base)]"
+  inactive = "border-[var(--color-border-default)] hover:border-[var(--color-accent-500)]"
+%>
+<%= button_to toggle_today_habit_path(habit), method: :patch,
+    form: { class: "flex-shrink-0" },
+    class: "#{box} border-2 #{done ? active : inactive} flex items-center justify-center cursor-pointer transition-colors",
+    data: { streak_celebration_target: "button", action: "click->streak-celebration#pop" } do %>
+  <% if done %>
+    <%= render Ui::Icon.new(name: "check", size: icon_size) %>
+  <% end %>
+<% end %>

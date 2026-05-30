@@ -10,16 +10,14 @@
          data-controller="streak-celebration"
          data-streak-celebration-habit-id-value="<%= habit.id %>"
          data-streak-celebration-streak-value="<%= habit.current_streak %>">
-      <%= button_to toggle_today_habit_path(habit), method: :patch,
-          form: { class: "flex-shrink-0" },
-          class: "w-5 h-5 rounded border-2 #{done ? 'bg-[var(--color-accent-500)] border-[var(--color-accent-500)] text-[var(--color-bg-base)]' : 'border-[var(--color-border-default)] hover:border-[var(--color-accent-500)]'} flex items-center justify-center cursor-pointer",
-          data: { streak_celebration_target: "button", action: "click->streak-celebration#pop" } do %>
-        <% if done %>
-          <%= render Ui::Icon.new(name: "check", size: 11) %>
-        <% end %>
-      <% end %>
+      <%= render "habits/checkbox_toggle", habit: habit, size: :sm %>
       <div class="min-w-0 flex-1">
-        <span class="text-sm block <%= 'text-[var(--color-fg-muted)] line-through' if done %>"><%= habit.name %></span>
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-sm <%= 'text-[var(--color-fg-muted)] line-through' if done %>"><%= habit.name %></span>
+          <% if habit.target_count > 1 %>
+            <%= render "habits/habit_counter", habit: habit %>
+          <% end %>
+        </div>
         <div class="mt-1.5">
           <%= render Ui::HabitChain.new(links: habit.chain_window(days: 7), size: :sm, aria_label: t("habits.chain.aria", name: habit.name)) %>
         </div>

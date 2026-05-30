@@ -1,7 +1,12 @@
+<%
+  # For :xl we keep the SVG at its intrinsic width so the parent's overflow-x-auto
+  # scrolls the long 12-week chain on narrow viewports.
+  svg_style = size == :xl ? "height: #{total_height}px; width: #{total_width}px;" : "height: #{total_height}px; max-width: 100%;"
+%>
 <svg class="habit-chain"
      viewBox="0 0 <%= total_width %> <%= total_height %>"
      preserveAspectRatio="xMinYMid meet"
-     style="height: <%= total_height %>px; max-width: 100%;"
+     style="<%= svg_style %>"
      data-controller="habit-chain"
      role="img"
      <%= "aria-label=\"#{ERB::Util.html_escape(aria_label)}\"".html_safe if aria_label %>>
@@ -14,7 +19,17 @@
     <% end %>
   </defs>
   <% links.each_with_index do |link, i| %>
-    <g class="<%= status_class(link[:status]) %>" style="--i: <%= i %>; transform-origin: <%= link_cx(i) %>px <%= link_cy %>px;">
+    <% interactive = interactive_for?(i, link) %>
+    <g class="<%= status_class(link[:status]) %><%= ' chain-link--interactive' if interactive %>"
+       style="--i: <%= i %>; transform-origin: <%= link_cx(i) %>px <%= link_cy %>px;"
+       <% if interactive %>
+       data-controller="chain-toggle"
+       data-chain-toggle-url-value="<%= toggle_url %>"
+       data-action="click->chain-toggle#submit keyup.enter->chain-toggle#submit keyup.space->chain-toggle#submit"
+       role="button"
+       tabindex="0"
+       aria-label="<%= t("habits.chain.toggle_today_aria") %>"
+       <% end %>>
       <circle class="chain-link__fill"
               cx="<%= link_cx(i) %>" cy="<%= link_cy %>"
               r="<%= preset[:radius] %>"
