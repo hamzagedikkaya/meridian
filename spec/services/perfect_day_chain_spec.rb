@@ -57,6 +57,19 @@ RSpec.describe PerfectDayChain do
     expect(one[:status]).to eq(:no_habits)
   end
 
+  it "ignores weekly and monthly habits — only daily habits count toward perfect days" do
+    daily = create(:habit, user: user, frequency: "daily",   created_at: 10.days.ago)
+    create(:habit,        user: user, frequency: "weekly",  created_at: 10.days.ago)
+    create(:habit,        user: user, frequency: "monthly", created_at: 10.days.ago)
+    daily.habit_logs.create!(date: 1.day.ago.to_date, completed: true)
+
+    chain = described_class.new(user, days: 3).to_a
+    yesterday = chain.find { |e| e[:date] == 1.day.ago.to_date }
+    # Daily habit done, weekly/monthly ignored → perfect.
+    expect(yesterday[:status]).to eq(:perfect)
+    expect(yesterday[:possible]).to eq(1)
+  end
+
   describe "#current_perfect_streak" do
     it "counts consecutive perfect days back from today" do
       h = create(:habit, user: user, created_at: 5.days.ago)

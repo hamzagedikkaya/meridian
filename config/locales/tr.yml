@@ -426,6 +426,9 @@ tr:
       legend_today: "Bugün"
     progress:
       label: "%{count} / %{target}"
+    periodic:
+      title: "Haftalık & aylık"
+      hint: "Periyot bazında sayılır — kusursuz gün hesabına girmez"
 
   calendar:
     title: "Takvim"

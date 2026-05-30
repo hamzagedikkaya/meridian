@@ -1,0 +1,37 @@
+<%
+  # Weekly + monthly habits live outside the daily "perfect days" rhythm.
+  # This widget shows period-level progress for them: how many completions
+  # have landed in the current week / month vs the habit's target_count.
+%>
+<% if periodic_habits.any? %>
+  <div class="card">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-[family-name:var(--font-display)] text-lg tracking-tight"><%= t("habits.periodic.title") %></h3>
+      <p class="text-xs text-[var(--color-fg-muted)]"><%= t("habits.periodic.hint") %></p>
+    </div>
+    <ul class="divide-y divide-[var(--color-border-subtle)]">
+      <% periodic_habits.each do |habit| %>
+        <% done_count = habit.period_completed_count %>
+        <% complete = done_count >= habit.target_count %>
+        <li class="py-2.5 flex items-center gap-3">
+          <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: <%= habit.color %>"></span>
+          <%= link_to habit.name, habit_path(habit), data: { turbo_frame: "modal" },
+              class: "text-sm flex-1 min-w-0 truncate #{'text-[var(--color-fg-muted)]' if complete} hover:text-[var(--color-accent-400)]" %>
+          <span class="text-xs text-[var(--color-fg-muted)] flex-shrink-0">
+            <%= t("enums.frequency.#{habit.frequency}") %>
+          </span>
+          <span class="text-sm font-medium tabular-nums flex-shrink-0 <%= complete ? 'text-[var(--color-accent-400)]' : 'text-[var(--color-fg-primary)]' %>">
+            <%= done_count %>/<%= habit.target_count %>
+          </span>
+          <% if complete %>
+            <span class="text-[var(--color-accent-400)] flex-shrink-0">
+              <%= render Ui::Icon.new(name: "check", size: 14) %>
+            </span>
+          <% else %>
+            <span class="w-3.5 h-3.5 rounded-full border border-dashed border-[var(--color-border-default)] flex-shrink-0"></span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

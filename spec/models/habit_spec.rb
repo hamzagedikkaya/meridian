@@ -73,6 +73,44 @@ RSpec.describe Habit, type: :model do
     end
   end
 
+  describe "#period_completed_count" do
+    it "counts completions in the current week for weekly habits" do
+      habit = create(:habit, frequency: "weekly", target_count: 3)
+      habit.habit_logs.create!(date: Date.current.beginning_of_week, completed: true)
+      habit.habit_logs.create!(date: Date.current.beginning_of_week + 2.days, completed: true)
+      habit.habit_logs.create!(date: Date.current.beginning_of_week - 1.day, completed: true) # last week, excluded
+      expect(habit.period_completed_count).to eq(2)
+    end
+
+    it "counts completions in the current month for monthly habits" do
+      habit = create(:habit, frequency: "monthly", target_count: 1)
+      habit.habit_logs.create!(date: Date.current.beginning_of_month, completed: true)
+      habit.habit_logs.create!(date: Date.current.beginning_of_month - 1.day, completed: true) # last month
+      expect(habit.period_completed_count).to eq(1)
+    end
+
+    it "counts only today for daily habits" do
+      habit = create(:habit, frequency: "daily")
+      habit.habit_logs.create!(date: Date.current, completed: true)
+      habit.habit_logs.create!(date: 1.day.ago.to_date, completed: true)
+      expect(habit.period_completed_count).to eq(1)
+    end
+  end
+
+  describe "#period_complete?" do
+    it "is true when count meets target_count in the period" do
+      habit = create(:habit, frequency: "weekly", target_count: 2)
+      2.times { |i| habit.habit_logs.create!(date: Date.current.beginning_of_week + i.days, completed: true) }
+      expect(habit.period_complete?).to be(true)
+    end
+
+    it "is false when count is below target_count" do
+      habit = create(:habit, frequency: "weekly", target_count: 3)
+      habit.habit_logs.create!(date: Date.current.beginning_of_week, completed: true)
+      expect(habit.period_complete?).to be(false)
+    end
+  end
+
   describe ".chain_windows_for" do
     it "returns a per-habit windowed map using a single underlying query" do
       h1 = create(:habit)

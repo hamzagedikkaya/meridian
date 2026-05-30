@@ -410,6 +410,9 @@ en:
       legend_today: "Today"
     progress:
       label: "%{count} / %{target}"
+    periodic:
+      title: "Weekly & monthly"
+      hint: "Counted by period — not by perfect days"
 
   calendar:
     title: "Calendar"

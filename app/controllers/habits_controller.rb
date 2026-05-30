@@ -4,6 +4,7 @@ class HabitsController < ApplicationController
   def index
     @habits = current_user.habits.active.includes(:habit_logs).order(:name)
     @habit_chains = Habit.chain_windows_for(@habits, days: 14)
+    @periodic_habits = @habits.reject { |h| h.frequency == "daily" }
 
     perfect_chain_service = PerfectDayChain.new(current_user, days: 30)
     @perfect_day_chain    = perfect_chain_service.to_a
