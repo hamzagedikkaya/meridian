@@ -58,5 +58,14 @@ RSpec.describe "Habits", type: :request do
       patch toggle_today_habit_path(habit)
       expect(habit.habit_logs.find_by(date: Date.current).completed).to be(false)
     end
+
+    it "responds with turbo-stream replacements for row, perfect-day widget, today progress and dashboard row" do
+      patch toggle_today_habit_path(habit), headers: { "Accept" => "text/vnd.turbo-stream.html" }
+      expect(response.media_type).to eq("text/vnd.turbo-stream.html")
+      expect(response.body).to include(%(target="index_row_habit_#{habit.id}"))
+      expect(response.body).to include(%(target="perfect_day_widget"))
+      expect(response.body).to include(%(target="habits_today_progress"))
+      expect(response.body).to include(%(target="dashboard_habit_#{habit.id}"))
+    end
   end
 end
