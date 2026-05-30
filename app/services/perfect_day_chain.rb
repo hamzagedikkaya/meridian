@@ -48,10 +48,15 @@ class PerfectDayChain
   attr_reader :user, :days, :end_date, :color, :range
 
   def build
-    habits_meta = user.habits.pluck(:created_at, :archived_at).map do |created_at, archived_at|
+    # Only daily habits count toward "perfect days" — weekly/monthly aren't
+    # expected on every day, so a missed Friday gym shouldn't reset 6 perfect
+    # daily days. Periodic habits get their own status widget elsewhere.
+    habits_meta = user.habits.where(frequency: "daily").pluck(:created_at, :archived_at).map do |created_at, archived_at|
       { created_on: created_at.to_date, archived_on: archived_at&.to_date }
     end
-    completed_per_day = user.habit_logs.where(completed: true, date: range).group(:date).count
+    completed_per_day = user.habit_logs.joins(:habit)
+                            .where(habits: { frequency: "daily" }, completed: true, date: range)
+                            .group(:date).count
 
     range.map do |date|
       active = habits_meta.count { |h| habit_active_on?(h, date) }

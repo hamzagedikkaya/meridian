@@ -4,6 +4,7 @@ class HabitsController < ApplicationController
   def index
     @habits = current_user.habits.active.includes(:habit_logs).order(:name)
     @habit_chains = Habit.chain_windows_for(@habits, days: 14)
+    @periodic_habits = @habits.reject { |h| h.frequency == "daily" }
 
     perfect_chain_service = PerfectDayChain.new(current_user, days: 30)
     @perfect_day_chain    = perfect_chain_service.to_a
@@ -12,9 +13,6 @@ class HabitsController < ApplicationController
   end
 
   def show
-    @logs = @habit.habit_logs.where(date: (Date.current - 84.days)..Date.current).order(:date)
-    @logs_by_date = @logs.index_by(&:date)
-    @start_date = (Date.current - 83.days).beginning_of_week
   end
 
   def new
@@ -48,8 +46,18 @@ class HabitsController < ApplicationController
 
   def toggle_today
     log = @habit.log_for(Date.current)
-    log.completed = !log.completed
-    log.count = log.completed ? 1 : 0
+
+    if params[:delta].present? && @habit.target_count > 1
+      # +/- counter mode (from the inline counter widget).
+      delta = params[:delta].to_i
+      log.count = (log.count.to_i + delta).clamp(0, @habit.target_count)
+      log.completed = log.count >= @habit.target_count
+    else
+      # Plain checkbox toggle — universal. For multi-count habits this jumps
+      # straight to "all done" (count = target_count) or "reset" (count = 0).
+      log.completed = !log.completed
+      log.count = log.completed ? @habit.target_count : 0
+    end
     log.save!
 
     respond_to do |format|

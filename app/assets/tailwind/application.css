@@ -427,11 +427,39 @@ trix-toolbar .trix-dialog .trix-button {
   stroke: var(--color-border-subtle);
 }
 
+/* Interactive (today) link — clickable to toggle */
+.chain-link--interactive { cursor: pointer; }
+.chain-link--interactive:hover { transform: scale(1.18); transition: transform 120ms ease; }
+.chain-link--interactive:focus-visible { outline: none; }
+.chain-link--interactive:focus-visible .chain-link__ring {
+  stroke: var(--color-accent-400);
+  stroke-width: 2;
+}
+
+/* Counter button (target_count > 1) — glow when freshly completed */
+.habit-counter { transition: transform 120ms ease; }
+.habit-counter:hover { transform: scale(1.08); }
+.habit-counter.is-complete .chain-link__ring { stroke: var(--color-accent-500); }
+.habit-counter.is-complete {
+  animation: glow-complete 0.55s ease-out;
+}
+
+@keyframes glow-complete {
+  0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgba(184, 134, 11, 0); }
+  40%  { transform: scale(1.18); box-shadow: 0 0 14px 4px rgba(184, 134, 11, 0.55); }
+  100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(184, 134, 11, 0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .chain-link,
   .chain-link--enter,
-  .chain-link--pulse {
+  .chain-link--pulse,
+  .chain-link--interactive:hover,
+  .habit-counter,
+  .habit-counter:hover,
+  .habit-counter.is-complete {
     animation: none !important;
+    transform: none !important;
     opacity: 1 !important;
   }
 }

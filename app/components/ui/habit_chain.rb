@@ -12,18 +12,30 @@ module Ui
     SIZE_PRESETS = {
       sm: { radius: 4,  gap: 3, padding: 6 },
       md: { radius: 5,  gap: 3, padding: 8 },
-      lg: { radius: 8,  gap: 5, padding: 12 }
+      lg: { radius: 8,  gap: 5, padding: 12 },
+      xl: { radius: 6,  gap: 4, padding: 10 }
     }.freeze
 
-    def initialize(links:, size: :md, aria_label: nil, gradient_id: nil)
+    def initialize(links:, size: :md, aria_label: nil, gradient_id: nil,
+                   interactive_today: false, toggle_url: nil)
       @links = links
       @size = size.to_sym
       @preset = SIZE_PRESETS.fetch(@size)
       @aria_label = aria_label
       @gradient_id = gradient_id || "chain-grad-#{SecureRandom.hex(4)}"
+      @interactive_today = interactive_today
+      @toggle_url = toggle_url
     end
 
-    attr_reader :links, :size, :preset, :aria_label, :gradient_id
+    attr_reader :links, :size, :preset, :aria_label, :gradient_id, :toggle_url
+
+    # The last link is interactive when the caller opted in AND that link is
+    # one of today's two possible states (pending-or-completed-today).
+    def interactive_for?(index, link)
+      return false unless @interactive_today && @toggle_url.present?
+      return false unless index == links.size - 1
+      [ :today_pending, :completed ].include?(link[:status])
+    end
 
     def total_width
       n = links.size

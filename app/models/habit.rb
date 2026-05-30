@@ -82,6 +82,25 @@ class Habit < ApplicationRecord
     (completed.to_f / days * 100).round(1)
   end
 
+  # Number of completed logs in the habit's current period — week for weekly
+  # habits, month for monthly, the single day for daily. Used by the periodic
+  # habits widget on /habits.
+  def period_completed_count(today = Date.current)
+    habit_logs.where(completed: true, date: period_range(today)).count
+  end
+
+  def period_complete?(today = Date.current)
+    period_completed_count(today) >= target_count
+  end
+
+  def period_range(today = Date.current)
+    case frequency
+    when "weekly"  then today.beginning_of_week..today.end_of_week
+    when "monthly" then today.beginning_of_month..today.end_of_month
+    else                today..today
+    end
+  end
+
   # Returns the last `days` daily statuses for the "don't break the chain"
   # visualisation. Each element is `{ date:, status:, color: }` where status is
   # one of :completed, :missed, :today_pending. Oldest first → newest last,

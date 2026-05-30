@@ -22,6 +22,8 @@
                  completed_today: completed_today %>
     </div>
 
+    <%= render "periodic_habits", periodic_habits: @periodic_habits %>
+
     <div class="card !p-0">
       <ul class="divide-y divide-[var(--color-border-subtle)]">
         <% @habits.each do |habit| %>

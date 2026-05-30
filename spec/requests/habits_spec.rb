@@ -29,12 +29,12 @@ RSpec.describe "Habits", type: :request do
   describe "GET /habits/:id" do
     let(:habit) { create(:habit, user: user) }
 
-    it "renders the 30-link chain" do
+    it "renders both the 30-day and 84-day chains" do
       get habit_path(habit)
       expect(response).to have_http_status(:success)
       expect(response.body).to include('class="habit-chain"')
-      # 30 day window → 30 outer <g class="chain-link chain-link--..."> nodes.
-      expect(response.body.scan(/class="chain-link chain-link--/).size).to eq(30)
+      # 30-day :lg chain + 84-day :xl chain = 114 outer <g> nodes.
+      expect(response.body.scan(/class="chain-link chain-link--/).size).to eq(114)
     end
   end
 
@@ -66,6 +66,67 @@ RSpec.describe "Habits", type: :request do
       expect(response.body).to include(%(target="perfect_day_widget"))
       expect(response.body).to include(%(target="habits_today_progress"))
       expect(response.body).to include(%(target="dashboard_habit_#{habit.id}"))
+    end
+
+    context "with target_count > 1" do
+      let(:counter_habit) { create(:habit, user: user, target_count: 5) }
+
+      it "checkbox toggle (no delta) jumps to target_count and marks completed" do
+        patch toggle_today_habit_path(counter_habit)
+        log = counter_habit.habit_logs.find_by(date: Date.current)
+        expect(log.count).to eq(5)
+        expect(log.completed).to be(true)
+      end
+
+      it "second checkbox toggle resets to zero, completed false" do
+        patch toggle_today_habit_path(counter_habit)
+        patch toggle_today_habit_path(counter_habit)
+        log = counter_habit.habit_logs.find_by(date: Date.current)
+        expect(log.count).to eq(0)
+        expect(log.completed).to be(false)
+      end
+
+      it "?delta=+1 increments by one without flipping completed until target" do
+        patch toggle_today_habit_path(counter_habit), params: { delta: 1 }
+        log = counter_habit.habit_logs.find_by(date: Date.current)
+        expect(log.count).to eq(1)
+        expect(log.completed).to be(false)
+      end
+
+      it "reaching target via increments marks completed" do
+        5.times { patch toggle_today_habit_path(counter_habit), params: { delta: 1 } }
+        log = counter_habit.habit_logs.find_by(date: Date.current)
+        expect(log.count).to eq(5)
+        expect(log.completed).to be(true)
+      end
+
+      it "clamps increments at target_count" do
+        6.times { patch toggle_today_habit_path(counter_habit), params: { delta: 1 } }
+        expect(counter_habit.habit_logs.find_by(date: Date.current).count).to eq(5)
+      end
+
+      it "?delta=-1 decrements and flips completed back to false" do
+        5.times { patch toggle_today_habit_path(counter_habit), params: { delta: 1 } }
+        patch toggle_today_habit_path(counter_habit), params: { delta: -1 }
+        log = counter_habit.habit_logs.find_by(date: Date.current)
+        expect(log.count).to eq(4)
+        expect(log.completed).to be(false)
+      end
+
+      it "clamps decrement at zero" do
+        patch toggle_today_habit_path(counter_habit), params: { delta: -1 }
+        expect(counter_habit.habit_logs.find_by(date: Date.current).count).to eq(0)
+      end
+    end
+  end
+
+  describe "interactive chain links on /habits" do
+    it "adds chain-toggle controller only to today's link in the index row" do
+      create(:habit, user: user)
+      get habits_path
+      # Per habit (1 here) there should be exactly one interactive link (today).
+      expect(response.body.scan(/chain-link--interactive/).size).to eq(1)
+      expect(response.body).to include(%(data-controller="chain-toggle"))
     end
   end
 end
