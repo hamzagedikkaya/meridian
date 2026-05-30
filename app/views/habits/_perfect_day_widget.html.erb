@@ -1,0 +1,19 @@
+<turbo-frame id="perfect_day_widget" class="lg:col-span-3 block">
+  <div class="card flex flex-col h-full">
+    <div class="flex items-start justify-between gap-3 mb-3">
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight"><%= t("pages.home.perfect_days") %></h3>
+      <% if perfect_streak.positive? %>
+        <p class="text-sm font-medium text-[var(--color-accent-400)] flex items-center gap-1.5 flex-shrink-0">
+          <%= render Ui::Icon.new(name: "flame", size: 16) %>
+          <%= t("pages.home.perfect_streak", count: perfect_streak) %>
+        </p>
+      <% end %>
+    </div>
+    <div class="mt-auto">
+      <%= render Ui::HabitChain.new(links: perfect_day_chain, size: :lg, aria_label: t("pages.home.perfect_days")) %>
+    </div>
+    <% if longest_perfect.positive? && longest_perfect != perfect_streak %>
+      <p class="text-xs text-[var(--color-fg-faint)] mt-3"><%= t("habits.detail.longest") %>: <%= longest_perfect %> <%= t("habits.days") %></p>
+    <% end %>
+  </div>
+</turbo-frame>

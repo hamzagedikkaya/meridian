@@ -24,6 +24,20 @@
     <% end %>
   </div>
 
+  <%# Chain visualisation %>
+  <div class="card">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight"><%= t("habits.chain.title") %></h3>
+      <p class="text-xs text-[var(--color-fg-muted)]"><%= t("habits.chain.window_30") %></p>
+    </div>
+    <%= render Ui::HabitChain.new(links: @habit.chain_window(days: 30), size: :lg, aria_label: t("habits.chain.aria", name: @habit.name)) %>
+    <div class="flex items-center gap-4 text-xs text-[var(--color-fg-muted)] mt-3">
+      <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full" style="background: <%= @habit.color %>"></span><%= t("habits.chain.legend_done") %></span>
+      <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full border border-dashed border-[var(--color-border-default)]"></span><%= t("habits.chain.legend_missed") %></span>
+      <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full border border-[var(--color-accent-400)]"></span><%= t("habits.chain.legend_today") %></span>
+    </div>
+  </div>
+
   <div class="grid grid-cols-3 gap-4">
     <div class="card">
       <p class="text-sm text-[var(--color-fg-muted)]"><%= t("habits.detail.current_streak") %></p>

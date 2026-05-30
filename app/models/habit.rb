@@ -81,4 +81,41 @@ class Habit < ApplicationRecord
     completed = habit_logs.where(completed: true, date: range).count
     (completed.to_f / days * 100).round(1)
   end
+
+  # Returns the last `days` daily statuses for the "don't break the chain"
+  # visualisation. Each element is `{ date:, status:, color: }` where status is
+  # one of :completed, :missed, :today_pending. Oldest first → newest last,
+  # length always == days.
+  def chain_window(days: 30, end_date: Date.current)
+    range = (end_date - (days - 1).days)..end_date
+    by_date = habit_logs.where(date: range).index_by(&:date)
+    range.map { |d| { date: d, status: chain_status_for(d, by_date[d], end_date), color: color } }
+  end
+
+  # Batched chain window for the index page — one HabitLog query covering all
+  # habits in the given window, then bucketed in memory.
+  def self.chain_windows_for(habits, days: 14, end_date: Date.current)
+    return {} if habits.empty?
+
+    range = (end_date - (days - 1).days)..end_date
+    rows = HabitLog.where(habit_id: habits.map(&:id), date: range)
+    by_habit = rows.group_by(&:habit_id).transform_values { |logs| logs.index_by(&:date) }
+
+    habits.index_with do |habit|
+      bucket = by_habit[habit.id] || {}
+      range.map { |d| { date: d, status: habit.send(:chain_status_for, d, bucket[d], end_date), color: habit.color } }
+    end
+  end
+
+  private
+
+  def chain_status_for(date, log, end_date)
+    if log&.completed
+      :completed
+    elsif date == Date.current && date == end_date
+      :today_pending
+    else
+      :missed
+    end
+  end
 end

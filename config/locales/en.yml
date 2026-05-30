@@ -121,6 +121,11 @@ en:
       set_goal: "Set a goal →"
       no_transactions: "No transactions yet."
       weekly_completion: "Weekly completion"
+      perfect_days: "Perfect days"
+      perfect_days_hint: "Every active habit done that day"
+      perfect_streak:
+        one: "%{count}-day perfect streak"
+        other: "%{count}-day perfect streak"
 
   auth:
     welcome_back: "Welcome back"
@@ -388,6 +393,19 @@ en:
       rate_30d: "30-day rate"
       completion: "completion"
       last_12_weeks: "Last 12 weeks"
+    chain:
+      title: "Chain"
+      aria: "Completion chain for %{name}"
+      window_30: "Last 30 days"
+      today_pending: "Today — not yet done"
+      completed_on: "Completed on %{date}"
+      missed_on: "Missed on %{date}"
+      perfect_on: "Perfect day on %{date}"
+      partial_on: "%{completed}/%{possible} done on %{date}"
+      no_habits_on: "No active habits on %{date}"
+      legend_done: "Done"
+      legend_missed: "Missed"
+      legend_today: "Today"
 
   calendar:
     title: "Calendar"
