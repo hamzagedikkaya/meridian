@@ -14,16 +14,17 @@
 class PerfectDayChain
   DEFAULT_COLOR = "#B8860B".freeze
 
-  def initialize(user, days: 30, end_date: Date.current, color: DEFAULT_COLOR)
+  def initialize(user, days: 30, end_date: Date.current, color: DEFAULT_COLOR, trim: true)
     @user = user
     @days = days
     @end_date = end_date
     @color = color
+    @trim = trim
     @range = (end_date - (days - 1).days)..end_date
   end
 
   def to_a
-    @to_a ||= build
+    @to_a ||= (@trim ? trim_leading(build) : build)
   end
 
   def current_perfect_streak
@@ -76,6 +77,15 @@ class PerfectDayChain
     return :perfect   if completed >= active
     return :missed    if completed.zero?
     :partial
+  end
+
+  # Drop leading days that aren't perfect or partial — they're either days
+  # before any habit existed or stretches of pure misses, neither of which the
+  # user wants to see at the start of the chain. If nothing positive happened
+  # in the window at all, the chain collapses to just today's link.
+  def trim_leading(entries)
+    start = entries.index { |e| [ :perfect, :partial ].include?(e[:status]) }
+    start.nil? ? [ entries.last ] : entries[start..]
   end
 
   # Walks newest → oldest, counting consecutive :perfect days. :no_habits is

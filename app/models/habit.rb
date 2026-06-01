@@ -101,19 +101,23 @@ class Habit < ApplicationRecord
     end
   end
 
-  # Returns the last `days` daily statuses for the "don't break the chain"
-  # visualisation. Each element is `{ date:, status:, color: }` where status is
-  # one of :completed, :missed, :today_pending. Oldest first → newest last,
-  # length always == days.
-  def chain_window(days: 30, end_date: Date.current)
+  # Returns the daily statuses for the "don't break the chain" visualisation.
+  # Each element is `{ date:, status:, color: }` where status is one of
+  # :completed, :partial, :missed, :today_pending. Oldest first → newest last.
+  # When `trim: true` (default) the chain starts at the first :completed or
+  # :partial entry — leading days with no progress are hidden so a brand-new
+  # habit doesn't appear to have "missed" days it never could have done. If
+  # there is no completed/partial entry at all, only today's link is returned.
+  def chain_window(days: 30, end_date: Date.current, trim: true)
     range = (end_date - (days - 1).days)..end_date
     by_date = habit_logs.where(date: range).index_by(&:date)
-    range.map { |d| { date: d, status: chain_status_for(d, by_date[d], end_date), color: color } }
+    entries = range.map { |d| chain_entry_for(d, by_date[d], end_date) }
+    trim ? trim_chain_leading(entries) : entries
   end
 
   # Batched chain window for the index page — one HabitLog query covering all
   # habits in the given window, then bucketed in memory.
-  def self.chain_windows_for(habits, days: 14, end_date: Date.current)
+  def self.chain_windows_for(habits, days: 14, end_date: Date.current, trim: true)
     return {} if habits.empty?
 
     range = (end_date - (days - 1).days)..end_date
@@ -122,19 +126,32 @@ class Habit < ApplicationRecord
 
     habits.index_with do |habit|
       bucket = by_habit[habit.id] || {}
-      range.map { |d| { date: d, status: habit.send(:chain_status_for, d, bucket[d], end_date), color: habit.color } }
+      entries = range.map { |d| habit.send(:chain_entry_for, d, bucket[d], end_date) }
+      trim ? habit.send(:trim_chain_leading, entries) : entries
     end
   end
 
   private
 
-  def chain_status_for(date, log, end_date)
+  def chain_entry_for(date, log, end_date)
+    entry = { date: date, color: color }
+    count = log&.count.to_i
     if log&.completed
-      :completed
+      entry[:status] = :completed
+    elsif count.positive? && count < target_count
+      entry[:status] = :partial
+      entry[:completed] = count
+      entry[:possible] = target_count
     elsif date == Date.current && date == end_date
-      :today_pending
+      entry[:status] = :today_pending
     else
-      :missed
+      entry[:status] = :missed
     end
+    entry
+  end
+
+  def trim_chain_leading(entries)
+    start = entries.index { |e| [ :completed, :partial ].include?(e[:status]) }
+    start.nil? ? [ entries.last ] : entries[start..]
   end
 end
