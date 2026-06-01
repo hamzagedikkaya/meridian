@@ -30,6 +30,10 @@ RSpec.describe "Habits", type: :request do
     let(:habit) { create(:habit, user: user) }
 
     it "renders both the 30-day and 84-day chains" do
+      # Anchor completions at the oldest day of each window so chain trimming
+      # leaves both chains at their full length (30 and 84).
+      habit.habit_logs.create!(date: 29.days.ago.to_date, completed: true)
+      habit.habit_logs.create!(date: 83.days.ago.to_date, completed: true)
       get habit_path(habit)
       expect(response).to have_http_status(:success)
       expect(response.body).to include('class="habit-chain"')

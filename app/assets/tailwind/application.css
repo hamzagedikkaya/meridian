@@ -395,15 +395,15 @@ trix-toolbar .trix-dialog .trix-button {
   stroke-dasharray: 3 2;
 }
 
-.chain-link--today-pending .chain-link__fill {
+.chain-link--today_pending .chain-link__fill {
   fill: transparent;
 }
-.chain-link--today-pending .chain-link__ring {
+.chain-link--today_pending .chain-link__ring {
   stroke: var(--color-accent-400);
   stroke-width: 1.5;
 }
 /* Today-pending breathing pulse — runs immediately after entrance via pure CSS. */
-.chain-link.chain-link--today-pending {
+.chain-link.chain-link--today_pending {
   animation: chain-link-snap 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both,
              chain-pulse-today 2.2s ease-in-out 0.8s infinite;
   animation-delay: calc(var(--i, 0) * 35ms), calc(var(--i, 0) * 35ms + 0.8s);

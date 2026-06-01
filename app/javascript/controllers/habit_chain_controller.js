@@ -45,7 +45,7 @@ export default class extends Controller {
 
   markPulse() {
     if (!this.pulseTodayValue) return
-    const pending = this.element.querySelector(".chain-link--today-pending")
+    const pending = this.element.querySelector(".chain-link--today_pending")
     pending?.classList.add("chain-link--pulse")
   }
 
