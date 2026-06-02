@@ -14,13 +14,7 @@ module Finance
 
       @upcoming_subscriptions = current_user.subscriptions.upcoming.includes(:account).limit(5)
 
-      @top_expense_categories = current_user.transactions
-                                            .this_month.expense
-                                            .joins(:finance_category)
-                                            .group("finance_categories.name", "finance_categories.color")
-                                            .sum(:amount_cents)
-                                            .sort_by { |_, v| -v }
-                                            .first(5)
+      @top_expense_categories = aggregate_expenses_by_parent(Date.current.beginning_of_month, Date.current).first(5)
 
       @six_month_series = build_six_month_series
       @category_pie_series = build_category_pie_series
@@ -46,23 +40,52 @@ module Finance
       }
     end
 
-    # One pie dataset per range. Each entry: { name:, color:, amount: } in cents.
+    # One pie dataset per range. Each entry rolls subcategories up under their
+    # parent so the pie shows top-level categories only; breakdown carries the
+    # per-subcategory amounts for the hover tooltip.
     def build_category_pie_series
       today = Date.current
-      ranges = {
-        m1: today - 1.month,
-        m6: today - 6.months,
-        y1: today - 1.year
+      {
+        m1: aggregate_expenses_by_parent(today - 1.month, today),
+        m6: aggregate_expenses_by_parent(today - 6.months, today),
+        y1: aggregate_expenses_by_parent(today - 1.year, today)
       }
+    end
 
-      ranges.transform_values do |from|
-        rows = current_user.transactions.expense
-                           .between(from, today)
-                           .joins(:finance_category)
-                           .group("finance_categories.name", "finance_categories.color")
-                           .sum(:amount_cents)
-        rows.sort_by { |_, v| -v }.map { |(name, color), amount| { name: name, color: color, amount: amount } }
+    # Returns expenses in the given date range, rolled up to the root (parent)
+    # category. Each entry: { name:, color:, amount: (cents), breakdown: [{ name:, amount: }] }.
+    # The breakdown list contains the per-subcategory amounts (including the
+    # parent itself when transactions are tagged directly with it), sorted by
+    # amount desc; it's empty when the root has no subcategory activity.
+    def aggregate_expenses_by_parent(from, to)
+      rows = current_user.transactions.expense
+                         .between(from, to)
+                         .joins(:finance_category)
+                         .group("finance_categories.id")
+                         .sum(:amount_cents)
+      return [] if rows.empty?
+
+      categories = current_user.finance_categories.where(id: rows.keys).includes(:parent).index_by(&:id)
+
+      buckets = {}
+      rows.each do |cat_id, amount|
+        cat = categories[cat_id]
+        next unless cat
+        root = cat.parent || cat
+        bucket = (buckets[root.id] ||= { name: root.name, color: root.color, amount: 0, breakdown: [], has_children: false })
+        bucket[:amount] += amount
+        bucket[:has_children] = true if cat.parent_id.present?
+        bucket[:breakdown] << { name: cat.name, amount: amount, is_root: cat.parent_id.nil? }
       end
+
+      buckets.each_value do |bucket|
+        # Only show breakdown when the root actually has subcategory activity —
+        # otherwise it's redundant noise in the tooltip.
+        bucket[:breakdown] = bucket[:has_children] ? bucket[:breakdown].sort_by { |b| -b[:amount] } : []
+        bucket.delete(:has_children)
+      end
+
+      buckets.values.sort_by { |b| -b[:amount] }
     end
   end
 end
