@@ -221,7 +221,7 @@ en:
       expense: "Expense"
       this_month: "This month"
       six_month_trend: "6-month trend"
-      top_expense_categories: "Top expense categories"
+      categories: "Categories"
       no_expenses_month: "No expenses yet this month."
       recent_transactions: "Recent transactions"
       no_transactions: "No transactions yet."
@@ -230,6 +230,7 @@ en:
       no_active_subs: "No active subscriptions."
       spending_breakdown: "Spending breakdown"
       no_expenses_range: "No expenses in this range."
+      direct_amount: "(direct)"
       range:
         m1: "1m"
         m6: "6m"
@@ -304,6 +305,12 @@ en:
       new_title: "New category"
       edit_title: "Edit category"
       delete_confirm: "Delete category? Transactions remain but lose this category."
+      parent: "Parent category"
+      parent_none: "(none — top-level)"
+      parent_hint: "Pick a parent to make this a subcategory. Leave empty to keep it top-level."
+      month_transactions: "%{count} txns"
+      month_subtitle: "Right-side stats are this month."
+      toggle_subcategories: "Toggle subcategories"
     subscriptions:
       title: "Subscriptions"
       subtitle: "Track recurring expenses."
@@ -624,3 +631,15 @@ en:
     journal_default: "Entry"
     goal_progress: "%{percent}% complete"
     habit_streak: "🔥 %{days}d streak"
+
+  activerecord:
+    errors:
+      models:
+        finance_category:
+          attributes:
+            parent_id:
+              cannot_be_self: "cannot be itself"
+              must_belong_to_same_user: "invalid parent category"
+              must_match_kind: "parent must have the same kind (income/expense)"
+              must_be_root: "parent is itself a subcategory — only top-level categories can be parents"
+              cannot_have_children: "category with subcategories cannot become a subcategory itself"

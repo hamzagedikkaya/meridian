@@ -238,7 +238,7 @@ tr:
       expense: "Gider"
       this_month: "Bu ay"
       six_month_trend: "6 aylık trend"
-      top_expense_categories: "En çok harcanan kategoriler"
+      categories: "Kategoriler"
       no_expenses_month: "Bu ay henüz gider yok."
       recent_transactions: "Son işlemler"
       no_transactions: "Henüz işlem yok."
@@ -247,6 +247,7 @@ tr:
       no_active_subs: "Aktif abonelik yok."
       spending_breakdown: "Harcama dağılımı"
       no_expenses_range: "Bu aralıkta gider yok."
+      direct_amount: "(genel)"
       range:
         m1: "1 ay"
         m6: "6 ay"
@@ -321,6 +322,12 @@ tr:
       new_title: "Yeni kategori"
       edit_title: "Kategoriyi düzenle"
       delete_confirm: "Kategori silinsin mi? İşlemler kalır ama kategorisini kaybeder."
+      parent: "Üst kategori"
+      parent_none: "(yok — ana kategori)"
+      parent_hint: "Alt kategori oluşturmak için bir üst kategori seç. Boş bırakırsan ana kategori olur."
+      month_transactions: "%{count} işlem"
+      month_subtitle: "Sağdaki rakamlar bu ay özetidir."
+      toggle_subcategories: "Alt kategorileri aç/kapat"
     subscriptions:
       title: "Abonelikler"
       subtitle: "Tekrarlayan giderlerini takip et."
@@ -640,3 +647,15 @@ tr:
     journal_default: "Kayıt"
     goal_progress: "%{percent}% tamamlandı"
     habit_streak: "🔥 %{days}g seri"
+
+  activerecord:
+    errors:
+      models:
+        finance_category:
+          attributes:
+            parent_id:
+              cannot_be_self: "kendisi olamaz"
+              must_belong_to_same_user: "geçersiz üst kategori"
+              must_match_kind: "üst kategori ile tür (gelir/gider) uyuşmalı"
+              must_be_root: "üst kategori zaten alt kategori — sadece ana kategoriler seçilebilir"
+              cannot_have_children: "alt kategorisi olan bir kategori başka bir kategorinin altına alınamaz"

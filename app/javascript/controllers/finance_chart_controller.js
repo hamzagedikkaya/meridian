@@ -18,6 +18,7 @@ export default class extends Controller {
     expenseColor: { type: String, default: "#B85450" },
     currencySymbol: { type: String, default: "" },
     locale: { type: String, default: "tr" },
+    directLabel: { type: String, default: "" },
     currentRange: { type: String, default: "m1" },
     currentView: { type: String, default: "pie" }
   }
@@ -79,6 +80,7 @@ export default class extends Controller {
 
   pieOption(dataset) {
     const format = (v) => this.formatMoney(v)
+    const directLabel = this.directLabelValue
     return {
       backgroundColor: "transparent",
       tooltip: {
@@ -86,7 +88,17 @@ export default class extends Controller {
         backgroundColor: "rgba(20,18,15,0.95)",
         borderColor: "rgba(245,241,232,0.1)",
         textStyle: { color: "#F5F1E8" },
-        formatter: (p) => `<div style="font-weight:500;margin-bottom:4px">${p.name}</div>${format(p.value)} <span style="opacity:.6">(${p.percent.toFixed(1)}%)</span>`
+        formatter: (p) => {
+          const header = `<div style="font-weight:600;margin-bottom:3px">${p.name}</div>`
+          const totalLine = `<div style="margin-bottom:6px">${format(p.value)} <span style="opacity:.6">(${p.percent.toFixed(1)}%)</span></div>`
+          const breakdown = p.data.breakdown || []
+          if (breakdown.length === 0) return header + totalLine
+          const rows = breakdown.map(b => {
+            const label = b.is_root ? `${b.name} ${directLabel}` : b.name
+            return `<div style="display:flex;justify-content:space-between;gap:14px;font-size:12px;opacity:.85"><span>${label}</span><span>${format(b.amount / 100)}</span></div>`
+          }).join("")
+          return header + totalLine + `<div style="border-top:1px solid rgba(245,241,232,0.12);padding-top:5px;margin-top:1px">${rows}</div>`
+        }
       },
       legend: {
         orient: "horizontal",
@@ -133,6 +145,7 @@ export default class extends Controller {
         data: dataset.map((d, idx) => ({
           name: d.name,
           value: Number((d.amount / 100).toFixed(2)),
+          breakdown: d.breakdown || [],
           itemStyle: {
             color: {
               type: "radial",

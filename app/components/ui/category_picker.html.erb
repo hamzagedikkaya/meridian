@@ -1,0 +1,82 @@
+<div class="relative" <%= tag.attributes(data: root_data) %>>
+  <input type="hidden" name="<%= name %>" value="<%= selected ? selected_id : "" %>" data-category-picker-target="hidden">
+
+  <button type="button"
+          class="<%= trigger_classes %> flex items-center justify-between gap-2 cursor-pointer text-left"
+          data-action="click->category-picker#toggle"
+          data-category-picker-target="trigger"
+          aria-haspopup="listbox">
+    <span class="flex items-center gap-2 min-w-0" data-category-picker-target="display">
+      <% if selected %>
+        <span class="w-2.5 h-2.5 rounded-full flex-shrink-0 ring-1 ring-inset ring-[rgba(255,255,255,0.15)]" style="background: <%= selected.color %>;"></span>
+        <span class="text-sm truncate" title="<%= selected.name %>"><%= selected.name %></span>
+      <% else %>
+        <span class="text-sm text-[var(--color-fg-muted)]"><%= blank_label %></span>
+      <% end %>
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--color-fg-muted)] flex-shrink-0"><polyline points="6 9 12 15 18 9"></polyline></svg>
+  </button>
+
+  <div class="hidden absolute z-20 top-[calc(100%+4px)] left-0 right-0 bg-[var(--color-bg-elevated)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] shadow-lg max-h-80 overflow-y-auto py-1"
+       data-category-picker-target="panel"
+       role="listbox">
+    <% if blank_label.present? %>
+      <button type="button"
+              class="w-full px-3 py-2 text-left text-sm text-[var(--color-fg-muted)] hover:bg-[var(--color-bg-hover)]"
+              data-action="click->category-picker#select"
+              data-id=""
+              data-name=""
+              data-color=""
+              role="option">
+        <%= blank_label %>
+      </button>
+    <% end %>
+
+    <% roots.each do |root| %>
+      <% kids = children_for(root) %>
+      <div data-category-picker-target="group" data-kind="<%= root.kind if root.respond_to?(:kind) %>">
+        <div class="flex items-stretch hover:bg-[var(--color-bg-hover)]" data-picker-row>
+          <button type="button"
+                  class="flex-1 min-w-0 px-3 py-2 text-left flex items-center gap-2"
+                  data-action="click->category-picker#select"
+                  data-id="<%= root.id %>"
+                  data-name="<%= root.name %>"
+                  data-color="<%= root.color %>"
+                  data-kind="<%= root.kind if root.respond_to?(:kind) %>"
+                  role="option">
+            <span class="w-2.5 h-2.5 rounded-full flex-shrink-0 ring-1 ring-inset ring-[rgba(255,255,255,0.15)]" style="background: <%= root.color %>;"></span>
+            <span class="text-sm truncate" data-picker-label><%= root.name %></span>
+          </button>
+          <% if kids.any? %>
+            <button type="button"
+                    class="px-3 flex items-center text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)] cursor-pointer border-l border-[var(--color-border-subtle)]"
+                    data-action="click->category-picker#toggleGroup"
+                    data-category-picker-target="chevron"
+                    aria-expanded="false"
+                    aria-label="<%= t("finance.categories.toggle_subcategories") %>">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-150"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+          <% end %>
+        </div>
+        <% if kids.any? %>
+          <div class="hidden ml-3 border-l-2 border-[var(--color-border-subtle)]" data-category-picker-target="children">
+            <% kids.each do |child| %>
+              <button type="button"
+                      class="w-full pl-4 pr-3 py-1.5 text-left flex items-center gap-2 hover:bg-[var(--color-bg-hover)]"
+                      data-action="click->category-picker#select"
+                      data-id="<%= child.id %>"
+                      data-name="<%= child.name %>"
+                      data-color="<%= child.color %>"
+                      data-kind="<%= child.kind if child.respond_to?(:kind) %>"
+                      role="option"
+                      data-picker-row>
+                <span class="w-2 h-2 rounded-full flex-shrink-0 ring-1 ring-inset ring-[rgba(255,255,255,0.15)]" style="background: <%= child.color %>;"></span>
+                <span class="text-sm truncate" data-picker-label><%= child.name %></span>
+              </button>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
