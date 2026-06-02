@@ -18,7 +18,9 @@ RSpec.describe FocusSession, type: :model do
     let(:user) { create(:user) }
 
     it ".today returns only sessions started today" do
-      today_session = create(:focus_session, user: user, started_at: 1.hour.ago)
+      # Anchor to a stable mid-day timestamp so the test doesn't break around
+      # midnight, where `1.hour.ago` lands on the previous calendar day.
+      today_session = create(:focus_session, user: user, started_at: Time.current.beginning_of_day + 12.hours)
       _old_session  = create(:focus_session, user: user, started_at: 3.days.ago)
       expect(described_class.today).to include(today_session)
       expect(described_class.today.count).to eq(1)

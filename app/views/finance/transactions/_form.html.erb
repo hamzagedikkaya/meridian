@@ -43,7 +43,13 @@
         <%= f.label :account_id, t("finance.transactions.account"), class: "text-sm font-medium text-[var(--color-fg-muted)]" %>
         <%= link_to t("finance.transactions.manage_accounts"), finance_accounts_path, data: { turbo_frame: "_top" }, class: "text-xs text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
       </div>
-      <%= f.select :account_id, @accounts.map { |a| [ a.name, a.id ] }, { prompt: t("common.optional") + "…" }, class: input_cls %>
+      <%= render Ui::CategoryPicker.new(
+            name: "transaction[account_id]",
+            categories: @accounts,
+            selected_id: transaction.account_id,
+            blank_label: t("common.optional") + "…",
+            input_class: input_cls
+          ) %>
     </div>
 
     <div>
@@ -51,12 +57,14 @@
         <%= f.label :finance_category_id, t("finance.transactions.category"), class: "text-sm font-medium text-[var(--color-fg-muted)]" %>
         <%= link_to t("finance.transactions.manage_categories"), finance_categories_path, data: { turbo_frame: "_top" }, class: "text-xs text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
       </div>
-      <select name="transaction[finance_category_id]" class="<%= input_cls %>" data-transaction-form-target="categorySelect">
-        <option value=""></option>
-        <% all_categories.each do |c| %>
-          <option value="<%= c.id %>" data-kind="<%= c.kind %>" <%= "selected" if transaction.finance_category_id == c.id %>><%= c.name %></option>
-        <% end %>
-      </select>
+      <%= render Ui::CategoryPicker.new(
+            name: "transaction[finance_category_id]",
+            categories: all_categories,
+            selected_id: transaction.finance_category_id,
+            blank_label: t("common.optional") + "…",
+            extra_data: { "transaction-form-target": "categoryPicker" },
+            input_class: input_cls
+          ) %>
     </div>
 
     <div class="md:col-span-2">
@@ -73,8 +81,11 @@
       </label>
       <p class="text-xs text-[var(--color-fg-muted)] mt-1"><%= t("finance.transactions.linked.hint") %></p>
 
-      <div class="hidden mt-4 p-4 rounded-[var(--radius-md)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-overlay)] space-y-4" data-transaction-form-target="linkedSection">
-        <p class="text-xs uppercase tracking-wider text-[var(--color-fg-muted)]" data-transaction-form-target="linkedKindLabel"></p>
+      <fieldset class="hidden mt-4 p-4 rounded-[var(--radius-md)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-overlay)] space-y-4" data-transaction-form-target="linkedSection" disabled>
+        <p class="text-xs uppercase tracking-wider text-[var(--color-fg-muted)]"
+           data-transaction-form-target="linkedKindLabel"
+           data-label-income="<%= t("finance.dashboard.income") %>"
+           data-label-expense="<%= t("finance.dashboard.expense") %>"></p>
         <div class="grid md:grid-cols-2 gap-4">
           <div>
             <label class="<%= label_cls %>"><%= t("finance.transactions.amount") %></label>
@@ -82,24 +93,25 @@
           </div>
           <div>
             <label class="<%= label_cls %>"><%= t("finance.transactions.account") %></label>
-            <select name="transaction[linked][account_id]" class="<%= input_cls %>">
-              <option value=""><%= t("common.optional") %>…</option>
-              <% @accounts.each do |a| %>
-                <option value="<%= a.id %>"><%= a.name %></option>
-              <% end %>
-            </select>
+            <%= render Ui::CategoryPicker.new(
+                  name: "transaction[linked][account_id]",
+                  categories: @accounts,
+                  blank_label: t("common.optional") + "…",
+                  input_class: input_cls
+                ) %>
           </div>
           <div class="md:col-span-2">
             <label class="<%= label_cls %>"><%= t("finance.transactions.category") %></label>
-            <select name="transaction[linked][finance_category_id]" class="<%= input_cls %>" data-transaction-form-target="linkedCategorySelect">
-              <option value=""></option>
-              <% all_categories.each do |c| %>
-                <option value="<%= c.id %>" data-kind="<%= c.kind %>"><%= c.name %></option>
-              <% end %>
-            </select>
+            <%= render Ui::CategoryPicker.new(
+                  name: "transaction[linked][finance_category_id]",
+                  categories: all_categories,
+                  blank_label: t("common.optional") + "…",
+                  extra_data: { "transaction-form-target": "linkedCategoryPicker" },
+                  input_class: input_cls
+                ) %>
           </div>
         </div>
-      </div>
+      </fieldset>
     </div>
   <% end %>
 

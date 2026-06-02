@@ -29,11 +29,23 @@
     </div>
     <div>
       <%= f.label :account_id, t("common.account"), class: label_cls %>
-      <%= f.select :account_id, @accounts.map { |a| [ a.name, a.id ] }, { prompt: t("common.optional") + "…" }, class: input_cls %>
+      <%= render Ui::CategoryPicker.new(
+            name: "subscription[account_id]",
+            categories: @accounts,
+            selected_id: subscription.account_id,
+            blank_label: t("common.optional") + "…",
+            input_class: input_cls
+          ) %>
     </div>
     <div>
       <%= f.label :finance_category_id, t("common.category"), class: label_cls %>
-      <%= f.select :finance_category_id, @categories.map { |c| [ c.name, c.id ] }, { include_blank: true }, class: input_cls %>
+      <%= render Ui::CategoryPicker.new(
+            name: "subscription[finance_category_id]",
+            categories: @categories,
+            selected_id: subscription.finance_category_id,
+            blank_label: t("common.optional") + "…",
+            input_class: input_cls
+          ) %>
     </div>
     <div>
       <%= f.label :start_date, t("finance.subscriptions.start_date"), class: label_cls %>
