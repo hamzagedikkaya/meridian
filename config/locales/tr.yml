@@ -262,6 +262,8 @@ tr:
       new: "+ Yeni"
       filters:
         kind: "Tür"
+        category: "Kategori"
+        account: "Hesap"
         all: "Tümü"
         from: "Başlangıç"
         to: "Bitiş"
@@ -328,6 +330,7 @@ tr:
       month_transactions: "%{count} işlem"
       month_subtitle: "Sağdaki rakamlar bu ay özetidir."
       toggle_subcategories: "Alt kategorileri aç/kapat"
+      view_transactions: "Bu kategorideki işlemleri gör"
     subscriptions:
       title: "Abonelikler"
       subtitle: "Tekrarlayan giderlerini takip et."

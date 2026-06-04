@@ -18,6 +18,7 @@ module Finance
 
       @six_month_series = build_six_month_series
       @category_pie_series = build_category_pie_series
+      @pie_range_starts = pie_range_starts
       @active_accounts = current_user.accounts.active.order(:name)
       @currency = current_user.currency
     end
@@ -52,6 +53,19 @@ module Finance
       }
     end
 
+    # Mirrors the date windows used by build_category_pie_series. The pie's
+    # click handler uses these so it can deep-link into /finance/transactions
+    # with the same date range the slice represents.
+    def pie_range_starts
+      today = Date.current
+      {
+        m1: (today - 1.month).iso8601,
+        m6: (today - 6.months).iso8601,
+        y1: (today - 1.year).iso8601,
+        today: today.iso8601
+      }
+    end
+
     # Returns expenses in the given date range, rolled up to the root (parent)
     # category. Each entry: { name:, color:, amount: (cents), breakdown: [{ name:, amount: }] }.
     # The breakdown list contains the per-subcategory amounts (including the
@@ -72,10 +86,10 @@ module Finance
         cat = categories[cat_id]
         next unless cat
         root = cat.parent || cat
-        bucket = (buckets[root.id] ||= { name: root.name, color: root.color, amount: 0, breakdown: [], has_children: false })
+        bucket = (buckets[root.id] ||= { id: root.id, name: root.name, color: root.color, amount: 0, breakdown: [], has_children: false })
         bucket[:amount] += amount
         bucket[:has_children] = true if cat.parent_id.present?
-        bucket[:breakdown] << { name: cat.name, amount: amount, is_root: cat.parent_id.nil? }
+        bucket[:breakdown] << { id: cat.id, name: cat.name, amount: amount, is_root: cat.parent_id.nil? }
       end
 
       buckets.each_value do |bucket|

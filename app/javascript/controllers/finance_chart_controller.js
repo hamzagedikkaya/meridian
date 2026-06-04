@@ -19,6 +19,8 @@ export default class extends Controller {
     currencySymbol: { type: String, default: "" },
     locale: { type: String, default: "tr" },
     directLabel: { type: String, default: "" },
+    rangeStarts: { type: Object, default: {} },
+    transactionsUrl: { type: String, default: "" },
     currentRange: { type: String, default: "m1" },
     currentView: { type: String, default: "pie" }
   }
@@ -28,7 +30,22 @@ export default class extends Controller {
     this.chart = window.echarts.init(this.chartTarget, null, { renderer: "canvas" })
     this.resizeObserver = new ResizeObserver(() => this.chart && this.chart.resize())
     this.resizeObserver.observe(this.chartTarget)
+    this.chart.on("click", (params) => this.handlePieClick(params))
     this.refresh()
+  }
+
+  handlePieClick(params) {
+    if (this.currentViewValue !== "pie") return
+    const id = params?.data?.id
+    if (!id || !this.transactionsUrlValue) return
+    const url = new URL(this.transactionsUrlValue, window.location.origin)
+    url.searchParams.set("category_id", id)
+    const starts = this.rangeStartsValue || {}
+    const from = starts[this.currentRangeValue]
+    const to = starts.today
+    if (from) url.searchParams.set("from", from)
+    if (to) url.searchParams.set("to", to)
+    window.location.href = url.toString()
   }
 
   disconnect() {
@@ -144,6 +161,7 @@ export default class extends Controller {
         },
         data: dataset.map((d, idx) => ({
           name: d.name,
+          id: d.id,
           value: Number((d.amount / 100).toFixed(2)),
           breakdown: d.breakdown || [],
           itemStyle: {
