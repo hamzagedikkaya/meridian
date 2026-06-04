@@ -12,12 +12,14 @@ module Finance
                                   .recent
       @transactions = @transactions.where(kind: params[:kind]) if params[:kind].present?
       @transactions = @transactions.where(account_id: params[:account_id]) if params[:account_id].present?
-      @transactions = @transactions.where(finance_category_id: params[:category_id]) if params[:category_id].present?
+      @transactions = @transactions.where(finance_category_id: category_filter_ids) if params[:category_id].present?
       @transactions = @transactions.between(params[:from], params[:to]) if params[:from].present? && params[:to].present?
 
       @total_count = @transactions.count
       @page = [ params[:page].to_i, 1 ].max
       @transactions = @transactions.offset((@page - 1) * PAGE_LIMIT).limit(PAGE_LIMIT)
+
+      load_filter_data
     end
 
     def show
@@ -33,7 +35,7 @@ module Finance
       linked_params = build_linked_params(@transaction)
 
       if save_with_linked(@transaction, linked_params)
-        redirect_to finance_transactions_path, notice: t("flash.saved")
+        redirect_back_or_to finance_transactions_path, notice: t("flash.saved")
       else
         load_form_data
         render :new, status: :unprocessable_entity
@@ -46,7 +48,7 @@ module Finance
 
     def update
       if @transaction.update(transaction_params)
-        redirect_to finance_transactions_path, notice: t("flash.updated")
+        redirect_back_or_to finance_transactions_path, notice: t("flash.updated")
       else
         load_form_data
         render :edit, status: :unprocessable_entity
@@ -55,7 +57,7 @@ module Finance
 
     def destroy
       @transaction.destroy
-      redirect_to finance_transactions_path, notice: t("flash.deleted")
+      redirect_back_or_to finance_transactions_path, notice: t("flash.deleted")
     end
 
     def export
@@ -87,6 +89,22 @@ module Finance
       @accounts = user_accounts
       @income_categories  = user_categories("income")
       @expense_categories = user_categories("expense")
+    end
+
+    # Filter form on the index needs both pickers populated.
+    def load_filter_data
+      @accounts = user_accounts
+      @all_categories = user_categories
+    end
+
+    # When the filter targets a root category, expand it to also include all
+    # of its subcategory ids — clicking "Market" should surface every Market
+    # spending, including those tagged "Temel İhtiyaç" or "Abur Cubur".
+    # Filtering by a child is left as an exact match.
+    def category_filter_ids
+      cat = current_user.finance_categories.find_by(id: params[:category_id])
+      return Array(params[:category_id]) unless cat
+      cat.parent_id.nil? ? [ cat.id, *cat.children.pluck(:id) ] : [ cat.id ]
     end
 
     def transaction_params

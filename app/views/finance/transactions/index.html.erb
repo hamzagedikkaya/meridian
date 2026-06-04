@@ -17,6 +17,7 @@
     <%= form_with url: finance_transactions_path, method: :get, html: { class: "flex flex-wrap gap-3 items-end" } do |f| %>
       <%
         input_cls = "px-3 py-2 text-sm bg-[var(--color-bg-base)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] focus:outline-none focus:border-[var(--color-accent-500)]"
+        picker_cls = "px-3 py-2 text-sm bg-[var(--color-bg-base)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] focus:outline-none focus:border-[var(--color-accent-500)] min-w-[180px]"
       %>
       <div>
         <label class="block text-xs text-[var(--color-fg-muted)] mb-1"><%= t("finance.transactions.filters.kind") %></label>
@@ -26,6 +27,26 @@
             <option value="<%= k %>" <%= "selected" if params[:kind] == k %>><%= t("enums.transaction_kind.#{k}") %></option>
           <% end %>
         </select>
+      </div>
+      <div class="min-w-[180px]">
+        <label class="block text-xs text-[var(--color-fg-muted)] mb-1"><%= t("finance.transactions.filters.category") %></label>
+        <%= render Ui::CategoryPicker.new(
+              name: "category_id",
+              categories: @all_categories,
+              selected_id: params[:category_id],
+              blank_label: t("finance.transactions.filters.all"),
+              input_class: picker_cls
+            ) %>
+      </div>
+      <div class="min-w-[180px]">
+        <label class="block text-xs text-[var(--color-fg-muted)] mb-1"><%= t("finance.transactions.filters.account") %></label>
+        <%= render Ui::CategoryPicker.new(
+              name: "account_id",
+              categories: @accounts,
+              selected_id: params[:account_id],
+              blank_label: t("finance.transactions.filters.all"),
+              input_class: picker_cls
+            ) %>
       </div>
       <div>
         <label class="block text-xs text-[var(--color-fg-muted)] mb-1"><%= t("finance.transactions.filters.from") %></label>

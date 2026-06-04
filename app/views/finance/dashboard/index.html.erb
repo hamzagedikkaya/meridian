@@ -61,7 +61,9 @@
          data-finance-chart-expense-label-value="<%= t("finance.dashboard.expense") %>"
          data-finance-chart-currency-symbol-value="<%= Money::Currency.find(@currency)&.symbol.presence || @currency %>"
          data-finance-chart-locale-value="<%= I18n.locale %>"
-         data-finance-chart-direct-label-value="<%= t("finance.dashboard.direct_amount") %>">
+         data-finance-chart-direct-label-value="<%= t("finance.dashboard.direct_amount") %>"
+         data-finance-chart-range-starts-value="<%= @pie_range_starts.to_json %>"
+         data-finance-chart-transactions-url-value="<%= finance_transactions_path %>">
       <div class="flex items-start justify-between gap-3 mb-4">
         <div>
           <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight"><%= t("finance.dashboard.spending_breakdown") %></h3>
@@ -97,12 +99,15 @@
         <% if @top_expense_categories.any? %>
           <ul class="space-y-3 overflow-y-auto pr-1 -mr-1 min-h-0">
             <% @top_expense_categories.each do |row| %>
-              <li class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-2 min-w-0">
-                  <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: <%= row[:color] %>;"></span>
-                  <span class="text-sm truncate"><%= row[:name] %></span>
-                </div>
-                <span class="text-sm font-medium"><%= money_format(row[:amount], currency: @currency) %></span>
+              <li>
+                <%= link_to finance_transactions_path(category_id: row[:id], from: Date.current.beginning_of_month.iso8601, to: Date.current.iso8601),
+                            class: "flex items-center justify-between gap-3 px-2 py-1 -mx-2 rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]" do %>
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-2.5 h-2.5 rounded-full flex-shrink-0 ring-1 ring-inset ring-[rgba(255,255,255,0.15)]" style="background: <%= row[:color] %>;"></span>
+                    <span class="text-sm truncate"><%= row[:name] %></span>
+                  </div>
+                  <span class="text-sm font-medium flex-shrink-0"><%= money_format(row[:amount], currency: @currency) %></span>
+                <% end %>
               </li>
             <% end %>
           </ul>

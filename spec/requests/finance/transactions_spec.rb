@@ -12,6 +12,33 @@ RSpec.describe "Finance::Transactions", type: :request do
       get finance_transactions_path
       expect(response).to have_http_status(:success)
     end
+
+    it "expands a root category filter to include its subcategories" do
+      root = create(:finance_category, user: user, kind: "expense", name: "Market")
+      child = create(:finance_category, user: user, kind: "expense", name: "Abur Cubur", parent: root)
+      other = create(:finance_category, user: user, kind: "expense", name: "Eğlence")
+
+      tx_root  = create(:transaction, user: user, account: account, finance_category: root,  description: "Pazar", kind: "expense")
+      tx_child = create(:transaction, user: user, account: account, finance_category: child, description: "Çikolata", kind: "expense")
+      tx_other = create(:transaction, user: user, account: account, finance_category: other, description: "Sinema", kind: "expense")
+
+      get finance_transactions_path, params: { category_id: root.id }
+      expect(response.body).to include(tx_root.description)
+      expect(response.body).to include(tx_child.description)
+      expect(response.body).not_to include(tx_other.description)
+    end
+
+    it "treats a subcategory filter as an exact match (no parent leak)" do
+      root  = create(:finance_category, user: user, kind: "expense", name: "Market")
+      child = create(:finance_category, user: user, kind: "expense", name: "Abur Cubur", parent: root)
+
+      tx_root  = create(:transaction, user: user, account: account, finance_category: root,  description: "Pazar", kind: "expense")
+      tx_child = create(:transaction, user: user, account: account, finance_category: child, description: "Çikolata", kind: "expense")
+
+      get finance_transactions_path, params: { category_id: child.id }
+      expect(response.body).to include(tx_child.description)
+      expect(response.body).not_to include(tx_root.description)
+    end
   end
 
   describe "POST /finance/transactions" do

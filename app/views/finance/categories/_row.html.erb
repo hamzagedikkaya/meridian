@@ -1,11 +1,11 @@
 <li class="flex items-center justify-between gap-3 px-2 py-1.5 rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)]<%= " pl-7" if depth.positive? %>">
-  <div class="flex items-center gap-2 min-w-0">
+  <%= link_to finance_transactions_path(category_id: category.id), class: "flex items-center gap-2 min-w-0 hover:text-[var(--color-accent-400)] transition-colors", title: t("finance.categories.view_transactions") do %>
     <% if depth.positive? %>
       <span class="text-[var(--color-fg-muted)] text-xs">└</span>
     <% end %>
-    <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: <%= category.color %>;"></span>
+    <span class="w-2.5 h-2.5 rounded-full flex-shrink-0 ring-1 ring-inset ring-[rgba(255,255,255,0.15)]" style="background: <%= category.color %>;"></span>
     <span class="text-sm truncate"><%= category.name %></span>
-  </div>
+  <% end %>
   <div class="flex items-center gap-4 text-xs">
     <% if count.to_i.positive? %>
       <div class="flex items-center gap-2 text-[var(--color-fg-muted)]">

@@ -245,6 +245,8 @@ en:
       new: "+ New"
       filters:
         kind: "Kind"
+        category: "Category"
+        account: "Account"
         all: "All"
         from: "From"
         to: "To"
@@ -311,6 +313,7 @@ en:
       month_transactions: "%{count} txns"
       month_subtitle: "Right-side stats are this month."
       toggle_subcategories: "Toggle subcategories"
+      view_transactions: "View transactions in this category"
     subscriptions:
       title: "Subscriptions"
       subtitle: "Track recurring expenses."
