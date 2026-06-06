@@ -113,7 +113,7 @@ module Finance
         :amount, :amount_cents, :kind, :description, :date
       ).tap do |p|
         if p[:amount].present? && p[:amount_cents].blank?
-          p[:amount_cents] = (p.delete(:amount).to_f * 100).round
+          p[:amount_cents] = (p.delete(:amount).to_f * subunit_multiplier_for(p[:account_id])).round
         end
       end
     end
@@ -128,7 +128,7 @@ module Finance
       {
         account_id:          permitted[:account_id],
         finance_category_id: permitted[:finance_category_id].presence,
-        amount_cents:        (permitted[:amount].to_f * 100).round,
+        amount_cents:        (permitted[:amount].to_f * subunit_multiplier_for(permitted[:account_id])).round,
         kind:                primary.kind == "income" ? "expense" : "income",
         description:         primary.description,
         date:                primary.date
