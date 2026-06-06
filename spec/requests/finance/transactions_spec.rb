@@ -48,6 +48,19 @@ RSpec.describe "Finance::Transactions", type: :request do
         .to change(Transaction, :count).by(1)
       expect(response).to redirect_to(finance_transactions_path)
     end
+
+    it "scales :amount by the account currency's subunit ratio (5 gram of gold stays 5, not 500)" do
+      gold_account = create(:account, user: user, currency: "GAU")
+      params = { transaction: { account_id: gold_account.id, amount: "5", kind: "income", description: "Bonus", date: Date.current } }
+      expect { post finance_transactions_path, params: params }.to change(Transaction, :count).by(1)
+      expect(Transaction.last.amount_cents).to eq(5)
+    end
+
+    it "still uses 100x for fiat accounts (42.50 TRY → 4250 cents)" do
+      params = { transaction: { account_id: account.id, amount: "42.50", kind: "expense", description: "Coffee", date: Date.current } }
+      post finance_transactions_path, params: params
+      expect(Transaction.last.amount_cents).to eq(4250)
+    end
   end
 
   describe "GET /finance/export.csv" do

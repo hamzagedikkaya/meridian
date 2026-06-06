@@ -64,7 +64,7 @@ module Finance
         :start_date, :end_date, :active, :color, :icon, :note
       ).tap do |p|
         if p[:amount].present? && p[:amount_cents].blank?
-          p[:amount_cents] = (p.delete(:amount).to_f * 100).round
+          p[:amount_cents] = (p.delete(:amount).to_f * subunit_multiplier_for(p[:account_id])).round
         end
       end
     end
