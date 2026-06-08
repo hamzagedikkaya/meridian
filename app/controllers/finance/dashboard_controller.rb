@@ -47,6 +47,8 @@ module Finance
     def build_category_pie_series
       today = Date.current
       {
+        d1: aggregate_expenses_by_parent(today, today),
+        w1: aggregate_expenses_by_parent(today - 1.week, today),
         m1: aggregate_expenses_by_parent(today - 1.month, today),
         m6: aggregate_expenses_by_parent(today - 6.months, today),
         y1: aggregate_expenses_by_parent(today - 1.year, today)
@@ -59,6 +61,8 @@ module Finance
     def pie_range_starts
       today = Date.current
       {
+        d1: today.iso8601,
+        w1: (today - 1.week).iso8601,
         m1: (today - 1.month).iso8601,
         m6: (today - 6.months).iso8601,
         y1: (today - 1.year).iso8601,

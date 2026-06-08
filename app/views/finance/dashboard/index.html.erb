@@ -52,6 +52,8 @@
   <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:items-stretch">
     <div class="card flex flex-col lg:col-span-3"
          data-controller="finance-chart"
+         data-finance-chart-pie-d1-value="<%= @category_pie_series[:d1].to_json %>"
+         data-finance-chart-pie-w1-value="<%= @category_pie_series[:w1].to_json %>"
          data-finance-chart-pie-m1-value="<%= @category_pie_series[:m1].to_json %>"
          data-finance-chart-pie-m6-value="<%= @category_pie_series[:m6].to_json %>"
          data-finance-chart-pie-y1-value="<%= @category_pie_series[:y1].to_json %>"
@@ -63,23 +65,27 @@
          data-finance-chart-locale-value="<%= I18n.locale %>"
          data-finance-chart-direct-label-value="<%= t("finance.dashboard.direct_amount") %>"
          data-finance-chart-range-starts-value="<%= @pie_range_starts.to_json %>"
-         data-finance-chart-transactions-url-value="<%= finance_transactions_path %>">
+         data-finance-chart-transactions-url-value="<%= finance_transactions_path %>"
+         data-finance-chart-total-caption-value="<%= t("finance.dashboard.total") %>">
       <div class="flex items-start justify-between gap-3 mb-4">
         <div>
           <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight"><%= t("finance.dashboard.spending_breakdown") %></h3>
           <div class="flex gap-1 mt-2" data-finance-chart-target="rangeControls">
-            <% %w[m1 m6 y1].each do |r| %>
+            <% %w[d1 w1 m1 m6 y1].each do |r| %>
               <button type="button" class="<%= pill_btn %>" data-range="<%= r %>" data-finance-chart-target="rangeButton" data-action="click->finance-chart#setRange"><%= t("finance.dashboard.range.#{r}") %></button>
             <% end %>
           </div>
         </div>
-        <div class="flex gap-1 flex-shrink-0">
-          <button type="button" class="<%= pill_btn %>" data-view="pie" data-finance-chart-target="viewButton" data-action="click->finance-chart#setView" title="<%= t("finance.dashboard.view.pie") %>">
-            <%= render Ui::Icon.new(name: "pie-chart", size: 16) %>
-          </button>
-          <button type="button" class="<%= pill_btn %>" data-view="trend" data-finance-chart-target="viewButton" data-action="click->finance-chart#setView" title="<%= t("finance.dashboard.view.trend") %>">
-            <%= render Ui::Icon.new(name: "bar-chart-2", size: 16) %>
-          </button>
+        <div class="flex flex-col items-end gap-2 flex-shrink-0">
+          <div class="flex gap-1">
+            <button type="button" class="<%= pill_btn %>" data-view="pie" data-finance-chart-target="viewButton" data-action="click->finance-chart#setView" title="<%= t("finance.dashboard.view.pie") %>">
+              <%= render Ui::Icon.new(name: "pie-chart", size: 16) %>
+            </button>
+            <button type="button" class="<%= pill_btn %>" data-view="trend" data-finance-chart-target="viewButton" data-action="click->finance-chart#setView" title="<%= t("finance.dashboard.view.trend") %>">
+              <%= render Ui::Icon.new(name: "bar-chart-2", size: 16) %>
+            </button>
+          </div>
+          <div data-finance-chart-target="totalLabel" class="text-xs text-[var(--color-fg-muted)] tabular-nums whitespace-nowrap"></div>
         </div>
       </div>
       <div class="relative flex-1 min-h-[220px]">

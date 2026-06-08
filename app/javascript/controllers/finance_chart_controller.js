@@ -5,8 +5,10 @@ import { Controller } from "@hotwired/stimulus"
 // elastic transitions between ranges, animated bar entrance on the trend view).
 // Chart.js + Chartkick are still loaded for simpler widgets elsewhere in the app.
 export default class extends Controller {
-  static targets = ["chart", "rangeButton", "viewButton", "rangeControls", "emptyState"]
+  static targets = ["chart", "rangeButton", "viewButton", "rangeControls", "emptyState", "totalLabel"]
   static values = {
+    pieD1: Array,
+    pieW1: Array,
     pieM1: Array,
     pieM6: Array,
     pieY1: Array,
@@ -19,6 +21,7 @@ export default class extends Controller {
     currencySymbol: { type: String, default: "" },
     locale: { type: String, default: "tr" },
     directLabel: { type: String, default: "" },
+    totalCaption: { type: String, default: "" },
     rangeStarts: { type: Object, default: {} },
     transactionsUrl: { type: String, default: "" },
     currentRange: { type: String, default: "m1" },
@@ -84,15 +87,29 @@ export default class extends Controller {
     if (!dataset || dataset.length === 0) {
       this.chart.clear()
       this.showEmptyState()
+      this.updateTotal(0)
       return
     }
     this.hideEmptyState()
     this.chart.setOption(this.pieOption(dataset), true)
+    const totalCents = dataset.reduce((sum, d) => sum + Number(d.amount || 0), 0)
+    this.updateTotal(totalCents / 100)
   }
 
   renderTrend() {
     this.hideEmptyState()
     this.chart.setOption(this.trendOption(), true)
+    this.updateTotal(null) // total label only makes sense on the pie view
+  }
+
+  updateTotal(amount) {
+    if (!this.hasTotalLabelTarget) return
+    if (amount === null) {
+      this.totalLabelTarget.textContent = ""
+      return
+    }
+    const caption = this.totalCaptionValue || ""
+    this.totalLabelTarget.textContent = caption ? `${caption}: ${this.formatMoney(amount)}` : this.formatMoney(amount)
   }
 
   pieOption(dataset) {
@@ -262,6 +279,8 @@ export default class extends Controller {
 
   currentPieDataset() {
     switch (this.currentRangeValue) {
+      case "d1": return this.pieD1Value
+      case "w1": return this.pieW1Value
       case "m6": return this.pieM6Value
       case "y1": return this.pieY1Value
       default:   return this.pieM1Value
