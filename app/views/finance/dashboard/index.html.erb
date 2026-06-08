@@ -66,7 +66,8 @@
          data-finance-chart-direct-label-value="<%= t("finance.dashboard.direct_amount") %>"
          data-finance-chart-range-starts-value="<%= @pie_range_starts.to_json %>"
          data-finance-chart-transactions-url-value="<%= finance_transactions_path %>"
-         data-finance-chart-total-caption-value="<%= t("finance.dashboard.total") %>">
+         data-finance-chart-total-caption-value="<%= t("finance.dashboard.total") %>"
+         data-finance-chart-pie-url-value="<%= finance_category_pie_path %>">
       <div class="flex items-start justify-between gap-3 mb-4">
         <div>
           <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight"><%= t("finance.dashboard.spending_breakdown") %></h3>
@@ -74,6 +75,17 @@
             <% %w[d1 w1 m1 m6 y1].each do |r| %>
               <button type="button" class="<%= pill_btn %>" data-range="<%= r %>" data-finance-chart-target="rangeButton" data-action="click->finance-chart#setRange"><%= t("finance.dashboard.range.#{r}") %></button>
             <% end %>
+          </div>
+          <div class="flex items-center gap-1.5 mt-2 text-xs text-[var(--color-fg-muted)]">
+            <input type="date"
+                   data-finance-chart-target="customFrom"
+                   data-action="change->finance-chart#customRangeChanged"
+                   class="bg-[var(--color-bg-base)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] px-2 py-1 focus:outline-none focus:border-[var(--color-accent-500)]">
+            <span>–</span>
+            <input type="date"
+                   data-finance-chart-target="customTo"
+                   data-action="change->finance-chart#customRangeChanged"
+                   class="bg-[var(--color-bg-base)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] px-2 py-1 focus:outline-none focus:border-[var(--color-accent-500)]">
           </div>
         </div>
         <div class="flex flex-col items-end gap-2 flex-shrink-0">

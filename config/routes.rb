@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   # Finance module
   namespace :finance do
     root "dashboard#index"
+    get "category_pie", to: "dashboard#category_pie", as: :category_pie
     resources :transactions
     resources :accounts
     resources :categories
