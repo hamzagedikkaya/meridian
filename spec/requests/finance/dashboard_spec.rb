@@ -54,6 +54,27 @@ RSpec.describe "Finance::Dashboard", type: :request do
     end
   end
 
+  describe "GET /finance/category_pie (custom-range JSON)" do
+    let(:account)   { create(:account, user: user) }
+    let(:groceries) { create(:finance_category, user: user, name: "Groceries", kind: "expense") }
+
+    it "returns aggregated expenses for the given window" do
+      create(:transaction, user: user, account: account, finance_category: groceries, kind: "expense", amount_cents: 500_00, date: 5.days.ago)
+      get finance_category_pie_path, params: { from: 7.days.ago.to_date.iso8601, to: Date.current.iso8601 }
+      expect(response).to have_http_status(:success)
+      body = JSON.parse(response.body)
+      expect(body["pie"].first).to include("name" => "Groceries", "amount" => 500_00)
+    end
+
+    it "400s on missing or inverted date range" do
+      get finance_category_pie_path, params: { from: Date.current.iso8601 }
+      expect(response).to have_http_status(:bad_request)
+
+      get finance_category_pie_path, params: { from: Date.current.iso8601, to: 1.week.ago.to_date.iso8601 }
+      expect(response).to have_http_status(:bad_request)
+    end
+  end
+
   describe "accounts sidebar" do
     it "lists active accounts and excludes archived ones" do
       create(:account, user: user, name: "Active Wallet")

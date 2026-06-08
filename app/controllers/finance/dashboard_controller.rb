@@ -23,6 +23,22 @@ module Finance
       @currency = current_user.currency
     end
 
+    # Custom-range pie data. Used by the chart's Stimulus controller when the
+    # user fills both date inputs below the preset range buttons. The preset
+    # ranges (d1/w1/m1/m6/y1) are baked into the page on index for instant
+    # switching; this endpoint only fires for the open-ended "between X and Y"
+    # case so we avoid one fetch per preset click.
+    def category_pie
+      from = Date.parse(params[:from].to_s) rescue nil
+      to   = Date.parse(params[:to].to_s)   rescue nil
+      if from.nil? || to.nil? || from > to
+        render json: { error: "invalid_range" }, status: :bad_request
+        return
+      end
+      data = aggregate_expenses_by_parent(from, to)
+      render json: { pie: data, from: from.iso8601, to: to.iso8601 }
+    end
+
     private
 
     def build_six_month_series
@@ -47,6 +63,8 @@ module Finance
     def build_category_pie_series
       today = Date.current
       {
+        d1: aggregate_expenses_by_parent(today, today),
+        w1: aggregate_expenses_by_parent(today - 1.week, today),
         m1: aggregate_expenses_by_parent(today - 1.month, today),
         m6: aggregate_expenses_by_parent(today - 6.months, today),
         y1: aggregate_expenses_by_parent(today - 1.year, today)
@@ -59,6 +77,8 @@ module Finance
     def pie_range_starts
       today = Date.current
       {
+        d1: today.iso8601,
+        w1: (today - 1.week).iso8601,
         m1: (today - 1.month).iso8601,
         m6: (today - 6.months).iso8601,
         y1: (today - 1.year).iso8601,

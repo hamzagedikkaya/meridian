@@ -248,7 +248,10 @@ tr:
       spending_breakdown: "Harcama dağılımı"
       no_expenses_range: "Bu aralıkta gider yok."
       direct_amount: "(genel)"
+      total: "Toplam"
       range:
+        d1: "Bugün"
+        w1: "1 hafta"
         m1: "1 ay"
         m6: "6 ay"
         y1: "1 yıl"

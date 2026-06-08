@@ -5,8 +5,10 @@ import { Controller } from "@hotwired/stimulus"
 // elastic transitions between ranges, animated bar entrance on the trend view).
 // Chart.js + Chartkick are still loaded for simpler widgets elsewhere in the app.
 export default class extends Controller {
-  static targets = ["chart", "rangeButton", "viewButton", "rangeControls", "emptyState"]
+  static targets = ["chart", "rangeButton", "viewButton", "rangeControls", "emptyState", "totalLabel", "customFrom", "customTo"]
   static values = {
+    pieD1: Array,
+    pieW1: Array,
     pieM1: Array,
     pieM6: Array,
     pieY1: Array,
@@ -19,8 +21,10 @@ export default class extends Controller {
     currencySymbol: { type: String, default: "" },
     locale: { type: String, default: "tr" },
     directLabel: { type: String, default: "" },
+    totalCaption: { type: String, default: "" },
     rangeStarts: { type: Object, default: {} },
     transactionsUrl: { type: String, default: "" },
+    pieUrl: { type: String, default: "" },
     currentRange: { type: String, default: "m1" },
     currentView: { type: String, default: "pie" }
   }
@@ -31,7 +35,15 @@ export default class extends Controller {
     this.resizeObserver = new ResizeObserver(() => this.chart && this.chart.resize())
     this.resizeObserver.observe(this.chartTarget)
     this.chart.on("click", (params) => this.handlePieClick(params))
+    this.syncCustomInputsToCurrentRange()
     this.refresh()
+  }
+
+  syncCustomInputsToCurrentRange() {
+    if (this.currentRangeValue === "custom") return
+    const starts = this.rangeStartsValue || {}
+    if (this.hasCustomFromTarget) this.customFromTarget.value = starts[this.currentRangeValue] || ""
+    if (this.hasCustomToTarget)   this.customToTarget.value   = starts.today || ""
   }
 
   handlePieClick(params) {
@@ -40,12 +52,19 @@ export default class extends Controller {
     if (!id || !this.transactionsUrlValue) return
     const url = new URL(this.transactionsUrlValue, window.location.origin)
     url.searchParams.set("category_id", id)
-    const starts = this.rangeStartsValue || {}
-    const from = starts[this.currentRangeValue]
-    const to = starts.today
+    const { from, to } = this.activeRangeBounds()
     if (from) url.searchParams.set("from", from)
     if (to) url.searchParams.set("to", to)
     window.location.href = url.toString()
+  }
+
+  activeRangeBounds() {
+    if (this.currentRangeValue === "custom") {
+      return { from: this.hasCustomFromTarget ? this.customFromTarget.value : null,
+               to:   this.hasCustomToTarget   ? this.customToTarget.value   : null }
+    }
+    const starts = this.rangeStartsValue || {}
+    return { from: starts[this.currentRangeValue], to: starts.today }
   }
 
   disconnect() {
@@ -57,8 +76,41 @@ export default class extends Controller {
   setRange(event) {
     const range = event.currentTarget.dataset.range
     if (!range || range === this.currentRangeValue) return
+    // Mirror the preset's window into the custom-range inputs so the user
+    // can see exactly which dates the active button represents and tweak
+    // either end without restarting from blanks. Assigning .value directly
+    // does NOT fire a `change` event, so this won't loop into customRangeChanged.
+    const starts = this.rangeStartsValue || {}
+    if (this.hasCustomFromTarget) this.customFromTarget.value = starts[range] || ""
+    if (this.hasCustomToTarget)   this.customToTarget.value   = starts.today || ""
+    this.customPieDataset = null
     this.currentRangeValue = range
     this.refresh()
+  }
+
+  customRangeChanged() {
+    const from = this.hasCustomFromTarget ? this.customFromTarget.value : ""
+    const to   = this.hasCustomToTarget   ? this.customToTarget.value   : ""
+    if (!from || !to) return
+    if (from > to) return
+    this.currentRangeValue = "custom"
+    this.fetchCustomPie(from, to)
+  }
+
+  async fetchCustomPie(from, to) {
+    if (!this.pieUrlValue) return
+    const url = new URL(this.pieUrlValue, window.location.origin)
+    url.searchParams.set("from", from)
+    url.searchParams.set("to", to)
+    try {
+      const res = await fetch(url.toString(), { headers: { Accept: "application/json" } })
+      if (!res.ok) return
+      const json = await res.json()
+      this.customPieDataset = json.pie || []
+      this.refresh()
+    } catch (_e) {
+      // network errors fall through silently — the user can retry
+    }
   }
 
   setView(event) {
@@ -84,15 +136,29 @@ export default class extends Controller {
     if (!dataset || dataset.length === 0) {
       this.chart.clear()
       this.showEmptyState()
+      this.updateTotal(0)
       return
     }
     this.hideEmptyState()
     this.chart.setOption(this.pieOption(dataset), true)
+    const totalCents = dataset.reduce((sum, d) => sum + Number(d.amount || 0), 0)
+    this.updateTotal(totalCents / 100)
   }
 
   renderTrend() {
     this.hideEmptyState()
     this.chart.setOption(this.trendOption(), true)
+    this.updateTotal(null) // total label only makes sense on the pie view
+  }
+
+  updateTotal(amount) {
+    if (!this.hasTotalLabelTarget) return
+    if (amount === null) {
+      this.totalLabelTarget.textContent = ""
+      return
+    }
+    const caption = this.totalCaptionValue || ""
+    this.totalLabelTarget.textContent = caption ? `${caption}: ${this.formatMoney(amount)}` : this.formatMoney(amount)
   }
 
   pieOption(dataset) {
@@ -262,6 +328,9 @@ export default class extends Controller {
 
   currentPieDataset() {
     switch (this.currentRangeValue) {
+      case "custom": return this.customPieDataset || []
+      case "d1": return this.pieD1Value
+      case "w1": return this.pieW1Value
       case "m6": return this.pieM6Value
       case "y1": return this.pieY1Value
       default:   return this.pieM1Value

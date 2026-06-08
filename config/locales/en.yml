@@ -231,7 +231,10 @@ en:
       spending_breakdown: "Spending breakdown"
       no_expenses_range: "No expenses in this range."
       direct_amount: "(direct)"
+      total: "Total"
       range:
+        d1: "Today"
+        w1: "1w"
         m1: "1m"
         m6: "6m"
         y1: "1y"
