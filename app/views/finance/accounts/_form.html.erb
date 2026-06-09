@@ -13,7 +13,7 @@
   <% end %>
 
   <div class="grid md:grid-cols-2 gap-5">
-    <div>
+    <div class="md:col-span-2">
       <%= f.label :name, t("common.name"), class: label_cls %>
       <%= f.text_field :name, class: input_cls %>
     </div>
@@ -31,11 +31,7 @@
     </div>
     <div>
       <%= f.label :color, t("common.color"), class: label_cls %>
-      <%= f.color_field :color, class: input_cls + " h-10" %>
-    </div>
-    <div>
-      <%= f.label :icon, t("common.icon"), class: label_cls %>
-      <%= f.text_field :icon, placeholder: t("finance.accounts.icon_placeholder"), class: input_cls %>
+      <%= render "shared/color_picker", form: f, input_class: input_cls %>
     </div>
   </div>
 

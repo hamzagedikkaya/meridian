@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_20_164229) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_09_001811) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -20,7 +20,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_164229) do
     t.string "color", default: "#B8860B"
     t.datetime "created_at", null: false
     t.string "currency", default: "TRY", null: false
-    t.string "icon"
     t.integer "initial_balance_cents", default: 0, null: false
     t.string "name", null: false
     t.datetime "updated_at", null: false
@@ -107,7 +106,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_164229) do
   create_table "finance_categories", force: :cascade do |t|
     t.string "color", default: "#A09B8E"
     t.datetime "created_at", null: false
-    t.string "icon"
     t.string "kind", default: "expense", null: false
     t.string "name", null: false
     t.bigint "parent_id"
@@ -140,7 +138,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_164229) do
     t.decimal "current_value", precision: 14, scale: 2, default: "0.0", null: false
     t.date "deadline"
     t.text "description"
-    t.string "icon"
     t.string "name", null: false
     t.integer "position", default: 0, null: false
     t.bigint "related_id"
@@ -175,7 +172,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_164229) do
     t.text "description"
     t.string "frequency", default: "daily", null: false
     t.bigint "goal_id"
-    t.string "icon"
     t.string "name", null: false
     t.integer "target_count", default: 1, null: false
     t.datetime "updated_at", null: false
@@ -210,7 +206,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_164229) do
     t.bigint "finance_category_id"
     t.string "frequency", default: "monthly", null: false
     t.bigint "goal_id"
-    t.string "icon"
     t.string "name", null: false
     t.date "next_charge_on"
     t.text "note"
@@ -251,7 +246,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_164229) do
     t.datetime "archived_at"
     t.string "color", default: "#B8860B"
     t.datetime "created_at", null: false
-    t.string "icon"
     t.string "name", null: false
     t.integer "position", default: 0, null: false
     t.datetime "updated_at", null: false

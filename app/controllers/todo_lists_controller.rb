@@ -41,6 +41,6 @@ class TodoListsController < ApplicationController
   end
 
   def list_params
-    params.require(:todo_list).permit(:name, :color, :icon, :position, :archived_at)
+    params.require(:todo_list).permit(:name, :color, :position, :archived_at)
   end
 end

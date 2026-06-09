@@ -73,7 +73,7 @@ class HabitsController < ApplicationController
   end
 
   def habit_params
-    params.require(:habit).permit(:name, :description, :frequency, :target_count, :color, :icon, :archived_at)
+    params.require(:habit).permit(:name, :description, :frequency, :target_count, :color, :archived_at)
   end
 
   # Builds the turbo-stream replacements for a toggle: the toggled row, the

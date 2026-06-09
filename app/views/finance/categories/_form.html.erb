@@ -26,17 +26,12 @@
     </div>
     <div>
       <%= f.label :color, t("common.color"), class: label_cls %>
-      <%= f.color_field :color, class: input_cls + " h-10" %>
-    </div>
-    <div>
-      <%= f.label :icon, t("common.icon"), class: label_cls %>
-      <%= f.text_field :icon, class: input_cls %>
+      <%= render "shared/color_picker", form: f, input_class: input_cls %>
     </div>
     <% if parent_options.any? || category.parent_id.present? %>
-      <div class="md:col-span-2">
+      <div>
         <%= f.label :parent_id, t("finance.categories.parent"), class: label_cls %>
         <%= f.select :parent_id, parent_options, { include_blank: t("finance.categories.parent_none") }, class: input_cls %>
-        <p class="text-xs text-[var(--color-fg-muted)] mt-1"><%= t("finance.categories.parent_hint") %></p>
       </div>
     <% end %>
   </div>
