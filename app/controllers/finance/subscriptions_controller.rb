@@ -61,7 +61,7 @@ module Finance
       params.require(:subscription).permit(
         :name, :vendor, :account_id, :finance_category_id,
         :amount, :amount_cents, :frequency, :next_charge_on,
-        :start_date, :end_date, :active, :color, :icon, :note
+        :start_date, :end_date, :active, :color, :note
       ).tap do |p|
         if p[:amount].present? && p[:amount_cents].blank?
           p[:amount_cents] = (p.delete(:amount).to_f * subunit_multiplier_for(p[:account_id])).round

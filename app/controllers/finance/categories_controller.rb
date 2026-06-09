@@ -47,7 +47,7 @@ module Finance
     end
 
     def category_params
-      params.require(:finance_category).permit(:name, :color, :icon, :kind, :parent_id, :position)
+      params.require(:finance_category).permit(:name, :color, :kind, :parent_id, :position)
     end
 
     # { category_id => { count:, total_cents: } } for the current month, in one

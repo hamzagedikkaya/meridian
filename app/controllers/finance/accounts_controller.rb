@@ -46,7 +46,7 @@ module Finance
     end
 
     def account_params
-      params.require(:account).permit(:name, :account_type, :currency, :initial_balance_cents, :color, :icon, :archived_at)
+      params.require(:account).permit(:name, :account_type, :currency, :initial_balance_cents, :color, :archived_at)
     end
   end
 end
