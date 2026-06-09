@@ -1,0 +1,21 @@
+<%
+  attribute     = local_assigns[:attribute] || :color
+  current_value = form.object.send(attribute).presence || "#B8860B"
+  base_input    = local_assigns[:input_class] || "px-3.5 py-2.5 bg-[var(--color-bg-base)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] text-[var(--color-fg-primary)] focus:outline-none focus:border-[var(--color-accent-500)]"
+%>
+<div data-controller="color-picker" class="flex items-center gap-2">
+  <input type="color"
+         value="<%= current_value %>"
+         data-color-picker-target="swatch"
+         data-action="input->color-picker#syncToText"
+         aria-label="<%= t("common.color") %>"
+         class="h-10 w-12 shrink-0 cursor-pointer rounded-[var(--radius-sm)] border border-[var(--color-border-default)] bg-[var(--color-bg-base)] p-1" />
+  <%= form.text_field attribute,
+                      value: current_value,
+                      maxlength: 7,
+                      pattern: "^#[0-9A-Fa-f]{6}$",
+                      spellcheck: false,
+                      autocomplete: "off",
+                      data: { color_picker_target: "text", action: "input->color-picker#syncToSwatch" },
+                      class: "#{base_input} h-10 w-32 font-mono uppercase tracking-wider" %>
+</div>

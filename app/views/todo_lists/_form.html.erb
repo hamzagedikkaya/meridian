@@ -16,7 +16,7 @@
   </div>
   <div>
     <%= f.label :color, t("common.color"), class: label_cls %>
-    <%= f.color_field :color, class: input_cls + " h-10" %>
+    <%= render "shared/color_picker", form: f, input_class: input_cls %>
   </div>
 
   <div class="flex justify-between items-center pt-4 border-t border-[var(--color-border-subtle)]">
