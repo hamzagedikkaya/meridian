@@ -107,19 +107,26 @@
    ========================================================================== */
 
 html.light {
-  --color-bg-base: #FAF7EE;
+  --color-bg-base: #F8F8F6;
   --color-bg-elevated: #FFFFFF;
-  --color-bg-overlay: #F2EFE5;
-  --color-bg-hover: #F5F1E8;
+  --color-bg-overlay: #FDFCFB;
+  --color-bg-hover: #F0EFEB;
 
-  --color-fg-primary: #1A1817;
-  --color-fg-muted: #5E574D;
-  --color-fg-faint: #A09B8E;
-  --color-fg-inverse: #F5F1E8;
+  --color-fg-primary: #1C1917;
+  --color-fg-muted: #57534E;
+  --color-fg-faint: #8A8580;
+  --color-fg-inverse: #FAFAF9;
 
-  --color-border-subtle: rgba(10, 9, 8, 0.08);
-  --color-border-default: rgba(10, 9, 8, 0.14);
-  --color-border-strong: rgba(10, 9, 8, 0.22);
+  --color-border-subtle: rgba(28, 25, 23, 0.06);
+  --color-border-default: rgba(28, 25, 23, 0.09);
+  --color-border-strong: rgba(28, 25, 23, 0.14);
+
+  --color-income: #3D6B2E;
+  --color-expense: #A8341F;
+  --color-warning: #B8860B;
+  --color-info: #2F6FB8;
+  --color-success: #3D6B2E;
+  --color-danger: #A8341F;
 }
 
 /* ==========================================================================
