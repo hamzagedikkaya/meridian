@@ -156,4 +156,84 @@ RSpec.describe Habit, type: :model do
       expect(described_class.chain_windows_for([])).to eq({})
     end
   end
+
+  describe ".streaks_for" do
+    it "returns an empty hash for no habits" do
+      expect(described_class.streaks_for([])).to eq({})
+    end
+
+    it "computes the current streak per habit in a single batched query" do
+      h1 = create(:habit)
+      h2 = create(:habit, user: h1.user)
+      # h1: today, yesterday, 2d ago → streak of 3 ending today.
+      [ 0, 1, 2 ].each { |i| h1.habit_logs.create!(date: i.days.ago.to_date, completed: true) }
+      # h2: yesterday only → streak of 1 ending yesterday.
+      h2.habit_logs.create!(date: 1.day.ago.to_date, completed: true)
+
+      result = described_class.streaks_for([ h1, h2 ])
+      expect(result).to eq(h1.id => 3, h2.id => 1)
+    end
+
+    it "counts a streak that ends yesterday when today is not yet logged" do
+      habit = create(:habit)
+      [ 1, 2, 3 ].each { |i| habit.habit_logs.create!(date: i.days.ago.to_date, completed: true) }
+      expect(described_class.streaks_for([ habit ])).to eq(habit.id => 3)
+    end
+
+    it "resets at a broken streak, counting only days back to the cutoff" do
+      habit = create(:habit)
+      habit.habit_logs.create!(date: Date.current, completed: true)
+      habit.habit_logs.create!(date: 1.day.ago.to_date, completed: false)
+      habit.habit_logs.create!(date: 2.days.ago.to_date, completed: true)
+      expect(described_class.streaks_for([ habit ])).to eq(habit.id => 1)
+    end
+
+    it "is 0 when the most recent completion is older than yesterday" do
+      habit = create(:habit)
+      habit.habit_logs.create!(date: 10.days.ago.to_date, completed: true)
+      expect(described_class.streaks_for([ habit ])).to eq(habit.id => 0)
+    end
+
+    it "is 0 for a habit with no completed logs" do
+      habit = create(:habit)
+      expect(described_class.streaks_for([ habit ])).to eq(habit.id => 0)
+    end
+
+    it "ignores future-dated logs and matches #current_streak" do
+      habit = create(:habit)
+      [ 0, 1 ].each { |i| habit.habit_logs.create!(date: i.days.ago.to_date, completed: true) }
+      habit.habit_logs.create!(date: 1.day.from_now.to_date, completed: true) # future, excluded
+      expect(described_class.streaks_for([ habit ])).to eq(habit.id => habit.current_streak)
+      expect(habit.current_streak).to eq(2)
+    end
+  end
+
+  describe "#longest_streak" do
+    let(:habit) { create(:habit) }
+
+    it "is 0 when there are no completed logs" do
+      expect(habit.longest_streak).to eq(0)
+    end
+
+    it "is 1 for a single isolated completed day" do
+      habit.habit_logs.create!(date: 5.days.ago.to_date, completed: true)
+      expect(habit.longest_streak).to eq(1)
+    end
+
+    it "finds the longest run even when it is in the past, not the current streak" do
+      # 3 consecutive days, a gap, then 2 consecutive → longest is 3.
+      [ 10, 9, 8 ].each { |i| habit.habit_logs.create!(date: i.days.ago.to_date, completed: true) }
+      [ 1, 0 ].each { |i| habit.habit_logs.create!(date: i.days.ago.to_date, completed: true) }
+      expect(habit.longest_streak).to eq(3)
+      expect(habit.current_streak).to eq(2)
+    end
+
+    it "ignores non-completed logs when measuring runs" do
+      habit.habit_logs.create!(date: 3.days.ago.to_date, completed: true)
+      habit.habit_logs.create!(date: 2.days.ago.to_date, completed: false) # breaks the run
+      habit.habit_logs.create!(date: 1.day.ago.to_date, completed: true)
+      habit.habit_logs.create!(date: Date.current, completed: true)
+      expect(habit.longest_streak).to eq(2)
+    end
+  end
 end
