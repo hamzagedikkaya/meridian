@@ -330,6 +330,7 @@ tr:
       month_transactions: "%{count} işlem"
       month_subtitle: "Sağdaki rakamlar bu ay özetidir."
       toggle_subcategories: "Alt kategorileri aç/kapat"
+      no_search_results: "Sonuç yok"
       view_transactions: "Bu kategorideki işlemleri gör"
     subscriptions:
       title: "Abonelikler"

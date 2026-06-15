@@ -49,6 +49,12 @@ module Ui
       { controller: "category-picker", "category-picker-blank-label-value": blank_label.to_s }.merge(extra_data)
     end
 
+    # Only surface the search box when the list is long enough to be worth
+    # filtering — a 3-account dropdown doesn't need one.
+    def searchable?
+      @categories.size > 6
+    end
+
     private
 
     def has_parent?(item)

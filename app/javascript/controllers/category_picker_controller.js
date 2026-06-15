@@ -4,16 +4,28 @@ import { Controller } from "@hotwired/stimulus"
 // panel can render color dots, indented subcategories, and expand/collapse
 // each parent. The hidden <input> carries the selected id for form submit.
 //
+// A search box (shown for long lists) filters roots AND subcategories as you
+// type: matching subcategories surface with their parent for context, and the
+// group auto-expands so the match is visible. Matching is Turkish-aware and
+// diacritic-insensitive, so "te" finds "Temel ihtiyaç" and "icecek" finds
+// "İçecek".
+//
 // The transaction-form controller talks to this picker through a Stimulus
 // value (`data-category-picker-kind-value`): writing the attribute triggers
 // `kindValueChanged()`, which filters the panel. Going through a value
 // (not a method call) avoids the controller-bootstrap race where the
 // outer form connects before the inner picker is registered.
 export default class extends Controller {
-  static targets = ["trigger", "panel", "display", "hidden", "group", "children", "chevron"]
+  static targets = ["trigger", "panel", "display", "hidden", "group", "children", "chevron", "search", "empty"]
   static values = {
     blankLabel: { type: String, default: "" },
     kind: { type: String, default: "" }
+  }
+
+  static SELECT = "button[data-action*='category-picker#select']"
+
+  initialize() {
+    this.query = ""
   }
 
   connect() {
@@ -32,12 +44,9 @@ export default class extends Controller {
 
   // Called by Stimulus when the kind value attribute changes (including the
   // initial read on connect). Empty kind = no filter (subscription/account forms).
-  kindValueChanged(newKind) {
-    if (newKind) {
-      this.filterByKind(newKind)
-    } else {
-      this.unfilter()
-    }
+  kindValueChanged() {
+    this.applyFilters()
+    this.enforceKindSelection()
   }
 
   toggle(event) {
@@ -47,7 +56,18 @@ export default class extends Controller {
     // so this picker won't self-close.
     const willOpen = this.panelTarget.classList.contains("hidden")
     this.panelTarget.classList.toggle("hidden", !willOpen)
-    if (willOpen) this.openGroupContainingSelection()
+    if (willOpen) this.onOpen()
+  }
+
+  onOpen() {
+    this.query = ""
+    if (this.hasSearchTarget) {
+      this.searchTarget.value = ""
+      this.applyFilters()
+      this.searchTarget.focus()
+    } else {
+      this.applyFilters()
+    }
   }
 
   close() {
@@ -69,24 +89,116 @@ export default class extends Controller {
     const group = chevron.closest("[data-category-picker-target='group']")
     const children = group.querySelector("[data-category-picker-target='children']")
     if (!children) return
-    const willOpen = children.classList.contains("hidden")
-    children.classList.toggle("hidden", !willOpen)
-    chevron.setAttribute("aria-expanded", willOpen ? "true" : "false")
-    chevron.querySelector("svg")?.classList.toggle("rotate-180", willOpen)
+    this.setExpanded(group, children.classList.contains("hidden"))
   }
 
-  filterByKind(kind) {
+  // --- Search ---------------------------------------------------------------
+
+  search(event) {
+    this.query = event.target.value
+    this.applyFilters()
+  }
+
+  searchKeydown(event) {
+    if (event.key !== "Enter") return
+    // Don't submit the surrounding form; pick the first visible match instead.
+    event.preventDefault()
+    const first = this.firstVisibleOption()
+    if (first) first.click()
+  }
+
+  applyFilters() {
+    const q = this.normalize(this.query)
+    if (!q) { this.showAllRespectingKind(); return }
+
+    let anyVisible = false
     this.groupTargets.forEach(group => {
-      group.hidden = group.dataset.kind !== kind
+      if (!this.kindMatches(group)) { group.hidden = true; return }
+
+      const rootMatch = this.normalize(this.rootName(group)).includes(q)
+      const children = this.childrenContainer(group)
+      let childMatch = false
+      if (children) {
+        children.querySelectorAll(this.constructor.SELECT).forEach(btn => {
+          const match = this.normalize(btn.dataset.name || "").includes(q)
+          btn.hidden = !(match || rootMatch)
+          if (match) childMatch = true
+        })
+        this.setExpanded(group, childMatch)
+      }
+
+      const visible = rootMatch || childMatch
+      group.hidden = !visible
+      if (visible) anyVisible = true
     })
+
+    this.toggleBlankOption(false)
+    if (this.hasEmptyTarget) this.emptyTarget.hidden = anyVisible
+  }
+
+  showAllRespectingKind() {
+    this.groupTargets.forEach(group => {
+      group.hidden = !this.kindMatches(group)
+      const children = this.childrenContainer(group)
+      if (children) {
+        children.querySelectorAll(this.constructor.SELECT).forEach(btn => { btn.hidden = false })
+        this.setExpanded(group, false)
+      }
+    })
+    this.toggleBlankOption(true)
+    if (this.hasEmptyTarget) this.emptyTarget.hidden = true
+    this.openGroupContainingSelection()
+  }
+
+  kindMatches(group) {
+    return !this.kindValue || group.dataset.kind === this.kindValue
+  }
+
+  rootName(group) {
+    return group.querySelector(this.constructor.SELECT)?.dataset.name || ""
+  }
+
+  childrenContainer(group) {
+    return group.querySelector("[data-category-picker-target='children']")
+  }
+
+  setExpanded(group, expanded) {
+    const children = this.childrenContainer(group)
+    if (!children) return
+    children.classList.toggle("hidden", !expanded)
+    const chevron = group.querySelector("[data-category-picker-target='chevron']")
+    chevron?.setAttribute("aria-expanded", expanded ? "true" : "false")
+    chevron?.querySelector("svg")?.classList.toggle("rotate-180", expanded)
+  }
+
+  toggleBlankOption(show) {
+    const blank = this.element.querySelector(`${this.constructor.SELECT}[data-id='']`)
+    if (blank) blank.hidden = !show
+  }
+
+  firstVisibleOption() {
+    return Array.from(this.element.querySelectorAll(this.constructor.SELECT))
+      .find(btn => btn.dataset.id && btn.offsetParent !== null)
+  }
+
+  // Lowercase (Turkish locale) and fold Turkish diacritics to ASCII so search
+  // is forgiving of casing and special characters.
+  normalize(value) {
+    return (value || "")
+      .toLocaleLowerCase("tr")
+      .replace(/ı/g, "i").replace(/ş/g, "s").replace(/ğ/g, "g")
+      .replace(/ü/g, "u").replace(/ö/g, "o").replace(/ç/g, "c")
+      .trim()
+  }
+
+  enforceKindSelection() {
+    if (!this.kindValue) return
     const current = this.hiddenTarget.value
     if (!current) return
-    const stillVisible = this.element.querySelector(`[data-action*='category-picker#select'][data-id='${current}'][data-kind='${kind}']`)
-    if (!stillVisible) this.applySelection("", "", "")
-  }
-
-  unfilter() {
-    this.groupTargets.forEach(group => { group.hidden = false })
+    const stillValid = this.element.querySelector(
+      `${this.constructor.SELECT}[data-id='${current}'][data-kind='${this.kindValue}']`
+    )
+    if (!stillValid) this.applySelection("", "", "")
   }
 
   applySelection(id, name, color) {
@@ -139,10 +251,7 @@ export default class extends Controller {
     if (!selectedBtn) return
     const childrenContainer = selectedBtn.closest("[data-category-picker-target='children']")
     if (!childrenContainer) return
-    childrenContainer.classList.remove("hidden")
     const group = childrenContainer.closest("[data-category-picker-target='group']")
-    const chevron = group?.querySelector("[data-category-picker-target='chevron']")
-    chevron?.setAttribute("aria-expanded", "true")
-    chevron?.querySelector("svg")?.classList.add("rotate-180")
+    if (group) this.setExpanded(group, true)
   }
 }
