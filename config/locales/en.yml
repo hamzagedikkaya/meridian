@@ -313,6 +313,7 @@ en:
       month_transactions: "%{count} txns"
       month_subtitle: "Right-side stats are this month."
       toggle_subcategories: "Toggle subcategories"
+      no_search_results: "No results"
       view_transactions: "View transactions in this category"
     subscriptions:
       title: "Subscriptions"
