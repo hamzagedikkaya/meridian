@@ -365,7 +365,7 @@ en:
       week: "This week"
       overdue: "Overdue"
       done: "Done"
-    none: "No %{filter} todos."
+    none: "No todos in %{filter}."
     add_one: "Add one"
     new_title: "New todo"
     edit_title: "Edit todo"
