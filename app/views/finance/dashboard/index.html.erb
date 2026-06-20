@@ -161,6 +161,25 @@
     </div>
   </div>
 
+  <div class="card">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-[family-name:var(--font-display)] text-xl tracking-tight"><%= t("finance.budgets.dashboard_title") %></h3>
+      <%= link_to t("common.all") + " →", finance_budgets_path, class: "text-sm text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
+    </div>
+    <% if @budget_statuses.any? %>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+        <% @budget_statuses.first(6).each do |status| %>
+          <%= render "finance/budgets/status_bar", status: status %>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-[var(--color-fg-muted)]">
+        <%= t("finance.budgets.none") %>
+        <%= link_to t("finance.budgets.create_first"), new_finance_budget_path, data: { turbo_frame: "modal" }, class: "text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
+      </p>
+    <% end %>
+  </div>
+
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
     <div class="card lg:col-span-2">
       <div class="flex items-center justify-between mb-4">
