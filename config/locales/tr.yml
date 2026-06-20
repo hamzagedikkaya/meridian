@@ -332,6 +332,24 @@ tr:
       toggle_subcategories: "Alt kategorileri aç/kapat"
       no_search_results: "Sonuç yok"
       view_transactions: "Bu kategorideki işlemleri gör"
+    budgets:
+      title: "Bütçeler"
+      dashboard_title: "Bu ayki bütçeler"
+      new: "+ Yeni bütçe"
+      new_title: "Yeni bütçe"
+      edit_title: "Bütçeyi düzenle"
+      count: "%{count} bütçe"
+      category: "Kategori"
+      choose_category: "Kategori seç…"
+      monthly_limit: "Aylık limit"
+      form_hint: "Bir gider kategorisine aylık harcama limiti koy. Alt kategorilerin harcaması üst kategorinin limitine sayılır."
+      none: "Henüz bütçe yok."
+      create_first: "İlk bütçeni oluştur"
+      percent_used: "%{percent}% kullanıldı"
+      remaining: "%{amount} kaldı"
+      over_by: "%{amount} aşıldı"
+      will_overspend: "Aşacak"
+      pace_marker: "Ayın geçen kısmı"
     subscriptions:
       title: "Abonelikler"
       subtitle: "Tekrarlayan giderlerini takip et."
@@ -663,3 +681,9 @@ tr:
               must_match_kind: "üst kategori ile tür (gelir/gider) uyuşmalı"
               must_be_root: "üst kategori zaten alt kategori — sadece ana kategoriler seçilebilir"
               cannot_have_children: "alt kategorisi olan bir kategori başka bir kategorinin altına alınamaz"
+        budget:
+          attributes:
+            finance_category_id:
+              taken: "bu kategori için zaten bir bütçe var"
+              must_be_expense: "yalnızca gider kategorilerine bütçe konabilir"
+              must_be_root: "yalnızca ana kategorilere bütçe konabilir"

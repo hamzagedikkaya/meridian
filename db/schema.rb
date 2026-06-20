@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_09_001811) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_20_204024) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -79,6 +79,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_09_001811) do
     t.bigint "user_id", null: false
     t.index ["user_id", "created_at"], name: "index_backups_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_backups_on_user_id"
+  end
+
+  create_table "budgets", force: :cascade do |t|
+    t.string "color"
+    t.datetime "created_at", null: false
+    t.bigint "finance_category_id", null: false
+    t.integer "monthly_limit_cents", default: 0, null: false
+    t.string "period", default: "monthly", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["finance_category_id"], name: "index_budgets_on_finance_category_id"
+    t.index ["user_id", "finance_category_id"], name: "index_budgets_on_user_id_and_finance_category_id", unique: true
+    t.index ["user_id"], name: "index_budgets_on_user_id"
   end
 
   create_table "events", force: :cascade do |t|
@@ -339,6 +352,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_09_001811) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "backups", "users"
+  add_foreign_key "budgets", "finance_categories"
+  add_foreign_key "budgets", "users"
   add_foreign_key "events", "users"
   add_foreign_key "finance_categories", "finance_categories", column: "parent_id"
   add_foreign_key "finance_categories", "users"

@@ -315,6 +315,24 @@ en:
       toggle_subcategories: "Toggle subcategories"
       no_search_results: "No results"
       view_transactions: "View transactions in this category"
+    budgets:
+      title: "Budgets"
+      dashboard_title: "Budgets this month"
+      new: "+ New budget"
+      new_title: "New budget"
+      edit_title: "Edit budget"
+      count: "%{count} budgets"
+      category: "Category"
+      choose_category: "Choose a category…"
+      monthly_limit: "Monthly limit"
+      form_hint: "Set a monthly spending cap on an expense category. Subcategory spending counts toward its parent's cap."
+      none: "No budgets yet."
+      create_first: "Create your first budget"
+      percent_used: "%{percent}% used"
+      remaining: "%{amount} left"
+      over_by: "%{amount} over"
+      will_overspend: "Will overspend"
+      pace_marker: "Month elapsed"
     subscriptions:
       title: "Subscriptions"
       subtitle: "Track recurring expenses."
@@ -647,3 +665,9 @@ en:
               must_match_kind: "parent must have the same kind (income/expense)"
               must_be_root: "parent is itself a subcategory — only top-level categories can be parents"
               cannot_have_children: "category with subcategories cannot become a subcategory itself"
+        budget:
+          attributes:
+            finance_category_id:
+              taken: "already has a budget"
+              must_be_expense: "only expense categories can be budgeted"
+              must_be_root: "only top-level categories can be budgeted"
