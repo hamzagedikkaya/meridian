@@ -21,6 +21,8 @@ module Finance
       @pie_range_starts = pie_range_starts
       @active_accounts = current_user.accounts.active.order(:name)
       @currency = current_user.currency
+      @budget_statuses = Finance::BudgetStatus.for_user(current_user)
+                                              .sort_by { |s| [ { over: 0, warning: 1, under: 2 }[s.state], -s.percent_used ] }
     end
 
     # Custom-range pie data. Used by the chart's Stimulus controller when the

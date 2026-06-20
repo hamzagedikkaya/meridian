@@ -86,4 +86,23 @@ RSpec.describe "Finance::Dashboard", type: :request do
       expect(response.body).not_to include("Old Wallet")
     end
   end
+
+  describe "budgets card" do
+    it "renders the budgets-this-month card when a budget exists" do
+      category = create(:finance_category, user: user, name: "Groceries", kind: "expense")
+      create(:budget, user: user, finance_category: category, monthly_limit_cents: 500_00)
+
+      get finance_root_path
+
+      expect(response.body).to include(I18n.t("finance.budgets.dashboard_title"))
+      expect(response.body).to include("Groceries")
+    end
+
+    it "always shows the card with an empty-state link when there are no budgets" do
+      get finance_root_path
+      expect(response.body).to include(I18n.t("finance.budgets.dashboard_title"))
+      expect(response.body).to include(I18n.t("finance.budgets.create_first"))
+      expect(response.body).to include(finance_budgets_path)
+    end
+  end
 end

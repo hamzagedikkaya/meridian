@@ -1,0 +1,37 @@
+<% content_for :page_title, t("finance.budgets.title") %>
+<% content_for :nav_key, "finance" %>
+
+<div class="space-y-6">
+  <div class="flex items-end justify-between gap-3">
+    <div>
+      <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight"><%= t("finance.budgets.title") %></h2>
+      <p class="text-[var(--color-fg-muted)] mt-1">
+        <%= t("finance.budgets.count", count: @statuses.size) %> ·
+        <span class="text-[var(--color-fg-faint)]"><%= l(Date.current, format: "%B %Y") %></span>
+      </p>
+    </div>
+    <%= link_to t("finance.budgets.new"), new_finance_budget_path, data: { turbo_frame: "modal" },
+          class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium transition-colors" %>
+  </div>
+
+  <% if @statuses.any? %>
+    <div class="card">
+      <ul class="space-y-5">
+        <% @statuses.each do |status| %>
+          <li class="flex items-start gap-4">
+            <div class="flex-1 min-w-0"><%= render "status_bar", status: status %></div>
+            <div class="flex items-center gap-2 text-xs flex-shrink-0 pt-0.5">
+              <%= link_to t("common.edit"), edit_finance_budget_path(status.budget), data: { turbo_frame: "modal" }, class: "text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
+              <%= button_to "×", finance_budget_path(status.budget), method: :delete, data: { turbo_confirm: t("common.confirm_delete") }, class: "text-[var(--color-expense)] hover:text-[var(--color-fg-primary)] cursor-pointer" %>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% else %>
+    <div class="card text-center py-12">
+      <p class="text-[var(--color-fg-muted)]"><%= t("finance.budgets.none") %></p>
+      <%= link_to t("finance.budgets.create_first"), new_finance_budget_path, data: { turbo_frame: "modal" }, class: "mt-2 inline-block text-[var(--color-accent-400)] hover:text-[var(--color-accent-300)]" %>
+    </div>
+  <% end %>
+</div>

@@ -6,6 +6,7 @@ class FinanceCategory < ApplicationRecord
   has_many :children, class_name: "FinanceCategory", foreign_key: :parent_id, dependent: :destroy
   has_many :transactions, dependent: :nullify
   has_many :subscriptions, dependent: :nullify
+  has_many :budgets, dependent: :destroy
 
   validates :name, presence: true, length: { maximum: 60 }
   validates :kind, inclusion: { in: KINDS }

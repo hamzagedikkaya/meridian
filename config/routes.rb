@@ -16,6 +16,7 @@ Rails.application.routes.draw do
     resources :transactions
     resources :accounts
     resources :categories
+    resources :budgets
     resources :subscriptions
     get "reports", to: "reports#index", as: :reports
     get "export.csv", to: "transactions#export", as: :transactions_export

@@ -1,0 +1,43 @@
+<%
+  cur = current_user.currency
+  fill_color = {
+    under:   "var(--color-income)",
+    warning: "var(--color-accent-500)",
+    over:    "var(--color-expense)"
+  }[status.state]
+
+  verdict_text, verdict_class =
+    case status.state
+    when :over
+      [ t("finance.budgets.over_by", amount: money_format(status.over_by_cents, currency: cur)), "text-[var(--color-expense)]" ]
+    when :warning
+      [ t("finance.budgets.will_overspend"), "text-[var(--color-accent-400)]" ]
+    else
+      [ t("finance.budgets.remaining", amount: money_format(status.remaining_cents, currency: cur)), "text-[var(--color-fg-muted)]" ]
+    end
+%>
+<div>
+  <div class="flex items-center justify-between gap-3 mb-1.5">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="w-2.5 h-2.5 rounded-full flex-shrink-0 ring-1 ring-inset ring-[rgba(255,255,255,0.15)]" style="background: <%= status.color %>;"></span>
+      <span class="text-sm truncate"><%= status.category.name %></span>
+    </div>
+    <span class="text-sm tabular-nums flex-shrink-0 whitespace-nowrap">
+      <span class="font-medium"><%= money_format(status.spent_cents, currency: cur) %></span>
+      <span class="text-[var(--color-fg-muted)]">/ <%= money_format(status.limit_cents, currency: cur) %></span>
+    </span>
+  </div>
+
+  <%# Spend bar; the thin marker shows how far into the month we are (pace). %>
+  <div class="relative h-2 rounded-full bg-[var(--color-bg-overlay)]">
+    <div class="absolute inset-y-0 left-0 rounded-full transition-[width] duration-300" style="width: <%= status.bar_percent %>%; background: <%= fill_color %>;"></div>
+    <% unless status.over? %>
+      <div class="absolute inset-y-[-2px] w-px bg-[var(--color-fg-muted)] opacity-60" style="left: <%= status.pace_percent %>%;" title="<%= t('finance.budgets.pace_marker') %>"></div>
+    <% end %>
+  </div>
+
+  <div class="flex items-center justify-between gap-3 mt-1.5 text-xs">
+    <span class="text-[var(--color-fg-muted)] tabular-nums"><%= t("finance.budgets.percent_used", percent: status.percent_used) %></span>
+    <span class="<%= verdict_class %> font-medium"><%= verdict_text %></span>
+  </div>
+</div>
