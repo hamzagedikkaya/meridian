@@ -19,8 +19,8 @@
               <p class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider"><%= t("goals.types.#{g.target_type}", default: g.target_type.titleize) %></p>
               <p class="text-lg font-medium mt-1 truncate"><%= g.name %></p>
             </div>
-            <% if g.deadline %>
-              <p class="text-xs text-[var(--color-fg-muted)] flex-shrink-0"><%= g.days_remaining %>d</p>
+            <% if (badge = goal_deadline_badge(g)) %>
+              <p class="text-xs flex-shrink-0 whitespace-nowrap <%= badge[:class] %>"><%= badge[:text] %></p>
             <% end %>
           </div>
           <%= render "progress_bar", goal: g %>

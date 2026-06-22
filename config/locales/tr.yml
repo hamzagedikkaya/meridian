@@ -544,6 +544,9 @@ tr:
     current_value_hint: "Özel hedefler için kullanılır. Finansal / alışkanlık için otomatik hesaplanır."
     deadline: "Son tarih"
     days_remaining: "Kalan"
+    deadline_remaining: "%{count} gün kaldı"
+    deadline_today: "Bugün son"
+    deadline_overdue: "%{count} gün gecikti"
     types_hint: "Finansal bir hesaptan okur · Alışkanlık tamamlanmış günleri sayar · Özel manuel güncellenir."
     types:
       financial: "Finansal"
