@@ -528,6 +528,13 @@ en:
     current_value_hint: "Used for custom goals. Auto-calculated for financial / habit."
     deadline: "Deadline"
     days_remaining: "Remaining"
+    deadline_remaining:
+      one: "%{count} day left"
+      other: "%{count} days left"
+    deadline_today: "Due today"
+    deadline_overdue:
+      one: "%{count} day overdue"
+      other: "%{count} days overdue"
     types_hint: "Financial reads from an account · Habit counts completed logs · Custom is updated by hand."
     types:
       financial: "Financial"
