@@ -13,6 +13,19 @@ RSpec.describe "Finance::Transactions", type: :request do
       expect(response).to have_http_status(:success)
     end
 
+    it "shows income, expense and net totals for the filtered set" do
+      create(:transaction, :income, user: user, amount_cents: 100_000)
+      create(:transaction, user: user, amount_cents: 30_000) # expense
+
+      get finance_transactions_path
+
+      helpers = ApplicationController.helpers
+      expect(response.body).to include(I18n.t("finance.transactions.net"))
+      # net = 70_000 only appears in the summary strip, proving it was computed
+      # over the whole filtered set rather than a single row.
+      expect(response.body).to include(helpers.money_format(70_000, currency: user.currency))
+    end
+
     it "expands a root category filter to include its subcategories" do
       root = create(:finance_category, user: user, kind: "expense", name: "Market")
       child = create(:finance_category, user: user, kind: "expense", name: "Abur Cubur", parent: root)

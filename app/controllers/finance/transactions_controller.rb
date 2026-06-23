@@ -16,6 +16,15 @@ module Finance
       @transactions = @transactions.between(params[:from], params[:to]) if params[:from].present? && params[:to].present?
 
       @total_count = @transactions.count
+
+      # Income (+) / expense (−) totals for the whole filtered set, not just the
+      # current page. reorder(nil) drops the recency ORDER BY so the GROUP BY is
+      # valid. Transfers are neither income nor expense, so they're excluded.
+      totals = @transactions.reorder(nil).group(:kind).sum(:amount_cents)
+      @filtered_income_cents  = totals["income"].to_i
+      @filtered_expense_cents = totals["expense"].to_i
+      @currency = current_user.currency
+
       @page = [ params[:page].to_i, 1 ].max
       @transactions = @transactions.offset((@page - 1) * PAGE_LIMIT).limit(PAGE_LIMIT)
 

@@ -260,6 +260,7 @@ tr:
     transactions:
       title: "İşlemler"
       records: "kayıt"
+      net: "Net"
       export_csv: "CSV indir"
       new: "+ Yeni"
       filters:
