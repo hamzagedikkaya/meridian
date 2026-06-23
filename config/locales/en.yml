@@ -243,6 +243,7 @@ en:
     transactions:
       title: "Transactions"
       records: "records"
+      net: "Net"
       export_csv: "Export CSV"
       new: "+ New"
       filters:

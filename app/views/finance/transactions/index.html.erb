@@ -61,6 +61,24 @@
     <% end %>
   </div>
 
+  <% if @filtered_income_cents.positive? || @filtered_expense_cents.positive? %>
+    <% net = @filtered_income_cents - @filtered_expense_cents %>
+    <div class="card !py-3 flex flex-wrap items-center justify-end gap-x-6 gap-y-2 text-sm tabular-nums">
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider"><%= t("finance.dashboard.income") %></span>
+        <span class="font-medium text-[var(--color-income)]"><%= signed_amount_prefix("income") %><%= money_format(@filtered_income_cents, currency: @currency) %></span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider"><%= t("finance.dashboard.expense") %></span>
+        <span class="font-medium text-[var(--color-expense)]"><%= signed_amount_prefix("expense") %><%= money_format(@filtered_expense_cents, currency: @currency) %></span>
+      </div>
+      <div class="flex items-center gap-2 sm:border-l border-[var(--color-border-subtle)] sm:pl-6">
+        <span class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider"><%= t("finance.transactions.net") %></span>
+        <span class="font-medium <%= net >= 0 ? 'text-[var(--color-income)]' : 'text-[var(--color-expense)]' %>"><%= net >= 0 ? signed_amount_prefix("income") : signed_amount_prefix("expense") %><%= money_format(net.abs, currency: @currency) %></span>
+      </div>
+    </div>
+  <% end %>
+
   <div class="card !p-0 overflow-hidden">
     <% if @transactions.any? %>
       <table class="w-full text-sm">
