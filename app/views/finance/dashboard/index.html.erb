@@ -98,6 +98,16 @@
             </button>
           </div>
           <div data-finance-chart-target="totalLabel" class="text-xs text-[var(--color-fg-muted)] tabular-nums whitespace-nowrap"></div>
+          <% if @active_accounts.any? %>
+            <select data-finance-chart-target="account"
+                    data-action="change->finance-chart#accountChanged"
+                    class="bg-[var(--color-bg-base)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] px-2 py-1 text-xs text-[var(--color-fg-muted)] focus:outline-none focus:border-[var(--color-accent-500)] max-w-[160px]">
+              <option value=""><%= t("finance.dashboard.all_accounts") %></option>
+              <% @active_accounts.each do |acc| %>
+                <option value="<%= acc.id %>"><%= acc.name %></option>
+              <% end %>
+            </select>
+          <% end %>
         </div>
       </div>
       <div class="relative flex-1 min-h-[220px]">

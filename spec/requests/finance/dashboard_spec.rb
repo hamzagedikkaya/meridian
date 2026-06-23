@@ -73,6 +73,18 @@ RSpec.describe "Finance::Dashboard", type: :request do
       get finance_category_pie_path, params: { from: Date.current.iso8601, to: 1.week.ago.to_date.iso8601 }
       expect(response).to have_http_status(:bad_request)
     end
+
+    it "scopes the pie to a single account when account_id is given" do
+      other = create(:account, user: user, name: "Wallet")
+      create(:transaction, user: user, account: account, finance_category: groceries, kind: "expense", amount_cents: 500_00, date: 2.days.ago)
+      create(:transaction, user: user, account: other,   finance_category: groceries, kind: "expense", amount_cents: 300_00, date: 2.days.ago)
+
+      get finance_category_pie_path, params: { from: 7.days.ago.to_date.iso8601, to: Date.current.iso8601, account_id: account.id }
+
+      body = JSON.parse(response.body)
+      expect(body["account_id"]).to eq(account.id.to_s)
+      expect(body["pie"].sum { |row| row["amount"] }).to eq(500_00)
+    end
   end
 
   describe "accounts sidebar" do

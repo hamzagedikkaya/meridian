@@ -5,7 +5,7 @@ import { Controller } from "@hotwired/stimulus"
 // elastic transitions between ranges, animated bar entrance on the trend view).
 // Chart.js + Chartkick are still loaded for simpler widgets elsewhere in the app.
 export default class extends Controller {
-  static targets = ["chart", "rangeButton", "viewButton", "rangeControls", "emptyState", "totalLabel", "customFrom", "customTo"]
+  static targets = ["chart", "rangeButton", "viewButton", "rangeControls", "emptyState", "totalLabel", "customFrom", "customTo", "account"]
   static values = {
     pieD1: Array,
     pieW1: Array,
@@ -55,7 +55,13 @@ export default class extends Controller {
     const { from, to } = this.activeRangeBounds()
     if (from) url.searchParams.set("from", from)
     if (to) url.searchParams.set("to", to)
+    const acc = this.accountId()
+    if (acc) url.searchParams.set("account_id", acc)
     window.location.href = url.toString()
+  }
+
+  accountId() {
+    return this.hasAccountTarget ? this.accountTarget.value : ""
   }
 
   activeRangeBounds() {
@@ -83,9 +89,15 @@ export default class extends Controller {
     const starts = this.rangeStartsValue || {}
     if (this.hasCustomFromTarget) this.customFromTarget.value = starts[range] || ""
     if (this.hasCustomToTarget)   this.customToTarget.value   = starts.today || ""
-    this.customPieDataset = null
     this.currentRangeValue = range
-    this.refresh()
+    if (this.accountId()) {
+      // Preset windows are baked in for ALL accounts only — when an account is
+      // selected we must fetch that preset's window scoped to the account.
+      this.fetchPie(starts[range], starts.today)
+    } else {
+      this.fetchedDataset = null
+      this.refresh()
+    }
   }
 
   customRangeChanged() {
@@ -94,19 +106,35 @@ export default class extends Controller {
     if (!from || !to) return
     if (from > to) return
     this.currentRangeValue = "custom"
-    this.fetchCustomPie(from, to)
+    this.fetchPie(from, to)
   }
 
-  async fetchCustomPie(from, to) {
-    if (!this.pieUrlValue) return
+  // Re-resolve the current range under the (possibly changed) account filter.
+  accountChanged() {
+    const { from, to } = this.activeRangeBounds()
+    if (this.accountId() || this.currentRangeValue === "custom") {
+      this.fetchPie(from, to)
+    } else {
+      this.fetchedDataset = null
+      this.refresh()
+    }
+  }
+
+  // Fetch a category-pie dataset from the server for [from, to], scoped to the
+  // selected account when one is chosen. Used for custom ranges and for ANY
+  // range once an account filter is active.
+  async fetchPie(from, to) {
+    if (!this.pieUrlValue || !from || !to) return
     const url = new URL(this.pieUrlValue, window.location.origin)
     url.searchParams.set("from", from)
     url.searchParams.set("to", to)
+    const acc = this.accountId()
+    if (acc) url.searchParams.set("account_id", acc)
     try {
       const res = await fetch(url.toString(), { headers: { Accept: "application/json" } })
       if (!res.ok) return
       const json = await res.json()
-      this.customPieDataset = json.pie || []
+      this.fetchedDataset = json.pie || []
       this.refresh()
     } catch (_e) {
       // network errors fall through silently — the user can retry
@@ -327,14 +355,20 @@ export default class extends Controller {
   }
 
   currentPieDataset() {
+    if (this.usesFetchedData()) return this.fetchedDataset || []
     switch (this.currentRangeValue) {
-      case "custom": return this.customPieDataset || []
       case "d1": return this.pieD1Value
       case "w1": return this.pieW1Value
       case "m6": return this.pieM6Value
       case "y1": return this.pieY1Value
       default:   return this.pieM1Value
     }
+  }
+
+  // Data comes from the server (not the baked presets) for custom ranges and
+  // whenever an account filter is active.
+  usesFetchedData() {
+    return this.currentRangeValue === "custom" || this.accountId() !== ""
   }
 
   formatMoney(value) {

@@ -231,6 +231,7 @@ en:
       no_expenses_range: "No expenses in this range."
       direct_amount: "(direct)"
       total: "Total"
+      all_accounts: "All accounts"
       range:
         d1: "Today"
         w1: "1w"

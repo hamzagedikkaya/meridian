@@ -37,8 +37,9 @@ module Finance
         render json: { error: "invalid_range" }, status: :bad_request
         return
       end
-      data = aggregate_expenses_by_parent(from, to)
-      render json: { pie: data, from: from.iso8601, to: to.iso8601 }
+      account_id = params[:account_id].presence
+      data = aggregate_expenses_by_parent(from, to, account_id: account_id)
+      render json: { pie: data, from: from.iso8601, to: to.iso8601, account_id: account_id }
     end
 
     private
@@ -93,12 +94,12 @@ module Finance
     # The breakdown list contains the per-subcategory amounts (including the
     # parent itself when transactions are tagged directly with it), sorted by
     # amount desc; it's empty when the root has no subcategory activity.
-    def aggregate_expenses_by_parent(from, to)
-      rows = current_user.transactions.expense
-                         .between(from, to)
-                         .joins(:finance_category)
-                         .group("finance_categories.id")
-                         .sum(:amount_cents)
+    def aggregate_expenses_by_parent(from, to, account_id: nil)
+      scope = current_user.transactions.expense.between(from, to)
+      scope = scope.where(account_id: account_id) if account_id.present?
+      rows = scope.joins(:finance_category)
+                  .group("finance_categories.id")
+                  .sum(:amount_cents)
       return [] if rows.empty?
 
       categories = current_user.finance_categories.where(id: rows.keys).includes(:parent).index_by(&:id)
