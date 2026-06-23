@@ -248,6 +248,7 @@ tr:
       no_expenses_range: "Bu aralıkta gider yok."
       direct_amount: "(genel)"
       total: "Toplam"
+      all_accounts: "Tüm hesaplar"
       range:
         d1: "Bugün"
         w1: "1 hafta"
