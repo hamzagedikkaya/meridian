@@ -300,6 +300,7 @@ tr:
     accounts:
       title: "Hesaplar"
       subtitle: "Cüzdan, banka, kredi kartı ve birikim hesaplarını yönet."
+      total_balance: "Toplam bakiye"
       new: "+ Yeni hesap"
       none: "Henüz hesap yok."
       create_first: "İlk hesabını oluştur"
