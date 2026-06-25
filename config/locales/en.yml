@@ -283,6 +283,7 @@ en:
     accounts:
       title: "Accounts"
       subtitle: "Manage wallets, bank accounts, credit cards, and savings."
+      total_balance: "Total balance"
       new: "+ New account"
       none: "No accounts yet."
       create_first: "Create your first account"

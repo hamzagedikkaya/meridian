@@ -11,6 +11,17 @@ RSpec.describe "Finance::Accounts", type: :request do
       get finance_accounts_path
       expect(response).to have_http_status(:success)
     end
+
+    it "shows the total balance per currency for active accounts only" do
+      create(:account, user: user, currency: "TRY", initial_balance_cents: 1_000_00)
+      create(:account, user: user, currency: "TRY", initial_balance_cents: 500_00)
+      create(:account, user: user, currency: "TRY", initial_balance_cents: 999_00, archived_at: Time.current)
+
+      get finance_accounts_path
+
+      expect(response.body).to include(I18n.t("finance.accounts.total_balance"))
+      expect(response.body).to include(ApplicationController.helpers.money_format(1_500_00, currency: "TRY"))
+    end
   end
 
   describe "GET /finance/accounts/new" do

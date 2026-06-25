@@ -3,9 +3,21 @@
 
 <div class="space-y-6">
   <div class="flex items-end justify-between gap-3">
+    <%
+      balance_totals = @accounts.reject(&:archived?).group_by(&:currency)
+                                .transform_values { |accs| accs.sum(&:balance_cents) }
+    %>
     <div>
       <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight"><%= t("finance.accounts.title") %></h2>
       <p class="text-[var(--color-fg-muted)] mt-1"><%= t("finance.accounts.subtitle") %></p>
+      <% if balance_totals.any? %>
+        <p class="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <span class="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider"><%= t("finance.accounts.total_balance") %></span>
+          <% balance_totals.each do |currency, cents| %>
+            <span class="font-medium tabular-nums"><%= money_format(cents, currency: currency) %></span>
+          <% end %>
+        </p>
+      <% end %>
     </div>
     <%= link_to t("finance.accounts.new"), new_finance_account_path, data: { turbo_frame: "modal" }, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium" %>
   </div>
