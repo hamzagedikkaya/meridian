@@ -8,6 +8,14 @@
 <p align="center"><i>Hayatınız, mükemmel bir şekilde düzenlenmiş.</i></p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Ruby-3.3-CC342D?logo=ruby&logoColor=white" alt="Ruby 3.3">
+  <img src="https://img.shields.io/badge/Rails-8-CC0000?logo=rubyonrails&logoColor=white" alt="Rails 8">
+  <img src="https://img.shields.io/badge/PostgreSQL-14+-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL 14+">
+  <img src="https://img.shields.io/badge/Hotwire-Turbo%20%2B%20Stimulus-5a67d8" alt="Hotwire">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-PolyForm%20NC%201.0.0-blue" alt="License"></a>
+</p>
+
+<p align="center">
   <a href="#-h%C4%B1zl%C4%B1-ba%C5%9Flang%C4%B1%C3%A7">Hızlı başlangıç</a> ·
   <a href="#-%C3%B6zellikler">Özellikler</a> ·
   <a href="#-yedekleme--geri-y%C3%BCkleme">Yedekleme</a> ·
@@ -24,12 +32,12 @@ Meridian, kendi makinende çalışan kişisel bir "yaşam OS"u. Genelde yarım d
 
 ## ✨ Özellikler
 
-- 💰 **Finans** — hesaplar, kategoriler, işlemler, abonelikler, 6 aylık trend, CSV dışa aktarım
+- 💰 **Finans** — hesaplar, alt kategoriler ve üst-kategori toplamı, işlemler, **pace takipli aylık bütçeler**, abonelikler, etkileşimli harcama-dağılımı grafiği (hazır & özel tarih aralıkları, hesap filtresi, tıkla-detaya-in), 6 aylık trend, çoklu para birimi (gram-altın dahil), CSV dışa aktarım
 - ✅ **Görevler** — listeler, öncelikler, son tarih, bugün / hafta / gecikmiş filtreleri
 - 🔥 **Alışkanlıklar** — günlük ve haftalık tekrar, streak, 12 haftalık ısı haritası, tamamlanma oranı
 - 📅 **Takvim** — aylık ızgara + sürükle-bırak ile haftalık görünüm, iCal akışı
 - 📓 **Günlük** — zengin metin girişleri, mood, enerji, gratitude, etiketler
-- 🎯 **Hedefler** — finansal / alışkanlık / özel hedefler, canlı hesaplanan ilerleme
+- 🎯 **Hedefler** — finansal / alışkanlık / özel hedefler, canlı hesaplanan ilerleme ve renk-kodlu son tarih rozetleri
 - 🏠 **Dashboard** — bugünün alışkanlıkları, görevler, etkinlikler ve harcamayı tek bakışta gösteren bento ızgara
 - 🔍 **Global arama** — `⌘K` ile tüm modüller arasında anında arama
 - ⚡ **Hızlı yakalama** — tek bir input; sayılar işleme, `habit:` ile başlayanlar alışkanlık log'una, geri kalanı todo'ya düşer
@@ -37,6 +45,7 @@ Meridian, kendi makinende çalışan kişisel bir "yaşam OS"u. Genelde yarım d
 - 🍅 **Focus timer** — pomodoro, tarayıcı bildirimi ve görev başına süre takibi
 - 📈 **Insights** — modüller arası örüntü: hafta içi ve hafta sonu harcaması, mood × alışkanlık ilişkisi, en verimli gün
 - 💾 **Yedekleme & geri yükleme** — `pg_dump` + ActiveStorage blob'ları taşınabilir tek arşivde
+- 🌍 **Çift dil** — tam Türkçe & İngilizce arayüz, kullanıcı başına değiştirilebilir
 - 🎨 **Tasarım** — Fraunces + DM Sans, koyu öncelikli amber/altın palet, opsiyonel açık tema
 
 ## 🧰 Teknoloji
@@ -46,13 +55,15 @@ Meridian, kendi makinende çalışan kişisel bir "yaşam OS"u. Genelde yarım d
 | Backend | Ruby 3.3 · Rails 8 |
 | Frontend | Hotwire (Turbo + Stimulus), Importmap, Tailwind v4 |
 | Veritabanı | PostgreSQL 14+ |
+| Arka plan / önbellek | Solid Queue · Solid Cache · Solid Cable (veritabanı tabanlı) |
 | Auth | Devise |
-| Grafik | Chartkick · Chart.js · groupdate |
-| Para | money-rails |
+| Grafik | Apache ECharts (finans paneli) · Chartkick + Chart.js · groupdate |
+| Para | money-rails · çoklu para birimi, özel gram-altın (GAU) dahil |
 | Tekrar kuralları | ice_cube |
+| Yerelleştirme | Türkçe · İngilizce (Rails I18n) |
 | Yedekleme | pg_dump · tar.gz · ActiveStorage |
 | Test | RSpec · FactoryBot · Shoulda · Capybara · SimpleCov |
-| Lint / güvenlik | RuboCop (omakase + rspec) · Brakeman |
+| Lint / güvenlik | RuboCop (omakase + rspec) · Brakeman · EagerEye (statik N+1) |
 
 ## 🚀 Hızlı Başlangıç
 
@@ -116,7 +127,7 @@ Arşiv yapısının tamamı: [docs/backup_format.md](docs/backup_format.md).
 ```
 Dashboard       (/)
 ├─ Finans       (/finance)
-│  ├─ İşlemler, Hesaplar, Kategoriler, Abonelikler
+│  ├─ İşlemler, Hesaplar, Kategoriler, Bütçeler, Abonelikler
 │  └─ Raporlar, CSV dışa aktarım
 ├─ Görevler     (/todos), Listeler (/todo_lists)
 ├─ Alışkanlıklar (/habits)
