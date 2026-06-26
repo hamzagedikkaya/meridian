@@ -8,6 +8,14 @@
 <p align="center"><i>Your life, beautifully organized.</i></p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Ruby-3.3-CC342D?logo=ruby&logoColor=white" alt="Ruby 3.3">
+  <img src="https://img.shields.io/badge/Rails-8-CC0000?logo=rubyonrails&logoColor=white" alt="Rails 8">
+  <img src="https://img.shields.io/badge/PostgreSQL-14+-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL 14+">
+  <img src="https://img.shields.io/badge/Hotwire-Turbo%20%2B%20Stimulus-5a67d8" alt="Hotwire">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-PolyForm%20NC%201.0.0-blue" alt="License"></a>
+</p>
+
+<p align="center">
   <a href="#-quick-start">Quick start</a> ·
   <a href="#-features">Features</a> ·
   <a href="#-backup--restore">Backup</a> ·
@@ -24,12 +32,12 @@ Meridian is a self-hosted, local-first personal life OS. One Rails app gathers t
 
 ## ✨ Features
 
-- 💰 **Finance** — accounts, categories, transactions, subscriptions, 6-month trends, CSV export
+- 💰 **Finance** — accounts, nested categories with roll-up, transactions, **monthly budgets with pace tracking**, subscriptions, an interactive spending-breakdown pie (preset & custom date ranges, per-account filter, click-to-drill-down), 6-month trend, multi-currency incl. gram-gold, CSV export
 - ✅ **Todos** — lists, priorities, due dates, today / week / overdue filters
 - 🔥 **Habits** — daily and weekly cadences, streaks, 12-week heatmap, completion rates
 - 📅 **Calendar** — monthly grid plus drag-to-reschedule weekly view, iCal feed
 - 📓 **Journal** — rich-text entries with mood, energy, gratitude, and tags
-- 🎯 **Goals** — financial / habit / custom targets with live-calculated progress
+- 🎯 **Goals** — financial / habit / custom targets with live-calculated progress and color-coded deadline badges
 - 🏠 **Dashboard** — bento-grid widgets that surface today's habits, todos, events, and spend
 - 🔍 **Global search** — `⌘K` instant search across every module
 - ⚡ **Quick capture** — one input, smart router: numbers become transactions, `habit:` becomes a log, freeform becomes a todo
@@ -37,6 +45,7 @@ Meridian is a self-hosted, local-first personal life OS. One Rails app gathers t
 - 🍅 **Focus timer** — pomodoro with browser notifications and per-todo time tracking
 - 📈 **Insights** — cross-module patterns: weekday vs weekend spending, mood × habit correlation, most productive day
 - 💾 **Backup & restore** — `pg_dump` + ActiveStorage blobs bundled into a portable archive
+- 🌍 **Bilingual** — full Turkish & English UI, switchable per user
 - 🎨 **Design** — Fraunces + DM Sans, dark-first amber/gold palette, optional light mode
 
 ## 🧰 Tech Stack
@@ -46,13 +55,15 @@ Meridian is a self-hosted, local-first personal life OS. One Rails app gathers t
 | Backend | Ruby 3.3 · Rails 8 |
 | Frontend | Hotwire (Turbo + Stimulus), Importmap, Tailwind v4 |
 | Database | PostgreSQL 14+ |
+| Background / cache | Solid Queue · Solid Cache · Solid Cable (database-backed) |
 | Auth | Devise |
-| Charts | Chartkick · Chart.js · groupdate |
-| Money | money-rails |
+| Charts | Apache ECharts (finance dashboard) · Chartkick + Chart.js · groupdate |
+| Money | money-rails · multi-currency, incl. custom gram-gold (GAU) |
 | Recurring rules | ice_cube |
+| Localization | Turkish · English (Rails I18n) |
 | Backup | pg_dump · tar.gz · ActiveStorage |
 | Testing | RSpec · FactoryBot · Shoulda · Capybara · SimpleCov |
-| Lint / security | RuboCop (omakase + rspec) · Brakeman |
+| Lint / security | RuboCop (omakase + rspec) · Brakeman · EagerEye (static N+1) |
 
 ## 🚀 Quick Start
 
@@ -116,7 +127,7 @@ Full archive layout in [docs/backup_format.md](docs/backup_format.md).
 ```
 Dashboard       (/)
 ├─ Finance      (/finance)
-│  ├─ Transactions, Accounts, Categories, Subscriptions
+│  ├─ Transactions, Accounts, Categories, Budgets, Subscriptions
 │  └─ Reports, CSV export
 ├─ Todos        (/todos), Todo lists (/todo_lists)
 ├─ Habits       (/habits)
