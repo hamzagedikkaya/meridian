@@ -9,7 +9,12 @@
   <div class="flex items-end justify-between flex-wrap gap-3">
     <div>
       <h2 class="font-[family-name:var(--font-display)] text-4xl tracking-tight"><%= t("journal.title") %></h2>
-      <p class="text-[var(--color-fg-muted)] mt-1"><%= @entries.size %> <%= t("journal.entries") %></p>
+      <p class="text-[var(--color-fg-muted)] mt-1">
+        <%= @entries.size %> <%= t("journal.entries") %>
+        <% if @journal_streak.to_i.positive? %>
+          <span class="ml-2 text-[var(--color-warning)]">🔥 <%= t("journal.streak", count: @journal_streak) %></span>
+        <% end %>
+      </p>
     </div>
     <%= link_to t("journal.new_entry"), new_journal_entry_path, data: { turbo_frame: "modal" }, class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] rounded-[var(--radius-sm)] font-medium" %>
   </div>

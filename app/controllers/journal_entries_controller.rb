@@ -15,6 +15,8 @@ class JournalEntriesController < ApplicationController
     mood_scope = current_user.journal_entries.where.not(mood: nil)
     mood_scope = mood_scope.where(date: @range_start..Date.current) if @range_start
     @mood_data = mood_scope.group(:mood).count
+
+    @journal_streak = JournalEntry.current_streak_for(current_user)
   end
 
   def show
