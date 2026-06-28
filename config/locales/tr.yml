@@ -499,6 +499,7 @@ tr:
   journal:
     title: "Günlük"
     entries: "girdi"
+    streak: "%{count} günlük seri"
     new_entry: "+ Yeni girdi"
     mood_30d: "Ruh hali (son 30 gün)"
     mood_range: "Ruh hali · %{label}"
