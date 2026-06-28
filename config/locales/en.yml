@@ -92,6 +92,8 @@ en:
     from: "From"
     to: "To"
     confirm_delete: "Delete?"
+    confirm: "Confirm"
+    confirm_title: "Are you sure?"
     sign_in_link: "Sign in"
 
   flash:

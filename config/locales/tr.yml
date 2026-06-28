@@ -109,6 +109,8 @@ tr:
     from: "Başlangıç"
     to: "Bitiş"
     confirm_delete: "Silinsin mi?"
+    confirm: "Onayla"
+    confirm_title: "Emin misiniz?"
     sign_in_link: "Giriş yap"
 
   flash:

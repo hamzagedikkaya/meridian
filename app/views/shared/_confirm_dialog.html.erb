@@ -1,0 +1,31 @@
+<%# Styled replacement for the browser's native confirm() dialog. Registered as
+    Turbo's confirm method, so every data-turbo-confirm (delete buttons, etc.)
+    routes through this instead of the plain window.confirm popup. %>
+<div data-controller="confirm"
+     data-confirm-confirm-label-value="<%= t('common.confirm') %>"
+     data-confirm-delete-label-value="<%= t('common.delete') %>">
+  <div data-confirm-target="backdrop"
+       data-action="click->confirm#backdrop"
+       class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 modal-overlay-anim">
+    <div data-confirm-target="dialog"
+         role="alertdialog" aria-modal="true" aria-labelledby="confirm-title"
+         class="w-full max-w-md bg-[var(--color-bg-elevated)] border border-[var(--color-border-default)] rounded-[var(--radius-md)] shadow-2xl p-5"
+         style="animation: modal-pop-in 0.22s cubic-bezier(0.22, 1, 0.36, 1)">
+      <div class="flex items-start gap-3">
+        <span class="flex-shrink-0 w-9 h-9 rounded-full bg-[var(--color-bg-overlay)] flex items-center justify-center text-[var(--color-warning)]">
+          <%= render Ui::Icon.new(name: "bell", size: 18) %>
+        </span>
+        <div class="min-w-0 flex-1">
+          <h3 id="confirm-title" class="font-[family-name:var(--font-display)] text-lg tracking-tight"><%= t("common.confirm_title") %></h3>
+          <p data-confirm-target="message" class="text-sm text-[var(--color-fg-muted)] mt-1 break-words"></p>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 mt-5">
+        <button type="button" data-action="confirm#cancel"
+                class="px-4 py-2 text-sm rounded-[var(--radius-sm)] border border-[var(--color-border-default)] text-[var(--color-fg-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-fg-primary)] cursor-pointer"><%= t("common.cancel") %></button>
+        <button type="button" data-confirm-target="confirmButton" data-action="confirm#confirm"
+                class="px-4 py-2 text-sm font-medium rounded-[var(--radius-sm)] cursor-pointer bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)]"></button>
+      </div>
+    </div>
+  </div>
+</div>
