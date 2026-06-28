@@ -483,6 +483,7 @@ en:
   journal:
     title: "Journal"
     entries: "entries"
+    streak: "%{count}-day streak"
     new_entry: "+ New entry"
     mood_30d: "Mood (last 30 days)"
     mood_range: "Mood · %{label}"
