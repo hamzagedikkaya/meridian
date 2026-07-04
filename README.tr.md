@@ -8,6 +8,7 @@
 <p align="center"><i>Hayatınız, mükemmel bir şekilde düzenlenmiş.</i></p>
 
 <p align="center">
+  <a href="https://github.com/hamzagedikkaya/meridian/actions/workflows/ci.yml"><img src="https://github.com/hamzagedikkaya/meridian/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/Ruby-3.3-CC342D?logo=ruby&logoColor=white" alt="Ruby 3.3">
   <img src="https://img.shields.io/badge/Rails-8-CC0000?logo=rubyonrails&logoColor=white" alt="Rails 8">
   <img src="https://img.shields.io/badge/PostgreSQL-14+-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL 14+">
