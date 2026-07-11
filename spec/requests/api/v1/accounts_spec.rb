@@ -28,7 +28,7 @@ RSpec.describe "Api::V1::Accounts", type: :request do
     body = JSON.parse(response.body)
     expect(body["accounts"].map { |a| a["name"] }).to eq([ "Cash" ])
     expect(body["accounts"].first).to include(
-      "currency" => "TRY", "balance_cents" => 1_000_00, "archived" => false
+      "currency" => "TRY", "subunit_to_unit" => 100, "balance_cents" => 1_000_00, "archived" => false
     )
   end
 end

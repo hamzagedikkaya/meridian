@@ -14,6 +14,7 @@ module Api
           name: account.name,
           account_type: account.account_type,
           currency: account.currency,
+          subunit_to_unit: Money::Currency.find(account.currency)&.subunit_to_unit || 100,
           color: account.color,
           initial_balance_cents: account.initial_balance_cents,
           balance_cents: account.balance_cents,
