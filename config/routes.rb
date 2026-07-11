@@ -9,6 +9,14 @@ Rails.application.routes.draw do
   patch "settings/preferences",   to: "settings#update_preferences"
   get "settings/data",           to: "settings#data",                as: :data_settings
 
+  # Mobile JSON API (bearer-token auth; consumed by the Flutter app)
+  namespace :api do
+    namespace :v1 do
+      post "session", to: "sessions#create"
+      resources :accounts, only: [ :index ]
+    end
+  end
+
   # Finance module
   namespace :finance do
     root "dashboard#index"
