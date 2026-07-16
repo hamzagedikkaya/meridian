@@ -30,6 +30,32 @@ RSpec.describe Goals::CalculateProgress do
           expect(goal.reload.current_value).to eq(150.0)
           expect(goal.status).to eq("achieved")
         end
+
+        it "divides a TRY balance by the currency subunit (100)" do
+          account = create(:account, user: user, currency: "TRY", initial_balance_cents: 12_345)
+          goal = create(:goal, user: user, target_type: "financial", related: account,
+                               target_value: 1000, current_value: 0)
+
+          expect(described_class.call(goal)).to eq(123.45)
+          expect(goal.reload.current_value).to eq(123.45)
+        end
+
+        it "divides a GAU balance by the currency subunit (1), not 100" do
+          account = create(:account, user: user, currency: "GAU", initial_balance_cents: 412)
+          goal = create(:goal, user: user, target_type: "financial", related: account,
+                               target_value: 500, current_value: 0, unit: "gr")
+
+          expect(described_class.call(goal)).to eq(412.0)
+          expect(goal.reload.current_value).to eq(412.0)
+        end
+
+        it "falls back to 100 for an unknown currency code" do
+          account = create(:account, user: user, currency: "ZZZ", initial_balance_cents: 5_000)
+          goal = create(:goal, user: user, target_type: "financial", related: account,
+                               target_value: 100, current_value: 0)
+
+          expect(described_class.call(goal)).to eq(50.0)
+        end
       end
 
       context "when related is NOT an Account (nil)" do
@@ -53,6 +79,16 @@ RSpec.describe Goals::CalculateProgress do
 
           expect(described_class.call(goal)).to eq(0.0)
           expect(goal.reload.current_value).to eq(0.0)
+        end
+
+        it "divides total income by the user-currency subunit (GAU → 1, not 100)" do
+          gold_user = create(:user, currency: "GAU")
+          create(:transaction, :income, user: gold_user, amount_cents: 412)
+          goal = create(:goal, user: gold_user, target_type: "financial", related: nil,
+                               target_value: 500, current_value: 0)
+
+          expect(described_class.call(goal)).to eq(412.0)
+          expect(goal.reload.current_value).to eq(412.0)
         end
       end
     end
