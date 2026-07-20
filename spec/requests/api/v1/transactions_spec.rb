@@ -14,42 +14,46 @@ RSpec.describe "Api::V1::Transactions", type: :request do
   end
 
   describe "GET /api/v1/transactions" do
-    it "lists only the current user's transactions, recent first, with exact fields and meta" do
-      expense = create(:transaction, user: user, account: account, finance_category: category,
-                       amount_cents: 250_00, date: Date.current, description: "Groceries", note: "weekly")
-      create(:transaction, :income, user: user, account: account, amount_cents: 1_000_00, date: Date.current - 1)
-      create(:transaction, :transfer, user: user, account: account, amount_cents: 300_00, date: Date.current - 2)
-      create(:transaction, description: "Someone else's")
+    context "with a mix of the user's and another user's transactions" do
+      let!(:expense) do
+        create(:transaction, user: user, account: account, finance_category: category,
+               amount_cents: 250_00, date: Date.current, description: "Groceries", note: "weekly")
+      end
 
-      get api_v1_transactions_path, headers: auth
+      before do
+        create(:transaction, :income, user: user, account: account, amount_cents: 1_000_00, date: Date.current - 1)
+        create(:transaction, :transfer, user: user, account: account, amount_cents: 300_00, date: Date.current - 2)
+        create(:transaction, description: "Someone else's")
+        get api_v1_transactions_path, headers: auth
+      end
 
-      expect(response).to have_http_status(:ok)
-      body = JSON.parse(response.body)
-      expect(body["transactions"].size).to eq(3)
-      expect(body["transactions"].first).to eq(
-        "id" => expense.id,
-        "kind" => "expense",
-        "amount_cents" => 25_000,
-        "date" => Date.current.iso8601,
-        "description" => "Groceries",
-        "note" => "weekly",
-        "account" => {
-          "id" => account.id, "name" => "Wallet", "color" => "#B8860B",
-          "currency" => "TRY", "subunit_to_unit" => 100
-        },
-        "category" => {
-          "id" => category.id, "name" => "Market", "kind" => "expense",
-          "color" => "#A09B8E", "parent_id" => nil, "position" => 0
-        },
-        "related_account" => nil
-      )
-      expect(body["meta"]).to eq(
-        "total_count" => 3,
-        "page" => 1,
-        "page_limit" => 50,
-        "filtered_income_cents" => 100_000,
-        "filtered_expense_cents" => 25_000
-      )
+      it "lists only the user's transactions, recent first, with meta" do
+        expect(response).to have_http_status(:ok)
+        body = JSON.parse(response.body)
+        expect(body["transactions"].size).to eq(3)
+        expect(body["transactions"].first["id"]).to eq(expense.id)
+        expect(body["meta"]).to eq(
+          "total_count" => 3, "page" => 1, "page_limit" => 50,
+          "filtered_income_cents" => 100_000, "filtered_expense_cents" => 25_000
+        )
+      end
+
+      it "serializes a transaction with its nested account and category" do
+        first = JSON.parse(response.body)["transactions"].first
+        expect(first).to eq(
+          "id" => expense.id, "kind" => "expense", "amount_cents" => 25_000,
+          "date" => Date.current.iso8601, "description" => "Groceries", "note" => "weekly",
+          "account" => {
+            "id" => account.id, "name" => "Wallet", "color" => "#B8860B",
+            "currency" => "TRY", "subunit_to_unit" => 100
+          },
+          "category" => {
+            "id" => category.id, "name" => "Market", "kind" => "expense",
+            "color" => "#A09B8E", "parent_id" => nil, "position" => 0
+          },
+          "related_account" => nil
+        )
+      end
     end
 
     it "filters by kind, account and date range" do

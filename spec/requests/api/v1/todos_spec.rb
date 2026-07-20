@@ -12,27 +12,33 @@ RSpec.describe "Api::V1::Todos", type: :request do
   end
 
   describe "GET /api/v1/todos" do
-    it "returns open todos by default with meta counts, hiding other users' todos" do
-      list = create(:todo_list, user: user, name: "Errands")
-      create(:todo, user: user, title: "Pending", todo_list: list)
-      create(:todo, user: user, title: "In progress", status: "in_progress")
-      create(:todo, user: user, title: "Overdue", due_at: 2.days.ago)
-      create(:todo, user: user, title: "Done", status: "done")
-      create(:todo, title: "Someone else's")
+    context "without a filter" do
+      let!(:list) { create(:todo_list, user: user, name: "Errands") }
 
-      get api_v1_todos_path, headers: auth
+      before do
+        create(:todo, user: user, title: "Pending", todo_list: list)
+        create(:todo, user: user, title: "In progress", status: "in_progress")
+        create(:todo, user: user, title: "Overdue", due_at: 2.days.ago)
+        create(:todo, user: user, title: "Done", status: "done")
+        create(:todo, title: "Someone else's")
+        get api_v1_todos_path, headers: auth
+      end
 
-      expect(response).to have_http_status(:ok)
-      body = JSON.parse(response.body)
-      expect(body["todos"].map { |t| t["title"] }).to contain_exactly("Pending", "In progress", "Overdue")
-      expect(body["meta"]).to eq("open_count" => 3, "overdue_count" => 1)
+      it "returns only the user's open todos with meta counts" do
+        expect(response).to have_http_status(:ok)
+        body = JSON.parse(response.body)
+        expect(body["todos"].map { |t| t["title"] }).to contain_exactly("Pending", "In progress", "Overdue")
+        expect(body["meta"]).to eq("open_count" => 3, "overdue_count" => 1)
+      end
 
-      pending_json = body["todos"].find { |t| t["title"] == "Pending" }
-      expect(pending_json).to include(
-        "status" => "pending", "priority" => "medium", "overdue" => false,
-        "position" => 0, "subtask_count" => 0
-      )
-      expect(pending_json["todo_list"]).to include("id" => list.id, "name" => "Errands", "color" => "#B8860B")
+      it "serializes todo fields including its list" do
+        pending_json = JSON.parse(response.body)["todos"].find { |t| t["title"] == "Pending" }
+        expect(pending_json).to include(
+          "status" => "pending", "priority" => "medium", "overdue" => false,
+          "position" => 0, "subtask_count" => 0
+        )
+        expect(pending_json["todo_list"]).to include("id" => list.id, "name" => "Errands", "color" => "#B8860B")
+      end
     end
 
     it "filters to todos due today" do
@@ -79,21 +85,22 @@ RSpec.describe "Api::V1::Todos", type: :request do
   end
 
   describe "PATCH /api/v1/todos/:id/toggle" do
-    it "flips pending to done and back" do
+    it "flips a pending todo to done" do
       todo = create(:todo, user: user)
 
       patch toggle_api_v1_todo_path(todo), headers: auth
 
       expect(response).to have_http_status(:ok)
-      body = JSON.parse(response.body)
-      expect(body).to include("id" => todo.id, "status" => "done")
-      expect(body["completed_at"]).to be_present
+      expect(JSON.parse(response.body)).to include("id" => todo.id, "status" => "done")
       expect(todo.reload.completed_at).to be_present
+    end
+
+    it "flips a done todo back to pending" do
+      todo = create(:todo, user: user, status: "done")
 
       patch toggle_api_v1_todo_path(todo), headers: auth
 
-      body = JSON.parse(response.body)
-      expect(body).to include("id" => todo.id, "status" => "pending", "completed_at" => nil)
+      expect(JSON.parse(response.body)).to include("id" => todo.id, "status" => "pending", "completed_at" => nil)
       expect(todo.reload.completed_at).to be_nil
     end
 

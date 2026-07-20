@@ -28,7 +28,7 @@ RSpec.describe "Api::V1::Habits", type: :request do
         expect(JSON.parse(response.body)["habits"].map { |h| h["name"] }).to eq([ "Koşu", "Yoga" ])
       end
 
-      it "serializes habit fields with today and the untrimmed 14-day chain" do
+      it "serializes habit fields with today's log" do
         kosu = JSON.parse(response.body)["habits"].first
         expect(kosu).to include(
           "id" => run.id, "description" => "Sabah", "frequency" => "daily", "target_count" => 1,
@@ -36,10 +36,14 @@ RSpec.describe "Api::V1::Habits", type: :request do
           "completion_rate_30d" => 3.3
         )
         expect(kosu["today"]).to eq("date" => Date.current.iso8601, "completed" => true, "count" => 1)
-        expect(kosu["chain"].length).to eq(14)
-        expect(kosu["chain"].first).to eq("date" => (Date.current - 13).iso8601, "status" => "missed")
-        expect(kosu["chain"].last).to eq("date" => Date.current.iso8601, "status" => "completed")
         expect(kosu["period"]).to be_nil
+      end
+
+      it "builds an untrimmed 14-day chain ending today" do
+        chain = JSON.parse(response.body)["habits"].first["chain"]
+        expect(chain.length).to eq(14)
+        expect(chain.first).to eq("date" => (Date.current - 13).iso8601, "status" => "missed")
+        expect(chain.last).to eq("date" => Date.current.iso8601, "status" => "completed")
       end
 
       it "marks unlogged habits as today_pending" do
