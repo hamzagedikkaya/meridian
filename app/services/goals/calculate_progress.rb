@@ -24,9 +24,12 @@ module Goals
 
     def financial_progress
       if @goal.related.is_a?(Account)
-        @goal.related.balance_cents / 100.0
+        account = @goal.related
+        subunit = Money::Currency.find(account.currency)&.subunit_to_unit || 100
+        account.balance_cents / subunit.to_f
       else
-        @goal.user.transactions.income.sum(:amount_cents) / 100.0
+        subunit = Money::Currency.find(@goal.user.currency)&.subunit_to_unit || 100
+        @goal.user.transactions.income.sum(:amount_cents) / subunit.to_f
       end
     end
 
