@@ -12,8 +12,36 @@ Rails.application.routes.draw do
   # Mobile JSON API (bearer-token auth; consumed by the Flutter app)
   namespace :api do
     namespace :v1 do
+      get  "health", to: "health#show"
       post "session", to: "sessions#create"
+      get  "me",   to: "me#show"
+      get  "home", to: "home#show"
+      namespace :finance do
+        get "dashboard", to: "dashboard#show"
+      end
       resources :accounts, only: [ :index ]
+      resources :transactions, only: [ :index, :create, :update, :destroy ]
+      resources :finance_categories, only: [ :index ]
+      resources :habits, only: [ :index, :show, :create, :update ] do
+        member do
+          patch :toggle_today
+          patch :archive
+        end
+      end
+      resources :goals, only: [ :index, :show, :create, :update ] do
+        member do
+          patch :update_progress
+          patch :recalculate
+        end
+      end
+      resources :journal_entries, only: [ :index, :show, :create, :update, :destroy ]
+      resources :todos, only: [ :index, :create, :update ] do
+        member do
+          patch :toggle
+        end
+      end
+      resources :events, only: [ :index ]
+      resources :quick_captures, only: [ :create ]
     end
   end
 
