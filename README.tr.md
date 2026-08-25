@@ -147,4 +147,4 @@ Meridian, [**PolyForm Noncommercial License 1.0.0**](LICENSE) altında dağıtı
 
 ---
 
-<p align="center"><sub>Meridian — hayatınız, mükemmel bir şekilde düzenlenmiş.</sub></p>
+<p align="center"><sub>Meridian — hayatınız mükemmel bir şekilde düzenlenmiş.</sub></p>
