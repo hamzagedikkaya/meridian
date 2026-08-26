@@ -147,4 +147,4 @@ Meridian is released under the [**PolyForm Noncommercial License 1.0.0**](LICENS
 
 ---
 
-<p align="center"><sub>Meridian — your life, beautifully organized.</sub></p>
+<p align="center"><sub>Meridian — your life beautifully organized.</sub></p>
