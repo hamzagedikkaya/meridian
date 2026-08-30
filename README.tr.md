@@ -13,13 +13,16 @@
   <img src="https://img.shields.io/badge/Rails-8-CC0000?logo=rubyonrails&logoColor=white" alt="Rails 8">
   <img src="https://img.shields.io/badge/PostgreSQL-14+-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL 14+">
   <img src="https://img.shields.io/badge/Hotwire-Turbo%20%2B%20Stimulus-5a67d8" alt="Hotwire">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-PolyForm%20NC%201.0.0-blue" alt="License"></a>
+  <a href="https://github.com/hamzagedikkaya/meridian-mobile"><img src="https://img.shields.io/badge/mobil-Flutter%20istemcisi-02569B?logo=flutter&logoColor=white" alt="Flutter mobil istemci"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/lisans-PolyForm%20NC%201.0.0-blue" alt="Lisans"></a>
 </p>
 
 <p align="center">
   <a href="#-h%C4%B1zl%C4%B1-ba%C5%9Flang%C4%B1%C3%A7">Hızlı başlangıç</a> ·
   <a href="#-%C3%B6zellikler">Özellikler</a> ·
+  <a href="#-mobil-istemci">Mobil</a> ·
   <a href="#-yedekleme--geri-y%C3%BCkleme">Yedekleme</a> ·
+  <a href="#-tasar%C4%B1m">Tasarım</a> ·
   <a href="#-klavye-k%C4%B1sayollar%C4%B1">Kısayollar</a>
 </p>
 
@@ -28,8 +31,10 @@
 Meridian, kendi makinende çalışan kişisel bir "yaşam OS"u. Genelde yarım düzine farklı aboneliğe dağılmış olan şeyleri — para, alışkanlıklar, görevler, takvim, günlük, hedefler — tek bir Rails uygulamasında bir araya getirir ve verinin tamamı senin kontrolündeki bir makinede kalır. Yedekleme tek bir `tar.gz`, yani veriyi taşımak kopyala-yapıştır kadar basit.
 
 <p align="center">
-  <img src="docs/dashboard.png" alt="Dashboard" width="100%" />
+  <img src="docs/dashboard-tr.png" alt="Pano" width="100%" />
 </p>
+
+<p align="center"><sub>Pano, koyu tema, seed'lenmiş demo hesabı.</sub></p>
 
 ## ✨ Özellikler
 
@@ -48,6 +53,12 @@ Meridian, kendi makinende çalışan kişisel bir "yaşam OS"u. Genelde yarım d
 - 💾 **Yedekleme & geri yükleme** — `pg_dump` + ActiveStorage blob'ları taşınabilir tek arşivde
 - 🌍 **Çift dil** — tam Türkçe & İngilizce arayüz, kullanıcı başına değiştirilebilir
 - 🎨 **Tasarım** — Fraunces + DM Sans, koyu öncelikli amber/altın palet, opsiyonel açık tema
+
+<p align="center">
+  <img src="docs/finance-tr.png" alt="Finans paneli" width="100%" />
+</p>
+
+<p align="center"><sub>Finans: ayın neti, etkileşimli harcama dağılımı, kategoriler, hesaplar ve bütçeler tek sayfada.</sub></p>
 
 ## 🧰 Teknoloji
 
@@ -91,6 +102,19 @@ bundle exec rubocop
 bundle exec brakeman -i config/brakeman.ignore
 ```
 
+## 📱 Mobil İstemci
+
+[**Meridian Mobile**](https://github.com/hamzagedikkaya/meridian-mobile), projenin Flutter uygulaması — Android öncelikli, Türkçe/İngilizce ve bu sunucuyla kendi Wi-Fi'ın üzerinden konuşuyor. `/api/v1` altındaki JSON API üzerinden okuyup yazıyor; kimlik doğrulama kullanıcının `api_token`'ı ile bearer token olarak yapılıyor:
+
+```bash
+curl -s http://localhost:3000/api/v1/health                       # kimliksiz ping
+curl -s -X POST http://localhost:3000/api/v1/session \
+     -d 'email=demo@meridian.local&password=demo12345'            # → {token, user}
+curl -s http://localhost:3000/api/v1/home -H "Authorization: Bearer $TOKEN"
+```
+
+API; ana ekran, finans paneli, hesaplar, işlemler, kategoriler, alışkanlıklar, hedefler, günlük, görevler, etkinlikler ve hızlı kaydı kapsıyor. `PATCH /api/v1/me`, telefonda seçilen dil ve temayı hesaba yazar; böylece seçim web uygulamasına da taşınır. Para her zaman tam sayı `*_cents` ve para biriminin `subunit_to_unit` değeriyle gider — telefon hiçbir yerde 100'e bölmez, gram altın gram olarak kalır.
+
 ## 💾 Yedekleme & Geri Yükleme
 
 Yedekleme bu projede birinci sınıf bir özellik: "senin Meridian'ını" tanımlayan her şey — şema, kayıtlar, dosyalar, uygulama versiyonu — tek bir arşivde toplanır.
@@ -122,6 +146,22 @@ Arşiv yapısının tamamı: [docs/backup_format.md](docs/backup_format.md).
 | `g d` · `g f` · `g t` · `g h` | Dashboard · Finans · Görevler · Alışkanlıklar |
 | `g c` · `g j` · `g g` | Takvim · Günlük · Hedefler |
 | `Esc` | Açık modal'ı kapat |
+
+## 🎨 Tasarım
+
+Sıcak, neredeyse siyah zemin; krem metin ve tek bir disiplinli altın — display için Fraunces, gövde için DM Sans. Tüm token'lar [`app/assets/tailwind/application.css`](app/assets/tailwind/application.css) içindeki `@theme` bloğunda; tam referans: [`docs/design_tokens.md`](docs/design_tokens.md).
+
+<p align="center">
+  <img src="https://img.shields.io/badge/-%230A0908-0A0908?style=flat-square" alt="#0A0908 bg-base">
+  <img src="https://img.shields.io/badge/-%23161514-161514?style=flat-square" alt="#161514 bg-elevated">
+  <img src="https://img.shields.io/badge/-%23B8860B-B8860B?style=flat-square" alt="#B8860B accent">
+  <img src="https://img.shields.io/badge/-%23F5F1E8-F5F1E8?style=flat-square" alt="#F5F1E8 fg-primary">
+  <img src="https://img.shields.io/badge/-%236B8E5A-6B8E5A?style=flat-square" alt="#6B8E5A income">
+  <img src="https://img.shields.io/badge/-%23B85450-B85450?style=flat-square" alt="#B85450 expense">
+  <img src="https://img.shields.io/badge/-%23D4915A-D4915A?style=flat-square" alt="#D4915A warning">
+</p>
+
+Varsayılan koyu tema; açık tema yüzeyleri ters çevirir ve vurgu rengini korur. Mobil istemci aynı dili kendi koyu-öncelikli paletiyle sürdürüyor.
 
 ## 📂 Modül Haritası
 
