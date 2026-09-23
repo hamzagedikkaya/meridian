@@ -91,8 +91,10 @@ bin/dev
 
 <http://localhost:3000> aç. Seed iki kullanıcı oluşturur:
 
-- `admin@meridian.local` / `password123`
-- `demo@meridian.local` / `demo12345` — alışkanlık, hedef, işlem ve günlük girdileriyle hazır
+- `admin@meridian.local`
+- `demo@meridian.local` — alışkanlık, hedef, işlem ve günlük girdileriyle hazır
+
+> **Şifreleri kendin belirle.** Seed'ler yalnızca development'ta korumasız çalışır. Başka bir ortamda önce `SEED_ADMIN_PASSWORD` ve `SEED_DEMO_PASSWORD` tanımla — Meridian yerel ağda servis edilmek için tasarlandı ve şifresi yayımlanmış bir hesap, aynı Wi-Fi'daki herkese açık kapı demektir. Sunucuyu dışarı açmadan önce demo kullanıcısını değiştir ya da sil.
 
 ### Test, lint, güvenlik
 
@@ -109,7 +111,7 @@ bundle exec brakeman -i config/brakeman.ignore
 ```bash
 curl -s http://localhost:3000/api/v1/health                       # kimliksiz ping
 curl -s -X POST http://localhost:3000/api/v1/session \
-     -d 'email=demo@meridian.local&password=demo12345'            # → {token, user}
+     -d 'email=demo@meridian.local&password=SIFRENIZ'             # → {token, user}
 curl -s http://localhost:3000/api/v1/home -H "Authorization: Bearer $TOKEN"
 ```
 

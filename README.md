@@ -91,8 +91,10 @@ bin/dev
 
 Open <http://localhost:3000>. The seed creates two accounts:
 
-- `admin@meridian.local` / `password123`
-- `demo@meridian.local` / `demo12345` — pre-populated with habits, goals, transactions, and journal entries
+- `admin@meridian.local`
+- `demo@meridian.local` — pre-populated with habits, goals, transactions, and journal entries
+
+> **Set your own passwords.** The seeds only run unguarded in development. Anywhere else, export `SEED_ADMIN_PASSWORD` and `SEED_DEMO_PASSWORD` first — Meridian is meant to be served on a LAN, and an account with a published password is an open door for anyone on the Wi-Fi. Change or delete the demo user before exposing the server.
 
 ### Tests, lint, security
 
@@ -109,7 +111,7 @@ bundle exec brakeman -i config/brakeman.ignore
 ```bash
 curl -s http://localhost:3000/api/v1/health                       # unauthenticated ping
 curl -s -X POST http://localhost:3000/api/v1/session \
-     -d 'email=demo@meridian.local&password=demo12345'            # → {token, user}
+     -d 'email=demo@meridian.local&password=YOUR_PASSWORD'        # → {token, user}
 curl -s http://localhost:3000/api/v1/home -H "Authorization: Bearer $TOKEN"
 ```
 
