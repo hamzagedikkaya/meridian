@@ -31,17 +31,16 @@ RSpec.describe "Authentication", type: :request do
     end
   end
 
-  describe "GET /users/sign_up" do
-    it "renders the registration form" do
-      get new_user_registration_path
-      expect(response).to have_http_status(:success)
-      expect(response.body).to include("Create your account")
+  describe "self-registration" do
+    # Meridian is served on a LAN, so an open sign-up form would let anyone on
+    # the network mint an account. :registerable is off and the routes are gone.
+    it "does not route the sign-up form" do
+      get "/users/sign_up"
+      expect(response).to have_http_status(:not_found)
     end
-  end
 
-  describe "POST /users" do
-    let(:valid_params) do
-      {
+    it "does not create a user from a POST to /users" do
+      params = {
         user: {
           name: "Test User",
           email: "test@meridian.local",
@@ -49,12 +48,13 @@ RSpec.describe "Authentication", type: :request do
           password_confirmation: "password123"
         }
       }
+      expect { post "/users", params: params }.not_to change(User, :count)
+      expect(response).to have_http_status(:not_found)
     end
 
-    it "creates a new user and signs them in" do
-      expect { post user_registration_path, params: valid_params }
-        .to change(User, :count).by(1)
-      expect(response).to redirect_to(root_path)
+    it "does not offer a sign-up link on the login page" do
+      get new_user_session_path
+      expect(response.body).not_to include("/users/sign_up")
     end
   end
 

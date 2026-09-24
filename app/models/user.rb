@@ -1,5 +1,7 @@
 class User < ApplicationRecord
-  devise :database_authenticatable, :registerable,
+  # No :registerable — Meridian is a single-household app served on a LAN, so an
+  # open POST /users would let anyone on the network mint an account.
+  devise :database_authenticatable,
          :recoverable, :rememberable, :validatable
 
   has_secure_token :api_token
