@@ -13,6 +13,7 @@ class Transaction < ApplicationRecord
   validates :amount_cents, numericality: { greater_than: 0 }
   validates :kind, inclusion: { in: KINDS }
   validates :date, presence: true
+  belongs_to_same_user :account, :related_account, :finance_category
   validate  :transfer_requires_related_account
   validate  :category_kind_matches_transaction_kind
 

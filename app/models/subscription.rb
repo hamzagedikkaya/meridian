@@ -8,6 +8,7 @@ class Subscription < ApplicationRecord
 
   monetize :amount_cents, with_model_currency: :account_currency
 
+  belongs_to_same_user :account, :finance_category, :goal
   validates :name, presence: true, length: { maximum: 60 }
   validates :amount_cents, numericality: { greater_than: 0 }
   validates :frequency, inclusion: { in: FREQUENCIES }

@@ -8,6 +8,7 @@ class Todo < ApplicationRecord
   belongs_to :parent, class_name: "Todo", optional: true
   has_many :subtasks, class_name: "Todo", foreign_key: :parent_id, dependent: :nullify
 
+  belongs_to_same_user :goal, :todo_list, :parent
   validates :title, presence: true, length: { maximum: 200 }
   validates :priority, inclusion: { in: PRIORITIES }
   validates :status, inclusion: { in: STATUSES }

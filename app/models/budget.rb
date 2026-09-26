@@ -4,6 +4,7 @@ class Budget < ApplicationRecord
 
   monetize :monthly_limit_cents, with_model_currency: :budget_currency
 
+  belongs_to_same_user :finance_category
   validates :monthly_limit_cents, numericality: { greater_than: 0 }
   validates :finance_category_id, uniqueness: { scope: :user_id }
   validate :category_is_expense_root

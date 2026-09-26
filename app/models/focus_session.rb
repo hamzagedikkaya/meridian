@@ -4,6 +4,7 @@ class FocusSession < ApplicationRecord
   belongs_to :user
   belongs_to :todo, optional: true
 
+  belongs_to_same_user :todo
   validates :mode, inclusion: { in: MODES }
   validates :duration_seconds, numericality: { greater_than: 0 }
   validates :started_at, presence: true
