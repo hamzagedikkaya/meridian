@@ -24,6 +24,9 @@
     </p>
     <%= form_with url: restore_backups_path, method: :post, multipart: true, html: { class: "flex flex-wrap gap-3 items-center", data: { turbo_confirm: t("backups.restore_confirm") } } do %>
       <%= file_field_tag :file, accept: ".tar.gz,application/gzip", required: true, class: "text-sm" %>
+      <%= password_field_tag :current_password, nil, required: true, autocomplete: "current-password",
+            placeholder: t("backups.current_password", default: "Your password"),
+            class: "px-3 py-2 rounded-[var(--radius-sm)] bg-[var(--color-bg-subtle)] border border-[var(--color-border)] text-sm" %>
       <%= submit_tag t("backups.restore_button"), class: "px-4 py-2 bg-[var(--color-warning)] hover:opacity-90 text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer" %>
     <% end %>
   </div>

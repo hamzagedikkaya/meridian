@@ -24,12 +24,29 @@ class BackupsController < ApplicationController
   end
 
   def download
-    redirect_to rails_blob_url(@backup.archive, disposition: "attachment")
+    # rails_blob_url hands out a URL that ActiveStorage serves with no
+    # authentication at all — possession of the link is the only credential, and
+    # with urls_expire_in unset it never stopped working. The archive is a full
+    # pg_dump of every user's rows, api_token column included, so it is streamed
+    # from here instead, behind the session.
+    return head :not_found unless @backup.archive.attached?
+
+    send_data @backup.archive.download,
+              filename: @backup.archive.filename.to_s,
+              type: @backup.archive.content_type || "application/gzip",
+              disposition: "attachment"
   end
 
   def restore
     if params[:file].blank?
       redirect_to backups_path, alert: t("backups.choose_file", default: "Choose a backup file first.") and return
+    end
+
+    # Restore runs pg_restore --clean against the live database from a file the
+    # caller supplied. That is the single most destructive action in the app, so
+    # it is re-authenticated rather than relying on the session alone.
+    unless current_user.valid_password?(params[:current_password].to_s)
+      redirect_to backups_path, alert: t("backups.restore_password_wrong", default: "Wrong password — restore cancelled.") and return
     end
 
     result = BackupService.restore(params[:file])

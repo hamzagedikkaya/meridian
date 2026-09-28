@@ -634,6 +634,8 @@ tr:
     restore_warning: "⚠️ Bu işlem mevcut DB'yi silip yedek dosyasından yeniden oluşturur. Önce mevcut DB'nin yedeğini al."
     restore_confirm: "Mevcut tüm veri silinecek. Devam et?"
     restore_button: "Geri yükle"
+    current_password: "Şifreniz"
+    restore_password_wrong: "Şifre hatalı — geri yükleme iptal edildi."
     table:
       date: "Tarih"
       status: "Durum"

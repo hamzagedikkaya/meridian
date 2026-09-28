@@ -47,5 +47,8 @@ module Meridian
     # ActiveStorage variants — use mini_magick because libvips is not installed on the host.
     # Switch to :vips after `brew install vips` and adding `gem "ruby-vips"` to the Gemfile.
     config.active_storage.variant_processor = :mini_magick
+    # Blob URLs are bearer credentials: anyone holding one can fetch the file
+    # without signing in. Unset, they never expire.
+    config.active_storage.urls_expire_in = 5.minutes
   end
 end

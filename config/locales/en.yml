@@ -622,6 +622,8 @@ en:
     restore_warning: "⚠️ This wipes the current DB and rebuilds from the backup file. Take a fresh backup first."
     restore_confirm: "All current data will be erased. Continue?"
     restore_button: "Restore"
+    current_password: "Your password"
+    restore_password_wrong: "Wrong password — restore cancelled."
     table:
       date: "Date"
       status: "Status"

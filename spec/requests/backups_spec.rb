@@ -49,8 +49,17 @@ RSpec.describe "Backups", type: :request do
       allow(BackupService).to receive(:restore).and_return(
         BackupService::Result.new(success?: true, backup: nil, error: nil)
       )
-      post restore_backups_path, params: { file: file }
+      post restore_backups_path, params: { file: file, current_password: "password123" }
       expect(response).to redirect_to(new_user_session_path)
+    end
+
+    it "refuses to restore without the correct password" do
+      file = Rack::Test::UploadedFile.new(StringIO.new("payload"), "application/gzip", original_filename: "backup.tar.gz")
+      allow(BackupService).to receive(:restore)
+      post restore_backups_path, params: { file: file, current_password: "wrong" }
+      expect(BackupService).not_to have_received(:restore)
+      expect(response).to redirect_to(backups_path)
+      expect(flash[:alert]).to be_present
     end
   end
 
