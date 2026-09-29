@@ -1,6 +1,8 @@
 class InsightsController < ApplicationController
   def index
-    @range_days = (params[:days] || 30).to_i
+    # Uncapped, `?days=50000000` walks a 50M-element Date range twice and pins
+    # a Puma thread for minutes. The API path already clamps the same way.
+    @range_days = (params[:days] || 30).to_i.clamp(1, 366)
     from = @range_days.days.ago.to_date
     to   = Date.current
 
