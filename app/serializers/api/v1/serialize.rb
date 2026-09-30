@@ -161,7 +161,15 @@ module Api
           created_at: entry.created_at
         }
         if full
-          json[:body_html] = entry.body&.to_s.to_s
+          # ActionText::Content#to_s returns the stored HTML verbatim; the web
+          # view sanitizes on render, the API used to skip that step. :body is
+          # permitted as a raw string on create, so whatever was stored came
+          # back out unchanged.
+          json[:body_html] = ActionText::ContentHelper.sanitizer.sanitize(
+            entry.body.to_s,
+            tags: ActionText::ContentHelper.allowed_tags,
+            attributes: ActionText::ContentHelper.allowed_attributes
+          ).to_s
           json[:gratitude] = entry.gratitude
         end
         json

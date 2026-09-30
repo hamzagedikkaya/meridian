@@ -8,6 +8,11 @@ class User < ApplicationRecord
 
   has_one_attached :avatar
 
+  AVATAR_CONTENT_TYPES = %w[image/png image/jpeg image/webp image/gif].freeze
+  AVATAR_MAX_BYTES = 5.megabytes
+
+  validate :avatar_is_a_bounded_image
+
   has_many :accounts, dependent: :destroy
   has_many :finance_categories, dependent: :destroy
   has_many :transactions, dependent: :destroy
@@ -49,5 +54,18 @@ class User < ApplicationRecord
   # that was active on that day was completed. See PerfectDayChain for shape.
   def perfect_day_chain(days: 30, end_date: Date.current)
     PerfectDayChain.new(self, days: days, end_date: end_date).to_a
+  end
+
+  private
+
+  # The uploaded bytes are handed to ImageMagick for variant processing, and
+  # `accept: "image/*"` in the form is client-side only.
+  def avatar_is_a_bounded_image
+    return unless avatar.attached?
+
+    unless AVATAR_CONTENT_TYPES.include?(avatar.blob.content_type)
+      errors.add(:avatar, :invalid_content_type)
+    end
+    errors.add(:avatar, :too_large) if avatar.blob.byte_size.to_i > AVATAR_MAX_BYTES
   end
 end

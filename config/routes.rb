@@ -1,6 +1,13 @@
 Rails.application.routes.draw do
   devise_for :users, skip: [ :registrations ]
 
+  # ActiveStorage's direct-upload endpoint requires no authentication and this
+  # app never uses it — every upload is an ordinary multipart form post. Left
+  # open it lets an unauthenticated caller on the LAN mint upload tokens and
+  # PUT blobs until the disk fills. Application routes are matched before the
+  # ActiveStorage routes, so this wins.
+  match "/rails/active_storage/direct_uploads", to: proc { [ 404, { "Content-Type" => "text/plain" }, [ "Not Found" ] ] }, via: :all
+
   # Settings
   get  "settings",                to: "settings#show",                as: :settings
   get  "settings/profile",        to: "settings#profile",             as: :profile_settings

@@ -60,12 +60,29 @@ class CalendarController < ApplicationController
       ical << "UID:meridian-#{e.id}@local\r\n"
       ical << "DTSTART:#{e.start_at.utc.strftime('%Y%m%dT%H%M%SZ')}\r\n"
       ical << "DTEND:#{(e.end_at || e.start_at + 1.hour).utc.strftime('%Y%m%dT%H%M%SZ')}\r\n"
-      ical << "SUMMARY:#{e.title}\r\n"
-      ical << "DESCRIPTION:#{e.description.to_s.gsub(/\r?\n/, '\\n')}\r\n" if e.description.present?
-      ical << "LOCATION:#{e.location}\r\n" if e.location.present?
+      ical << "SUMMARY:#{ical_escape(e.title)}\r\n"
+      ical << "DESCRIPTION:#{ical_escape(e.description)}\r\n" if e.description.present?
+      ical << "LOCATION:#{ical_escape(e.location)}\r\n" if e.location.present?
       ical << "END:VEVENT\r\n"
     end
     ical << "END:VCALENDAR\r\n"
     send_data ical, type: "text/calendar", filename: "meridian.ics"
+  end
+
+  private
+
+  # RFC 5545 §3.3.11: backslash, semicolon and comma are escaped, and a literal
+  # newline would otherwise end the property and let the next line inject one.
+  def ical_escape(value)
+    # Block form on purpose: gsub interprets backslash sequences in a string
+    # replacement, which would silently undo the escaping.
+    value.to_s.gsub(/[\\;,]|\r?\n/) do |match|
+      case match
+      when "\\" then "\\\\"
+      when ";"  then "\\;"
+      when ","  then "\\,"
+      else           "\\n"
+      end
+    end
   end
 end
