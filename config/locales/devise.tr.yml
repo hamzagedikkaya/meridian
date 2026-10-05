@@ -14,6 +14,7 @@ tr:
       timeout: "Oturumun sona erdi. Devam etmek için lütfen tekrar giriş yap."
       unauthenticated: "Devam etmek için giriş yapman gerekiyor."
       unconfirmed: "Devam etmek için hesabını onaylaman gerekiyor."
+      too_many_attempts: "Çok fazla giriş denemesi yapıldı. Birkaç dakika bekleyip yeniden dene."
     mailer:
       confirmation_instructions:
         subject: "Onay talimatları"

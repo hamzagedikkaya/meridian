@@ -1,9 +1,13 @@
 class ApplicationController < ActionController::Base
+  include UserTimeZoneAndLocale
+
   allow_browser versions: :modern
 
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
-  before_action :set_locale
+  # Declared after authentication so current_user is known; the API base
+  # controller does the same, so the web and the phone agree on "today".
+  around_action :switch_time_zone_and_locale
 
   layout :resolve_layout
 
@@ -14,8 +18,8 @@ class ApplicationController < ActionController::Base
     devise_parameter_sanitizer.permit(:account_update, keys: [ :name ])
   end
 
-  def set_locale
-    I18n.locale = current_user&.locale&.to_sym || I18n.default_locale
+  def switch_time_zone_and_locale(&action)
+    with_user_time_zone_and_locale(current_user, &action)
   end
 
   def resolve_layout

@@ -5,7 +5,10 @@ Money::Currency.register(
   subunit:               "Gram",
   subunit_to_unit:       1,
   symbol_first:          false,
-  smallest_denomination: 1
+  smallest_denomination: 1,
+  # Money::Currency.all (and each, map, ...) raises when any registered
+  # currency has no priority. TRY's is 100.
+  priority:              100
 )
 
 MoneyRails.configure do |config|

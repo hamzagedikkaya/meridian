@@ -35,4 +35,34 @@ RSpec.describe Finance::ProcessSubscriptions do
     described_class.call
     expect(Transaction.count).to eq(count_after_first)
   end
+
+  describe ".charge!" do
+    let(:category) { create(:finance_category, user: user) }
+    let(:sub) do
+      create(:subscription, user: user, account: account, finance_category: category, name: "Spotify",
+                            amount_cents: 60_00, frequency: "weekly", next_charge_on: Date.new(2026, 7, 3))
+    end
+
+    it "records one expense on the due date and moves the next charge one period on" do
+      transaction = described_class.charge!(sub)
+
+      expect(transaction).to have_attributes(
+        user: user, account: account, finance_category: category, kind: "expense", amount_cents: 60_00,
+        description: "Spotify", date: Date.new(2026, 7, 3), recurring: true
+      )
+      expect(sub.reload.next_charge_on).to eq(Date.new(2026, 7, 10))
+    end
+
+    it "takes another date for the expense" do
+      expect(described_class.charge!(sub, date: Date.new(2026, 7, 1)).date).to eq(Date.new(2026, 7, 1))
+    end
+
+    it "saves neither the expense nor the new date when the expense is refused" do
+      sub.update_column(:finance_category_id, create(:finance_category, user: user, kind: "income").id)
+
+      expect { described_class.charge!(sub.reload) }.to raise_error(ActiveRecord::RecordInvalid)
+      expect(Transaction.count).to eq(0)
+      expect(sub.reload.next_charge_on).to eq(Date.new(2026, 7, 3))
+    end
+  end
 end

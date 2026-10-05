@@ -33,12 +33,12 @@ class Transaction < ApplicationRecord
 
   def transfer_requires_related_account
     return unless kind == "transfer" && related_account_id.blank?
-    errors.add(:related_account_id, "must be present for transfers")
+    errors.add(:related_account_id, :required_for_transfer)
   end
 
   def category_kind_matches_transaction_kind
     return if finance_category.blank? || kind == "transfer"
     return if finance_category.kind == kind
-    errors.add(:finance_category, "kind must match the transaction kind")
+    errors.add(:finance_category, :kind_mismatch)
   end
 end

@@ -5,6 +5,17 @@ class Account < ApplicationRecord
   has_many :transactions, dependent: :destroy
   has_many :outgoing_transfers, class_name: "Transaction", foreign_key: :related_account_id, dependent: :nullify, inverse_of: :related_account
   has_many :subscriptions, dependent: :destroy
+  # Financial goals that follow this account's balance. Deleting the account
+  # unlinks them (related_type and related_id both become NULL), on the web
+  # and through the API, instead of leaving them pointing at a missing row;
+  # their progress then comes from the user's income.
+  has_many :tracking_goals, class_name: "Goal", as: :related, dependent: :nullify, inverse_of: :related
+
+  # Every stored amount (transactions, subscriptions) is in the currency's
+  # minor units, so a new currency would silently re-read them.
+  def currency_locked?
+    transactions.exists? || outgoing_transfers.exists? || subscriptions.exists?
+  end
 
   monetize :initial_balance_cents, with_model_currency: :currency
 

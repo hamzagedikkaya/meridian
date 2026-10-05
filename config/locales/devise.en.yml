@@ -16,6 +16,7 @@ en:
       timeout: "Your session expired. Please sign in again to continue."
       unauthenticated: "You need to sign in or sign up before continuing."
       unconfirmed: "You have to confirm your email address before continuing."
+      too_many_attempts: "Too many sign-in attempts. Wait a few minutes and try again."
     mailer:
       confirmation_instructions:
         subject: "Confirmation instructions"

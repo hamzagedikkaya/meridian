@@ -44,6 +44,13 @@ rescue ActiveRecord::PendingMigrationError => e
   abort e.to_s.strip
 end
 RSpec.configure do |config|
+  # The login and password-check limits count in memory for the whole
+  # process, and every request spec comes from 127.0.0.1.
+  config.before do
+    Api::V1::SessionsController::RATE_LIMIT_STORE.clear
+    Api::V1::MeController::PASSWORD_CHECK_STORE.clear
+  end
+
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_paths = [
     Rails.root.join('spec/fixtures')

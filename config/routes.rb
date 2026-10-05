@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  devise_for :users, skip: [ :registrations ]
+  devise_for :users, skip: [ :registrations ], controllers: { sessions: "users/sessions" }
 
   # ActiveStorage's direct-upload endpoint requires no authentication and this
   # app never uses it — every upload is an ordinary multipart form post. Left
@@ -21,35 +21,61 @@ Rails.application.routes.draw do
     namespace :v1 do
       get   "health", to: "health#show"
       post  "session", to: "sessions#create"
+      delete "session", to: "sessions#destroy"
       get   "me", to: "me#show"
       patch "me", to: "me#update"
+      get   "me/options", to: "me#options"
+      patch "me/password", to: "me#update_password"
       get   "home", to: "home#show"
+      get   "search", to: "search#index"
       namespace :finance do
         get "dashboard", to: "dashboard#show"
       end
-      resources :accounts, only: [ :index ]
-      resources :transactions, only: [ :index, :create, :update, :destroy ]
-      resources :finance_categories, only: [ :index ]
-      resources :habits, only: [ :index, :show, :create, :update ] do
+      resources :accounts, only: [ :index, :show, :create, :update, :destroy ] do
+        member do
+          patch :archive
+          patch :unarchive
+        end
+      end
+      resources :transactions, only: [ :index, :show, :create, :update, :destroy ]
+      resources :finance_categories, only: [ :index, :show, :create, :update, :destroy ]
+      resources :budgets, only: [ :index, :create, :update, :destroy ]
+      resources :subscriptions, only: [ :index, :show, :create, :update, :destroy ] do
+        member do
+          post :charge
+        end
+      end
+      get "currencies", to: "currencies#index"
+      resources :habits, only: [ :index, :show, :create, :update, :destroy ] do
         member do
           patch :toggle_today
           patch :archive
+          patch :unarchive
+          # Any segment reaches the action, so "04.10.2026" gets a JSON
+          # invalid_date instead of being split off as a format.
+          put "logs/:date", action: :update_log, as: :log, constraints: { date: %r{[^/]+} }, format: false
         end
       end
-      resources :goals, only: [ :index, :show, :create, :update ] do
+      resources :goals, only: [ :index, :show, :create, :update, :destroy ] do
         member do
           patch :update_progress
           patch :recalculate
         end
       end
       resources :journal_entries, only: [ :index, :show, :create, :update, :destroy ]
-      resources :todos, only: [ :index, :create, :update ] do
+      resources :todo_lists, only: [ :index, :show, :create, :update, :destroy ]
+      resources :todos, only: [ :index, :show, :create, :update, :destroy ] do
         member do
           patch :toggle
         end
       end
-      resources :events, only: [ :index ]
+      resources :events, only: [ :index, :show, :create, :update, :destroy ]
       resources :quick_captures, only: [ :create ]
+
+      # Last: any other /api/v1 path is the API's JSON 404, not Rails' page,
+      # the bare /api/v1 (and /api/v1/) included, which "*path" misses.
+      match "/", to: "not_found#show", via: :all, format: false, as: nil
+      match "*path", to: "not_found#show", via: :all, format: false
     end
   end
 

@@ -1,7 +1,20 @@
 require 'rails_helper'
 
 RSpec.describe PerfectDayChain do
+  include ActiveSupport::Testing::TimeHelpers
+
   let(:user) { create(:user) }
+
+  it "dates a habit's creation in the current zone, not UTC" do
+    travel_to Time.utc(2026, 10, 3, 22, 30) # already 01:30 on the 4th in Istanbul
+    create(:habit, user: user)
+
+    statuses = Time.use_zone("Istanbul") do
+      described_class.new(user, days: 2, end_date: Date.new(2026, 10, 4), trim: false).to_a.map { |e| e[:status] }
+    end
+
+    expect(statuses).to eq([ :no_habits, :missed ])
+  end
 
   it "marks days with no active habits as :no_habits" do
     chain = described_class.new(user, days: 3, trim: false).to_a
@@ -18,6 +31,27 @@ RSpec.describe PerfectDayChain do
     expect(yesterday[:status]).to eq(:perfect)
     expect(yesterday[:possible]).to eq(2)
     expect(yesterday[:completed]).to eq(2)
+  end
+
+  it "does not count the log of a habit archived that same day for the habits still active" do
+    done_then_archived = create(:habit, user: user, created_at: 10.days.ago)
+    create(:habit, user: user, created_at: 10.days.ago) # missed
+    done_then_archived.habit_logs.create!(date: Date.current, completed: true)
+    done_then_archived.update!(archived_at: Time.current)
+
+    today = described_class.new(user, days: 3, trim: false).to_a.last
+
+    expect(today).to include(status: :missed, completed: 0, possible: 1)
+  end
+
+  it "still counts an archived habit's logs on the days before its archive day" do
+    habit = create(:habit, user: user, created_at: 10.days.ago)
+    habit.habit_logs.create!(date: 2.days.ago.to_date, completed: true)
+    habit.update!(archived_at: 1.day.ago)
+
+    chain = described_class.new(user, days: 3, trim: false).to_a
+
+    expect(chain.map { |e| e[:status] }).to eq([ :perfect, :no_habits, :no_habits ])
   end
 
   it "is :partial when some but not all active habits are completed" do

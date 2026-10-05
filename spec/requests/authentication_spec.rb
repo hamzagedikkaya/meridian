@@ -58,6 +58,50 @@ RSpec.describe "Authentication", type: :request do
     end
   end
 
+  # Devise's paranoid mode: neither web form tells whether an email has an
+  # account.
+  describe "unknown emails (paranoid mode)" do
+    before { create(:user, email: "known@meridian.local", password: "password123", password_confirmation: "password123") }
+
+    it "hashes the password for an unknown email too, so the web sign-in takes as long as for a wrong password" do
+      bcrypt_runs = 0
+      count = ->(method, *args) { bcrypt_runs += 1; method.call(*args) }
+      allow(Devise::Encryptor).to receive(:compare).and_wrap_original(&count)
+      allow(Devise::Encryptor).to receive(:digest).and_wrap_original(&count)
+
+      post user_session_path, params: { user: { email: "known@meridian.local", password: "wrong-123" } }
+      known_runs = bcrypt_runs
+      bcrypt_runs = 0
+      post user_session_path, params: { user: { email: "nobody@meridian.local", password: "guess-123" } }
+
+      # As much bcrypt work either way: the known email's compare is matched
+      # by a hash of the guess for the unknown one (Devise's paranoid mode).
+      expect(known_runs).to be_positive
+      expect(bcrypt_runs).to eq(known_runs)
+      expect(flash[:alert]).to eq("Invalid email or password.")
+    end
+
+    it "gives a wrong password the same message as an unknown email" do
+      post user_session_path, params: { user: { email: "known@meridian.local", password: "wrong-123" } }
+      known = flash[:alert]
+      post user_session_path, params: { user: { email: "nobody@meridian.local", password: "wrong-123" } }
+
+      expect(flash[:alert]).to eq(known)
+    end
+
+    it "answers the password-reset form the same way for an unknown and a known email" do
+      post user_password_path, params: { user: { email: "nobody@meridian.local" } }
+      expect(response).to redirect_to(new_user_session_path)
+      expect(flash[:notice]).to eq(I18n.t("devise.passwords.send_paranoid_instructions"))
+
+      expect {
+        post user_password_path, params: { user: { email: "known@meridian.local" } }
+      }.to change(ActionMailer::Base.deliveries, :size).by(1)
+      expect(response).to redirect_to(new_user_session_path)
+      expect(flash[:notice]).to eq(I18n.t("devise.passwords.send_paranoid_instructions"))
+    end
+  end
+
   describe "DELETE /users/sign_out" do
     let(:user) { create(:user) }
 

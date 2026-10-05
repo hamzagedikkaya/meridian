@@ -1,7 +1,8 @@
 # Builds the "Perfect Days" chain for a user — a day is perfect when every
 # habit that was active on that day was completed. Computes the window in two
-# queries (one for habits with their created/archived bounds, one for daily
-# completed-log counts) regardless of habit count.
+# queries (one for habits with their created/archived bounds, one for the
+# window's completed daily logs) regardless of habit count. A log counts only
+# on a day its habit was active.
 #
 # Returned by #to_a as an array of hashes, oldest → newest:
 #
@@ -52,15 +53,20 @@ class PerfectDayChain
     # Only daily habits count toward "perfect days" — weekly/monthly aren't
     # expected on every day, so a missed Friday gym shouldn't reset 6 perfect
     # daily days. Periodic habits get their own status widget elsewhere.
-    habits_meta = user.habits.where(frequency: "daily").pluck(:created_at, :archived_at).map do |created_at, archived_at|
-      { created_on: created_at.to_date, archived_on: archived_at&.to_date }
+    habits_meta = user.habits.where(frequency: "daily").pluck(:id, :created_at, :archived_at).to_h do |id, created_at, archived_at|
+      [ id, { created_on: created_at.to_date, archived_on: archived_at&.to_date } ]
     end
+    # Only logs of habits active that day count: a habit done and then
+    # archived on the same day is not active that day, so its log must not
+    # stand in for another habit that was missed.
     completed_per_day = user.habit_logs.joins(:habit)
                             .where(habits: { frequency: "daily" }, completed: true, date: range)
-                            .group(:date).count
+                            .pluck(:habit_id, :date)
+                            .select { |habit_id, date| habits_meta[habit_id] && habit_active_on?(habits_meta[habit_id], date) }
+                            .map(&:last).tally
 
     range.map do |date|
-      active = habits_meta.count { |h| habit_active_on?(h, date) }
+      active = habits_meta.values.count { |h| habit_active_on?(h, date) }
       completed = completed_per_day[date].to_i
       { date: date, status: classify(active, completed), completed: completed, possible: active, color: color }
     end

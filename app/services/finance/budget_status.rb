@@ -50,9 +50,13 @@ module Finance
     def over_by_cents = over? ? spent_cents - limit_cents : 0
 
     # Uncapped, for the "93% used" label; bar_percent is the clamped width.
+    #
+    # The ratios below are exact (Rational), so a half rounds up as the
+    # formula says: in floating point 215.50 / 100.00 × 100 is
+    # 215.49999999999997 and would round down to 215.
     def percent_used
       return 0 if limit_cents.zero?
-      (spent_cents.to_f / limit_cents * 100).round
+      (spent_cents * 100r / limit_cents).round
     end
 
     def bar_percent = [ percent_used, 100 ].min
@@ -61,12 +65,12 @@ module Finance
     def day_of_month  = on.day
 
     # Share of the month elapsed — the marker the spend bar is measured against.
-    def pace_percent = (day_of_month.to_f / days_in_month * 100).round
+    def pace_percent = (day_of_month * 100r / days_in_month).round
 
     # Straight-line projection of month-end spend at the current run rate.
     def projected_cents
       return spent_cents if day_of_month.zero?
-      (spent_cents.to_f / day_of_month * days_in_month).round
+      (spent_cents * days_in_month / day_of_month.to_r).round
     end
 
     def will_overspend? = !over? && projected_cents > limit_cents

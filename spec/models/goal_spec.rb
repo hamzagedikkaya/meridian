@@ -25,4 +25,15 @@ RSpec.describe Goal, type: :model do
       expect(goal.progress_percent).to eq(0)
     end
   end
+
+  describe "ownership" do
+    it "refuses a related account or habit of another user" do
+      [ create(:account), create(:habit) ].each do |record|
+        goal = build(:goal, related: record)
+
+        expect(goal).not_to be_valid
+        expect(goal.errors.details[:related_id]).to eq([ { error: :must_belong_to_same_user } ])
+      end
+    end
+  end
 end

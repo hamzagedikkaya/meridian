@@ -50,7 +50,7 @@ RSpec.describe "Api::V1::Home", type: :request do
       create(:goal, user: user, name: "Hedef 2", position: 2)
       create(:goal, user: user, name: "Hedef 3", position: 3)
       create(:goal, user: user, name: "Hedef 4", position: 4)
-      create(:goal, user: user, name: "Bitmiş", status: "achieved", position: 0)
+      create(:goal, user: user, name: "Bitmiş", status: "achieved", current_value: 100, position: 0)
 
       get api_v1_home_path, headers: auth
     end
@@ -65,8 +65,14 @@ RSpec.describe "Api::V1::Home", type: :request do
         "open_todos" => 3,
         "overdue_count" => 1,
         "today_events_count" => 1,
-        "habit_completion_pct" => 33
+        "habit_completion_pct" => 50
       )
+    end
+
+    # Monday to Wednesday: "A koşu" had 3 days and did 2, "B kitap" exists
+    # since today only, so 2 of 4 days, not 2 of 6.
+    it "counts only the days each habit existed this week" do
+      expect(body["habit_completion_pct"]).to eq(50)
     end
 
     it "returns the 7-day spending series" do
@@ -141,6 +147,42 @@ RSpec.describe "Api::V1::Home", type: :request do
     expect(body["today_events"].length).to eq(4)
     expect(body["today_events"].map { |e| e["title"] }).to include("Sabah sporu")
     expect(body["today_events"].map { |e| e["title"] }).not_to include("Eski tek seferlik")
+  end
+
+  describe "active_goals" do
+    it "recomputes goal progress, as GET /goals does" do
+      account = create(:account, user: user, initial_balance_cents: 0)
+      goal = create(:goal, user: user, name: "Birikim", target_type: "financial", related: account,
+                           target_value: 1000, current_value: 0)
+      create(:transaction, :income, user: user, account: account, amount_cents: 400_00, date: today)
+
+      get api_v1_home_path, headers: auth
+
+      expect(JSON.parse(response.body)["active_goals"]).to eq([
+        { "id" => goal.id, "name" => "Birikim", "color" => "#B8860B", "progress_percent" => 40.0 }
+      ])
+      expect(goal.reload.current_value).to eq(400)
+    end
+
+    it "leaves out a goal that has reached its target since it was last read" do
+      account = create(:account, user: user, initial_balance_cents: 0)
+      goal = create(:goal, user: user, target_type: "financial", related: account, target_value: 100, current_value: 0)
+      create(:goal, user: user, name: "Açık", position: 5)
+      create(:transaction, :income, user: user, account: account, amount_cents: 150_00, date: today)
+
+      get api_v1_home_path, headers: auth
+
+      expect(JSON.parse(response.body)["active_goals"].map { |g| g["name"] }).to eq([ "Açık" ])
+      expect(goal.reload.status).to eq("achieved")
+    end
+
+    it "never lists an abandoned goal" do
+      create(:goal, user: user, status: "abandoned", current_value: 0)
+
+      get api_v1_home_path, headers: auth
+
+      expect(JSON.parse(response.body)["active_goals"]).to eq([])
+    end
   end
 
   it "limits upcoming_todos to 6 due within a week" do

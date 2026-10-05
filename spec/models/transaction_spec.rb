@@ -15,7 +15,8 @@ RSpec.describe Transaction, type: :model do
     it "requires related_account for transfers" do
       t = build(:transaction, user: user, kind: "transfer", finance_category: nil)
       expect(t).not_to be_valid
-      expect(t.errors[:related_account_id]).to be_present
+      expect(t.errors.details[:related_account_id]).to include(error: :required_for_transfer)
+      expect(t.errors[:related_account_id]).to include("must be present for transfers")
     end
   end
 
@@ -26,7 +27,9 @@ RSpec.describe Transaction, type: :model do
       inc_cat = create(:finance_category, user: user, kind: "income")
       t = build(:transaction, user: user, kind: "expense", finance_category: inc_cat)
       expect(t).not_to be_valid
-      expect(t.errors[:finance_category]).to be_present
+      expect(t.errors.details[:finance_category]).to include(error: :kind_mismatch)
+      expect(I18n.with_locale(:tr) { t.errors.full_messages_for(:finance_category) })
+        .to eq([ "Kategori türü işlem türüyle aynı olmalı" ])
     end
   end
 

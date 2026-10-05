@@ -1,7 +1,8 @@
 require 'rails_helper'
 
 # Verifies the locale story: a user's `locale` attribute drives the UI language
-# across views via ApplicationController#set_locale + the t() helper.
+# across views via ApplicationController#switch_time_zone_and_locale + the t()
+# helper.
 RSpec.describe "I18n", type: :request do
   describe "with a Turkish-locale user" do
     let(:user) { create(:user, locale: "tr") }

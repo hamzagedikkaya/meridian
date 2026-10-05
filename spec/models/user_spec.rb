@@ -47,4 +47,47 @@ RSpec.describe User, type: :model do
       expect(build(:user, name: "Meridian").initials).to eq("M")
     end
   end
+
+  describe "#time_zone" do
+    it "returns the user's zone" do
+      expect(build(:user, timezone: "Istanbul").time_zone).to eq(ActiveSupport::TimeZone["Istanbul"])
+    end
+
+    it "falls back to the app default for a blank or unknown stored name" do
+      expect(build(:user, timezone: "Mars/Olympus").time_zone).to eq(Time.zone_default)
+      expect(build(:user, timezone: nil).time_zone).to eq(Time.zone_default)
+    end
+  end
+
+  describe "#preferred_locale" do
+    it "returns the user's locale as a symbol" do
+      expect(build(:user, locale: "tr").preferred_locale).to eq(:tr)
+    end
+
+    it "falls back to the default locale for an unsupported value" do
+      expect(build(:user, locale: "de").preferred_locale).to eq(I18n.default_locale)
+      expect(build(:user, locale: nil).preferred_locale).to eq(I18n.default_locale)
+    end
+  end
+
+  describe "#rotate_api_token!" do
+    it "stores a new token in place of the old one" do
+      user = create(:user)
+      old_token = user.api_token
+
+      user.rotate_api_token!
+
+      expect(user.api_token).not_to eq(old_token)
+      expect(user.api_token.length).to be >= 24
+      expect(user.reload.api_token).to eq(user.api_token)
+      expect(described_class.find_by(api_token: old_token)).to be_nil
+    end
+
+    it "works on a stored record that fails validation" do
+      user = create(:user)
+      user.update_column(:timezone, "Mars/Olympus")
+
+      expect { user.rotate_api_token! }.to change { user.reload.api_token }
+    end
+  end
 end

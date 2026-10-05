@@ -9,6 +9,7 @@ class Goal < ApplicationRecord
   has_many :todos, dependent: :nullify
   has_many :subscriptions, dependent: :nullify
 
+  belongs_to_same_user :related
   validates :name, presence: true, length: { maximum: 100 }
   validates :target_type, inclusion: { in: TARGET_TYPES }
   validates :status, inclusion: { in: STATUSES }

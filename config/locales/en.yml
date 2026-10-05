@@ -191,7 +191,7 @@ en:
       currency_hint: "ISO 4217 — e.g. TRY, USD, EUR."
       locale: "Locale"
       theme: "Theme"
-      theme_dark: "Dark (default)"
+      theme_dark: "Dark"
       theme_light: "Light"
       theme_system: "Follow system"
       weekly_review_day: "Weekly review day"
@@ -469,6 +469,7 @@ en:
     ical_feed: "iCal feed →"
   events:
     new_title: "New event"
+    series_not_draggable: "A repeating event can't be dragged: that would move the whole series. Open it to change its time."
     edit_title: "Edit event"
     title_label: "Title"
     start_at: "Start at"
@@ -636,14 +637,20 @@ en:
 
   quick_capture:
     placeholder: "Capture anything…"
-    hint: 'Numbers → transaction · "habit: name" → log habit · text → todo'
+    hint: '-250 coffee → expense · +1000 salary → income · "habit: name" → log habit · "tomorrow …" → event · text → todo'
     button: "Capture"
+    default_description: "Quick capture"
     empty_alert: "Empty input"
     captured_transaction: "Captured as transaction."
     logged_habit: "Logged habit '%{name}'."
     habit_not_found: "Habit '%{name}' not found. Create it?"
-    looks_event: "Looks like an event — fill in time."
+    looks_event: "Looks like an event — nothing saved yet. Check the details and save it."
     captured_todo: "Captured as todo: %{title}"
+    invalid_amount:
+      unreadable: "Couldn't read the amount. Write it like -250, -12,50 or +1.250,50."
+      zero: "The amount must be greater than zero."
+      too_precise: "%{currency} amounts can't have that many decimal places."
+      too_large: "That amount is too large."
 
   focus:
     title: "Focus"
@@ -680,9 +687,98 @@ en:
               must_match_kind: "parent must have the same kind (income/expense)"
               must_be_root: "parent is itself a subcategory — only top-level categories can be parents"
               cannot_have_children: "category with subcategories cannot become a subcategory itself"
+              has_budget: "category with a budget cannot become a subcategory"
         budget:
           attributes:
             finance_category_id:
               taken: "already has a budget"
               must_be_expense: "only expense categories can be budgeted"
               must_be_root: "only top-level categories can be budgeted"
+        subscription:
+          attributes:
+            finance_category_id:
+              must_be_expense: "must be an expense category"
+            end_date:
+              before_start_date: "can't be before the start date"
+        event:
+          attributes:
+            end_at:
+              must_be_after_start: "must be after start"
+            recurrence_rule:
+              unsupported_frequency: "must repeat daily, weekly, monthly or yearly"
+              unsupported_part: "can't use %{value}"
+              out_of_range: "%{part} must be between %{minimum} and %{maximum}"
+              no_occurrences: "never falls on any day"
+        goal:
+          attributes:
+            related:
+              must_match_target_type: "doesn't fit the goal type: a financial goal links an account, a habit goal links a habit, a custom goal links nothing"
+        transaction:
+          attributes:
+            related_account_id:
+              required_for_transfer: "must be present for transfers"
+              same_account: "must be a different account"
+              currency_mismatch: "must use the same currency as the source account"
+            finance_category:
+              kind_mismatch: "kind must match the transaction kind"
+        user:
+          attributes:
+            avatar:
+              invalid_content_type: "must be a PNG, JPEG, WebP or GIF image"
+              too_large: "must be smaller than 5 MB"
+      messages:
+        must_belong_to_same_user: "must be one of your own records"
+    attributes:
+      transaction:
+        amount_cents: "Amount"
+        finance_category: "Category"
+        finance_category_id: "Category"
+        related_account_id: "Destination account"
+      account:
+        initial_balance_cents: "Opening balance"
+      budget:
+        monthly_limit_cents: "Monthly limit"
+        finance_category: "Category"
+        finance_category_id: "Category"
+      subscription:
+        amount_cents: "Amount"
+        finance_category_id: "Category"
+        next_charge_on: "Next charge date"
+      goal:
+        related: "Link"
+
+  api:
+    errors:
+      invalid_parameter: "Invalid value for %{param}."
+      value_out_of_range: "A number is too large to save."
+      invalid_date: "Use a date in YYYY-MM-DD format."
+      invalid_datetime: "Use a date and time in ISO 8601 format, like 2026-10-05T09:00:00+03:00."
+      future_date: "Future days can't be logged."
+      before_habit_start: "This habit didn't exist yet on that day (it starts on %{date})."
+      habit_archived: "Archived habits can't be logged."
+      has_transactions: "This account has transactions, so it can't be deleted. Archive it instead."
+      currency_locked: "The currency can't be changed once the account has transactions or subscriptions."
+      kind_locked: "The type can't be changed while the category has transactions, subcategories, a budget or subscriptions."
+      amount_required: "That account uses another currency. Enter the amount in its currency."
+      not_chargeable:
+        inactive: "Only an active subscription can be charged."
+        no_next_charge: "Set the next charge date first."
+      target_reached: "This goal's progress has already reached its target. Raise the target to reopen it."
+      target_not_reached: "This goal hasn't reached its target yet, so it can't be marked achieved."
+      progress_computed: "This goal's progress is calculated from its linked account, habit or income, so it can't be set by hand."
+      body_has_formatting: "This entry has formatting from the web (bold, lists, links…) that plain text can't keep. Saving your changes will remove it."
+      query_too_short: "Type at least %{count} characters to search."
+    finance:
+      uncategorized: "Uncategorized"
+    search:
+      due: "Due %{date}"
+      next_charge: "Next %{date}"
+      habit_streak: "%{count}-day streak"
+      archived: "Archived"
+      inactive: "Inactive"
+    currencies:
+      TRY: "Turkish lira"
+      USD: "US dollar"
+      EUR: "Euro"
+      GBP: "British pound"
+      GAU: "Gram gold"

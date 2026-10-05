@@ -32,5 +32,37 @@ RSpec.describe Subscription, type: :model do
       sub.advance_next_charge!
       expect(sub.next_charge_on).to eq(Date.new(2026, 2, 15))
     end
+
+    it "goes back to the start date's day after a short month instead of keeping the 28th" do
+      sub = create(:subscription, frequency: "monthly", start_date: Date.new(2027, 1, 31), next_charge_on: Date.new(2027, 1, 31))
+
+      dates = Array.new(4) { sub.advance_next_charge! && sub.next_charge_on }
+
+      expect(dates).to eq([ Date.new(2027, 2, 28), Date.new(2027, 3, 31), Date.new(2027, 4, 30), Date.new(2027, 5, 31) ])
+    end
+
+    it "keeps 29 February for a yearly subscription that started on it, in leap years" do
+      sub = create(:subscription, frequency: "yearly", start_date: Date.new(2028, 2, 29), next_charge_on: Date.new(2029, 2, 28))
+
+      dates = Array.new(3) { sub.advance_next_charge! && sub.next_charge_on }
+
+      expect(dates).to eq([ Date.new(2030, 2, 28), Date.new(2031, 2, 28), Date.new(2032, 2, 29) ])
+    end
+
+    it "keeps a next charge date the user moved to another day" do
+      sub = create(:subscription, frequency: "monthly", start_date: Date.new(2027, 1, 31), next_charge_on: Date.new(2027, 3, 15))
+
+      sub.advance_next_charge!
+
+      expect(sub.next_charge_on).to eq(Date.new(2027, 4, 15))
+    end
+  end
+
+  describe "#monthly_amount_cents" do
+    it "is the amount for monthly subscriptions and a twelfth of the yearly amount, rounded down, otherwise" do
+      expect(build(:subscription, frequency: "monthly", amount_cents: 99_99).monthly_amount_cents).to eq(99_99)
+      expect(build(:subscription, frequency: "weekly", amount_cents: 10_00).monthly_amount_cents).to eq(43_33)
+      expect(build(:subscription, frequency: "yearly", amount_cents: 1_000_00).monthly_amount_cents).to eq(83_33)
+    end
   end
 end

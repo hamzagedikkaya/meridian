@@ -10,6 +10,8 @@ module Api
         perfect = PerfectDayChain.new(current_user, days: 30)
 
         render json: {
+          # The user's local date the rest of this payload is computed for.
+          today: today,
           currency: current_user.currency,
           subunit_to_unit: Serialize.subunit_to_unit(current_user.currency),
           month_net_cents: month_net_cents,
@@ -17,7 +19,7 @@ module Api
           open_todos: current_user.todos.open.count,
           overdue_count: current_user.todos.overdue.count,
           today_events_count: events.size,
-          habit_completion_pct: habit_completion_pct(habits.size, today),
+          habit_completion_pct: Habit.week_completion_pct(habits, today),
           spending_7d: spending_7d(today),
           today_habits: habits.map { |habit| today_habit_json(habit, streaks[habit.id], today_logs[habit.id]) },
           upcoming_todos: upcoming_todos.map { |todo| Serialize.todo(todo) },
@@ -35,16 +37,6 @@ module Api
       def month_net_cents
         current_user.transactions.this_month.income.sum(:amount_cents) -
           current_user.transactions.this_month.expense.sum(:amount_cents)
-      end
-
-      # Week-to-date completion: completed logs / (active habits × days elapsed).
-      def habit_completion_pct(active_count, today)
-        return 0 if active_count.zero?
-
-        week_start = today.beginning_of_week
-        completed = current_user.habit_logs.where(completed: true, date: week_start..today).count
-        possible = active_count * (today - week_start + 1).to_i
-        (completed.to_f / possible * 100).round
       end
 
       def spending_7d(today)
@@ -73,17 +65,19 @@ module Api
                     .limit(6)
       end
 
-      # Recurring events materialize into today via occurrences_between, like
-      # the web calendar grid.
+      # Recurring events materialize into today, as in the web dashboard and
+      # calendar (Event.occurrences_by_event).
       def today_events(today)
-        current_user.events.where(start_at: today.all_day)
-                    .or(current_user.events.recurring.where(start_at: ..today.end_of_day))
-                    .order(:start_at)
-                    .select { |event| event.occurrences_between(today.beginning_of_day, today.end_of_day).include?(today) }
+        Event.occurrences_by_event(current_user.events.order(:start_at), today, today).map(&:first)
       end
 
+      # Recomputed as GET /goals recomputes them, so the card shows current
+      # progress, and a goal that reached its target since (a transaction, a
+      # habit log) is no longer listed as active.
       def active_goals_json
-        current_user.goals.active.ordered.limit(3).map do |goal|
+        goals = current_user.goals.where.not(status: "abandoned").includes(:related, :user).ordered.to_a
+        goals.each(&:recalculate_progress!)
+        goals.select { |goal| goal.status == "active" }.first(3).map do |goal|
           { id: goal.id, name: goal.name, color: goal.color, progress_percent: goal.progress_percent }
         end
       end

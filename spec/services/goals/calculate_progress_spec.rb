@@ -49,6 +49,16 @@ RSpec.describe Goals::CalculateProgress do
           expect(goal.reload.current_value).to eq(412.0)
         end
 
+        it "counts only income on accounts in the user's currency, as the finance dashboard does" do
+          try_user = create(:user, currency: "TRY")
+          create(:transaction, :income, user: try_user, account: create(:account, user: try_user, currency: "TRY"), amount_cents: 10_000)
+          create(:transaction, :income, user: try_user, account: create(:account, user: try_user, currency: "GAU"), amount_cents: 2)
+          create(:transaction, :income, user: try_user, account: create(:account, user: try_user, currency: "usd"), amount_cents: 10_000)
+          goal = create(:goal, user: try_user, target_type: "financial", related: nil, target_value: 1000, current_value: 0)
+
+          expect(described_class.call(goal)).to eq(100.0)
+        end
+
         it "falls back to 100 for an unknown currency code" do
           account = create(:account, user: user, currency: "ZZZ", initial_balance_cents: 5_000)
           goal = create(:goal, user: user, target_type: "financial", related: account,
@@ -83,7 +93,8 @@ RSpec.describe Goals::CalculateProgress do
 
         it "divides total income by the user-currency subunit (GAU → 1, not 100)" do
           gold_user = create(:user, currency: "GAU")
-          create(:transaction, :income, user: gold_user, amount_cents: 412)
+          gold = create(:account, user: gold_user, currency: "GAU")
+          create(:transaction, :income, user: gold_user, account: gold, amount_cents: 412)
           goal = create(:goal, user: gold_user, target_type: "financial", related: nil,
                                target_value: 500, current_value: 0)
 
@@ -209,6 +220,44 @@ RSpec.describe Goals::CalculateProgress do
 
         expect(described_class.call(goal)).to eq(17)
       end
+    end
+  end
+
+  describe "#source" do
+    it "names where the value comes from for every kind of goal" do
+      account = create(:account, user: user)
+      habit = create(:habit, user: user)
+
+      expect(described_class.new(build(:goal, user: user, target_type: "financial", related: account)).source).to eq("account")
+      expect(described_class.new(build(:goal, user: user, target_type: "financial")).source).to eq("income")
+      expect(described_class.new(build(:goal, user: user, target_type: "habit", related: habit)).source).to eq("habit")
+      expect(described_class.new(build(:goal, user: user, target_type: "habit")).source).to eq("manual")
+      expect(described_class.new(build(:goal, user: user, target_type: "custom", related: account)).source).to eq("manual")
+    end
+  end
+
+  describe "#value and #status_for" do
+    it "work on unsaved changes without writing anything" do
+      account = create(:account, user: user, initial_balance_cents: 30_00)
+      goal = create(:goal, user: user, target_type: "custom", target_value: 20, current_value: 5)
+      goal.assign_attributes(target_type: "financial", related: account)
+
+      progress = described_class.new(goal)
+
+      expect(progress.value).to eq(30.0)
+      expect(progress.status_for(30.0)).to eq("achieved")
+      expect(goal.reload).to have_attributes(target_type: "custom", current_value: 5)
+    end
+  end
+
+  describe ".call when nothing changed" do
+    it "does not write the goal" do
+      goal = create(:goal, user: user, target_type: "custom", target_value: 100, current_value: 17, status: "active")
+      allow(goal).to receive(:update_columns)
+
+      described_class.call(goal)
+
+      expect(goal).not_to have_received(:update_columns)
     end
   end
 end

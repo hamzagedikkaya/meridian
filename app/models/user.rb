@@ -5,6 +5,10 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   has_secure_token :api_token
+  # A new password replaces the API token, whatever changed it (PATCH
+  # /me/password, the web profile page, a Devise reset link), so changing the
+  # password after a phone is lost or a token leaks signs that copy out.
+  before_update :replace_api_token, if: :will_save_change_to_encrypted_password?
 
   has_one_attached :avatar
 
@@ -45,9 +49,31 @@ class User < ApplicationRecord
     name.presence || email.to_s.split("@").first
   end
 
+  # The zone this user's requests run in, so "today" and naive datetimes mean
+  # the user's wall clock rather than UTC. A blank or unknown stored name
+  # (validation only runs on save) falls back to the app default instead of
+  # raising mid-request.
+  def time_zone
+    ActiveSupport::TimeZone[timezone.to_s] || Time.zone_default
+  end
+
+  # The locale this user's requests run in; unsupported values fall back to
+  # the app default for the same reason as #time_zone.
+  def preferred_locale
+    I18n.locale_available?(locale) ? locale.to_sym : I18n.default_locale
+  end
+
   def initials
     return "?" if display_name.blank?
     display_name.split(/\s+/).first(2).map { |part| part[0]&.upcase }.join
+  end
+
+  # Replaces the API token. There is one token per user, so every device
+  # using the old one is signed out. Written without validations (unlike
+  # regenerate_api_token) so that signing out cannot fail because of an
+  # unrelated invalid attribute, e.g. a legacy row saved before a newer rule.
+  def rotate_api_token!
+    update_column(:api_token, self.class.generate_unique_secure_token)
   end
 
   # Returns the 30-day "perfect day" chain — a day is perfect when every habit
@@ -57,6 +83,10 @@ class User < ApplicationRecord
   end
 
   private
+
+  def replace_api_token
+    self.api_token = self.class.generate_unique_secure_token
+  end
 
   # The uploaded bytes are handed to ImageMagick for variant processing, and
   # `accept: "image/*"` in the form is client-side only.

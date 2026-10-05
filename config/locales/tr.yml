@@ -208,7 +208,7 @@ tr:
       currency_hint: "ISO 4217 — örn. TRY, USD, EUR."
       locale: "Dil"
       theme: "Tema"
-      theme_dark: "Koyu (varsayılan)"
+      theme_dark: "Koyu"
       theme_light: "Açık"
       theme_system: "Sistemi takip et"
       weekly_review_day: "Haftalık gözden geçirme günü"
@@ -485,6 +485,7 @@ tr:
     ical_feed: "iCal akışı →"
   events:
     new_title: "Yeni etkinlik"
+    series_not_draggable: "Tekrarlanan bir etkinlik sürüklenemez: bu tüm seriyi taşırdı. Saatini değiştirmek için etkinliği aç."
     edit_title: "Etkinliği düzenle"
     title_label: "Başlık"
     start_at: "Başlangıç"
@@ -648,14 +649,20 @@ tr:
 
   quick_capture:
     placeholder: "Bir şey yakala…"
-    hint: 'Sayı → işlem · "habit: isim" → alışkanlık logu · metin → görev'
+    hint: '-250 kahve → gider · +1000 maaş → gelir · "alışkanlık: isim" → alışkanlık · "yarın …" → etkinlik · metin → görev'
     button: "Yakala"
+    default_description: "Hızlı ekleme"
     empty_alert: "Boş girdi"
     captured_transaction: "İşlem olarak yakalandı."
     logged_habit: "'%{name}' alışkanlığı işaretlendi."
     habit_not_found: "'%{name}' alışkanlığı yok. Oluşturulsun mu?"
-    looks_event: "Bir etkinlik gibi görünüyor — saatini gir."
+    looks_event: "Bir etkinlik gibi görünüyor — henüz kaydedilmedi. Ayrıntıları kontrol edip kaydet."
     captured_todo: "Görev olarak yakalandı: %{title}"
+    invalid_amount:
+      unreadable: "Tutar okunamadı. -250, -12,50 ya da +1.250,50 gibi yaz."
+      zero: "Tutar sıfırdan büyük olmalı."
+      too_precise: "%{currency} tutarı bu kadar ondalık basamak alamaz."
+      too_large: "Tutar çok büyük."
 
   focus:
     title: "Odak"
@@ -692,9 +699,231 @@ tr:
               must_match_kind: "üst kategori ile tür (gelir/gider) uyuşmalı"
               must_be_root: "üst kategori zaten alt kategori — sadece ana kategoriler seçilebilir"
               cannot_have_children: "alt kategorisi olan bir kategori başka bir kategorinin altına alınamaz"
+              has_budget: "bütçesi olan bir kategori başka bir kategorinin altına alınamaz"
         budget:
           attributes:
             finance_category_id:
               taken: "bu kategori için zaten bir bütçe var"
               must_be_expense: "yalnızca gider kategorilerine bütçe konabilir"
               must_be_root: "yalnızca ana kategorilere bütçe konabilir"
+        subscription:
+          attributes:
+            finance_category_id:
+              must_be_expense: "bir gider kategorisi olmalı"
+            end_date:
+              before_start_date: "başlangıç tarihinden önce olamaz"
+        event:
+          attributes:
+            end_at:
+              must_be_after_start: "başlangıçtan sonra olmalı"
+            recurrence_rule:
+              unsupported_frequency: "günlük, haftalık, aylık ya da yıllık olmalı"
+              unsupported_part: "%{value} içeremez"
+              out_of_range: "içindeki %{part} %{minimum} ile %{maximum} arasında olmalı"
+              no_occurrences: "hiçbir güne denk gelmiyor"
+        goal:
+          attributes:
+            related:
+              must_match_target_type: "hedef türüne uymuyor: finansal hedef bir hesaba, alışkanlık hedefi bir alışkanlığa bağlanır, özel hedef bağlanmaz"
+        transaction:
+          attributes:
+            related_account_id:
+              required_for_transfer: "transferlerde zorunlu"
+              same_account: "kaynak hesaptan farklı olmalı"
+              currency_mismatch: "kaynak hesapla aynı para biriminde olmalı"
+            finance_category:
+              kind_mismatch: "türü işlem türüyle aynı olmalı"
+        user:
+          attributes:
+            avatar:
+              invalid_content_type: "PNG, JPEG, WebP ya da GIF olmalı"
+              too_large: "5 MB'tan küçük olmalı"
+      messages:
+        record_invalid: "Doğrulama başarısız: %{errors}"
+        must_belong_to_same_user: "sana ait bir kayıt olmalı"
+        restrict_dependent_destroy:
+          has_one: "bağlı bir %{record} kaydı olduğu için silinemez"
+          has_many: "bağlı %{record} kayıtları olduğu için silinemez"
+    attributes:
+      user:
+        name: "Ad"
+        email: "E-posta"
+        password: "Şifre"
+        password_confirmation: "Şifre tekrarı"
+        current_password: "Mevcut şifre"
+        timezone: "Saat dilimi"
+        currency: "Para birimi"
+        locale: "Dil"
+        theme_preference: "Tema"
+        weekly_review_day: "Haftalık değerlendirme günü"
+        avatar: "Profil fotoğrafı"
+      account:
+        name: "Ad"
+        account_type: "Hesap türü"
+        currency: "Para birimi"
+        initial_balance_cents: "Açılış bakiyesi"
+        color: "Renk"
+      transaction:
+        kind: "Tür"
+        amount_cents: "Tutar"
+        date: "Tarih"
+        description: "Açıklama"
+        note: "Not"
+        account: "Hesap"
+        account_id: "Hesap"
+        related_account: "Hedef hesap"
+        related_account_id: "Hedef hesap"
+        finance_category: "Kategori"
+        finance_category_id: "Kategori"
+      finance_category:
+        name: "Ad"
+        kind: "Tür"
+        color: "Renk"
+        parent: "Üst kategori"
+        parent_id: "Üst kategori"
+      budget:
+        monthly_limit_cents: "Aylık limit"
+        finance_category: "Kategori"
+        finance_category_id: "Kategori"
+        color: "Renk"
+      subscription:
+        name: "Ad"
+        amount_cents: "Tutar"
+        frequency: "Sıklık"
+        account: "Hesap"
+        account_id: "Hesap"
+        finance_category: "Kategori"
+        finance_category_id: "Kategori"
+        goal_id: "Hedef"
+        next_charge_on: "Sonraki ödeme"
+        start_date: "Başlangıç tarihi"
+        color: "Renk"
+        active: "Aktif"
+        end_date: "Bitiş tarihi"
+        vendor: "Sağlayıcı"
+        note: "Not"
+      habit:
+        name: "Ad"
+        description: "Açıklama"
+        frequency: "Sıklık"
+        target_count: "Hedef sayı"
+        color: "Renk"
+        goal: "Hedef"
+        goal_id: "Hedef"
+      habit_log:
+        date: "Tarih"
+        count: "Sayı"
+      todo:
+        title: "Başlık"
+        body: "Not"
+        priority: "Öncelik"
+        status: "Durum"
+        due_at: "Son tarih"
+        todo_list: "Liste"
+        todo_list_id: "Liste"
+        goal: "Hedef"
+        goal_id: "Hedef"
+        parent: "Üst görev"
+        parent_id: "Üst görev"
+      todo_list:
+        name: "Ad"
+        color: "Renk"
+        position: "Sıra"
+      event:
+        title: "Başlık"
+        description: "Açıklama"
+        start_at: "Başlangıç"
+        end_at: "Bitiş"
+        all_day: "Tüm gün"
+        location: "Konum"
+        color: "Renk"
+        event_type: "Tür"
+        recurrence_rule: "Tekrar kuralı"
+      goal:
+        name: "Ad"
+        description: "Açıklama"
+        target_type: "Hedef türü"
+        status: "Durum"
+        target_value: "Hedef değer"
+        current_value: "Mevcut değer"
+        unit: "Birim"
+        deadline: "Son tarih"
+        color: "Renk"
+        related: "Bağlantı"
+      journal_entry:
+        date: "Tarih"
+        title: "Başlık"
+        body: "Metin"
+        mood: "Ruh hali"
+        energy_level: "Enerji"
+        weather: "Hava"
+        gratitude: "Şükran"
+        tags: "Etiketler"
+
+  # Rails' built-in validation messages. Without them a Turkish user got
+  # English ("can't be blank") through the :en fallback.
+  errors:
+    format: "%{attribute} %{message}"
+    messages:
+      accepted: "kabul edilmeli"
+      blank: "boş bırakılamaz"
+      confirmation: "%{attribute} ile eşleşmiyor"
+      empty: "boş bırakılamaz"
+      equal_to: "%{count} olmalı"
+      even: "çift sayı olmalı"
+      exclusion: "kullanılamaz"
+      greater_than: "%{count} değerinden büyük olmalı"
+      greater_than_or_equal_to: "%{count} ya da daha büyük olmalı"
+      in: "%{count} aralığında olmalı"
+      inclusion: "geçerli bir seçenek değil"
+      invalid: "geçersiz"
+      less_than: "%{count} değerinden küçük olmalı"
+      less_than_or_equal_to: "%{count} ya da daha küçük olmalı"
+      model_invalid: "Doğrulama başarısız: %{errors}"
+      not_a_number: "sayı olmalı"
+      not_an_integer: "tam sayı olmalı"
+      odd: "tek sayı olmalı"
+      other_than: "%{count} dışında bir değer olmalı"
+      password_too_long: "çok uzun"
+      present: "boş olmalı"
+      required: "mevcut olmalı"
+      taken: "zaten kullanılıyor"
+      too_long: "çok uzun (en fazla %{count} karakter)"
+      too_short: "çok kısa (en az %{count} karakter)"
+      wrong_length: "uzunluğu yanlış (%{count} karakter olmalı)"
+
+  api:
+    errors:
+      invalid_parameter: "%{param} için geçersiz değer."
+      value_out_of_range: "Sayılardan biri kaydedilemeyecek kadar büyük."
+      invalid_date: "Tarih YYYY-AA-GG biçiminde olmalı."
+      invalid_datetime: "Tarih ve saat ISO 8601 biçiminde olmalı, örneğin 2026-10-05T09:00:00+03:00."
+      future_date: "Gelecekteki bir gün işaretlenemez."
+      before_habit_start: "Bu alışkanlık o gün henüz yoktu (%{date} tarihinde başladı)."
+      habit_archived: "Arşivlenmiş alışkanlık işaretlenemez."
+      has_transactions: "Bu hesapta işlem olduğu için silinemez. Bunun yerine arşivle."
+      currency_locked: "İşlemi ya da aboneliği olan bir hesabın para birimi değiştirilemez."
+      kind_locked: "İşlemi, alt kategorisi, bütçesi ya da aboneliği olan bir kategorinin türü değiştirilemez."
+      amount_required: "Bu hesap başka bir para birimi kullanıyor. Tutarı o para biriminde gir."
+      not_chargeable:
+        inactive: "Yalnızca aktif bir abonelik için ödeme kaydedilebilir."
+        no_next_charge: "Önce sonraki ödeme tarihini gir."
+      target_reached: "Bu hedefin ilerlemesi hedef değerine zaten ulaştı. Yeniden açmak için hedef değerini yükselt."
+      target_not_reached: "Bu hedef henüz hedef değerine ulaşmadı, tamamlandı olarak işaretlenemez."
+      progress_computed: "Bu hedefin ilerlemesi bağlı hesaptan, alışkanlıktan ya da gelirden hesaplanır; elle girilemez."
+      body_has_formatting: "Bu kayıtta webde eklenmiş biçimlendirme var (kalın yazı, liste, bağlantı…); düz metin bunu tutamaz. Değişikliklerini kaydedersen biçimlendirme kalkar."
+      query_too_short: "Aramak için en az %{count} karakter yaz."
+    finance:
+      uncategorized: "Kategorisiz"
+    search:
+      due: "Son gün %{date}"
+      next_charge: "Sonraki %{date}"
+      habit_streak: "%{count} gün seri"
+      archived: "Arşivlendi"
+      inactive: "Pasif"
+    currencies:
+      TRY: "Türk lirası"
+      USD: "ABD doları"
+      EUR: "Euro"
+      GBP: "İngiliz sterlini"
+      GAU: "Gram altın"

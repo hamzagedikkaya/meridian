@@ -40,6 +40,13 @@ RSpec.describe Finance::BudgetStatus do
       expect(s.bar_percent).to eq(100)
     end
 
+    it "rounds an exact half up, which floating point would round down" do
+      # 215.50 / 100.00 × 100 is 215.49999999999997 as a Float.
+      expect(status(spent: 215_50, limit: 100_00).percent_used).to eq(216)
+      # 49 / 12 × 30 = 122.5 (122.49999999999999 as a Float).
+      expect(status(spent: 49, on: Date.new(2026, 6, 12)).projected_cents).to eq(123)
+    end
+
     it "derives pace from how far into the month it is" do
       expect(status(spent: 0, on: Date.new(2026, 6, 15)).pace_percent).to eq(50) # day 15 of 30
     end
