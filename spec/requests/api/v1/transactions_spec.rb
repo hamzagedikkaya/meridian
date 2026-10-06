@@ -72,6 +72,47 @@ RSpec.describe "Api::V1::Transactions", type: :request do
       expect(JSON.parse(response.body)["transactions"].map { |t| t["id"] }).to contain_exactly(recent_expense.id, income.id)
     end
 
+    describe "q" do
+      def ids_for(params)
+        get api_v1_transactions_path, params: params, headers: auth
+        JSON.parse(response.body)["transactions"].map { |t| t["id"] }
+      end
+
+      it "matches the description or the note in any case, with the other filters and meta totals" do
+        by_description = create(:transaction, user: user, account: account, description: "Kahve dükkanı", amount_cents: 85_00)
+        by_note = create(:transaction, :income, user: user, account: account, description: "Maaş", note: "kahVE parası", amount_cents: 10_00)
+        create(:transaction, user: user, account: account, description: "Market")
+        create(:transaction, description: "Kahve", note: "someone else's")
+
+        expect(ids_for(q: "KAHVE")).to contain_exactly(by_description.id, by_note.id)
+        expect(JSON.parse(response.body)["meta"]).to include(
+          "total_count" => 2, "filtered_income_cents" => 10_00, "filtered_expense_cents" => 85_00
+        )
+        expect(ids_for(q: " kahve ", kind: "expense")).to eq([ by_description.id ])
+      end
+
+      it "ignores the case of Turkish letters" do
+        candy = create(:transaction, user: user, account: account, description: "Şekerci", note: nil)
+        create(:transaction, user: user, account: account, description: "Market", note: "IĞDIR")
+
+        expect(ids_for(q: "ŞEKER")).to eq([ candy.id ])
+        expect(ids_for(q: "ığdır").size).to eq(1)
+      end
+
+      it "reads % and _ literally, ignores a blank q and 422s for a q that is not a string" do
+        percent = create(:transaction, user: user, account: account, description: "100% iade")
+        create(:transaction, user: user, account: account, description: "1000 iade")
+
+        expect(ids_for(q: "0%")).to eq([ percent.id ])
+        expect(ids_for(q: "_")).to be_empty
+        expect(ids_for(q: "  ").size).to eq(2)
+
+        get api_v1_transactions_path, params: { q: [ "kahve" ] }, headers: auth
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(JSON.parse(response.body)).to include("code" => "invalid_parameter", "param" => "q")
+      end
+    end
+
     it "expands a root category filter to its children while a child stays exact" do
       child = create(:finance_category, user: user, name: "Atıştırmalık", parent: category)
       in_child = create(:transaction, user: user, account: account, finance_category: child)
@@ -118,6 +159,17 @@ RSpec.describe "Api::V1::Transactions", type: :request do
       expect(body["account"]["id"]).to eq(account.id)
       expect(body["category"]["id"]).to eq(category.id)
       expect(user.transactions.count).to eq(1)
+    end
+
+    it "422s with code value_out_of_range for an amount the 4-byte column cannot hold" do
+      post api_v1_transactions_path,
+           params: { kind: "expense", amount_cents: 3_000_000_000, date: Date.current.iso8601,
+                     account_id: account.id, finance_category_id: category.id },
+           headers: auth, as: :json
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(JSON.parse(response.body)).to include("code" => "value_out_of_range")
+      expect(user.transactions.count).to eq(0)
     end
 
     it "passes GAU amounts through untouched with subunit_to_unit 1" do
@@ -221,6 +273,138 @@ RSpec.describe "Api::V1::Transactions", type: :request do
 
       expect(response).to have_http_status(:not_found)
       expect(Transaction.exists?(other.id)).to be(true)
+    end
+  end
+
+  describe "GET /api/v1/transactions/:id" do
+    def body = JSON.parse(response.body)
+
+    it "401s without a token" do
+      get api_v1_transaction_path(create(:transaction, user: user))
+
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it "returns the transaction as the list does, plus its linkage" do
+      transaction = create(:transaction, user: user, account: account, finance_category: category, note: "n")
+
+      get api_v1_transaction_path(transaction), headers: auth
+
+      expect(response).to have_http_status(:ok)
+      expect(body["transaction"]).to include(
+        "id" => transaction.id, "kind" => "expense", "note" => "n", "parent_transaction_id" => nil, "linked" => nil,
+        "category" => hash_including("id" => category.id), "account" => hash_including("id" => account.id)
+      )
+    end
+
+    it "shows a web-linked pair from both sides" do
+      gold = create(:account, user: user, name: "Altın", currency: "GAU")
+      parent = create(:transaction, user: user, account: account, amount_cents: 5_000_00, description: "Altın alımı")
+      child = create(:transaction, :income, user: user, account: gold, amount_cents: 2, parent_transaction: parent,
+                                            description: "Altın alımı")
+
+      get api_v1_transaction_path(parent), headers: auth
+      expect(body["transaction"]["linked"]).to eq(
+        "id" => child.id, "kind" => "income", "amount_cents" => 2, "date" => child.date.iso8601, "description" => "Altın alımı",
+        "account" => { "id" => gold.id, "name" => "Altın", "color" => "#B8860B", "currency" => "GAU", "subunit_to_unit" => 1 },
+        "relation" => "child"
+      )
+
+      get api_v1_transaction_path(child), headers: auth
+      expect(body["transaction"]).to include("parent_transaction_id" => parent.id, "linked" => hash_including("id" => parent.id, "relation" => "parent"))
+    end
+
+    it "404s for another user's transaction" do
+      get api_v1_transaction_path(create(:transaction)), headers: auth
+
+      expect(response).to have_http_status(:not_found)
+      expect(body).to eq("error" => "not_found", "code" => "not_found")
+    end
+  end
+
+  describe "uncategorized transactions" do
+    it "creates an expense without a category" do
+      post api_v1_transactions_path,
+           params: { kind: "expense", amount_cents: 45_00, date: Date.current.iso8601, account_id: account.id, finance_category_id: nil },
+           headers: auth, as: :json
+
+      expect(response).to have_http_status(:created)
+      expect(JSON.parse(response.body)["category"]).to be_nil
+      expect(user.transactions.last.finance_category_id).to be_nil
+    end
+
+    it "clears a transaction's category with finance_category_id null" do
+      transaction = create(:transaction, user: user, account: account, finance_category: category)
+
+      patch api_v1_transaction_path(transaction), params: { finance_category_id: nil }, headers: auth, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(transaction.reload.finance_category_id).to be_nil
+    end
+
+    it "lists only uncategorized transactions with category_id=none" do
+      uncategorized = create(:transaction, user: user, account: account, finance_category: nil)
+      create(:transaction, user: user, account: account, finance_category: category)
+      create(:transaction, finance_category: nil)
+
+      get api_v1_transactions_path(category_id: "none", kind: "expense"), headers: auth
+
+      expect(JSON.parse(response.body)["transactions"].map { |t| t["id"] }).to eq([ uncategorized.id ])
+    end
+  end
+
+  describe "transfers" do
+    def transfer(params)
+      post api_v1_transactions_path,
+           params: { kind: "transfer", amount_cents: 100_00, date: Date.current.iso8601, account_id: account.id }.merge(params),
+           headers: auth, as: :json
+      JSON.parse(response.body)
+    end
+
+    it "moves money to another account in the same currency" do
+      savings = create(:account, user: user, currency: "TRY")
+
+      expect(transfer(related_account_id: savings.id)).to include("kind" => "transfer", "related_account" => hash_including("id" => savings.id))
+      expect(response).to have_http_status(:created)
+    end
+
+    it "refuses the same account and an account in another currency" do
+      gold = create(:account, user: user, currency: "GAU")
+
+      expect(transfer(related_account_id: account.id)["details"]).to eq("related_account_id" => [ { "error" => "same_account" } ])
+      expect(transfer(related_account_id: gold.id)["details"]).to eq("related_account_id" => [ { "error" => "currency_mismatch" } ])
+      expect(user.transactions.count).to eq(0)
+    end
+
+    it "refuses an edit that points a transfer at an account in another currency" do
+      existing = create(:transaction, :transfer, user: user, account: account)
+
+      patch api_v1_transaction_path(existing), params: { related_account_id: create(:account, user: user, currency: "USD").id },
+                                               headers: auth, as: :json
+
+      expect(JSON.parse(response.body)["details"]).to eq("related_account_id" => [ { "error" => "currency_mismatch" } ])
+    end
+
+    it "keeps an older transfer between currencies editable" do
+      existing = create(:transaction, :transfer, user: user, account: account)
+      existing.related_account.update_column(:currency, "USD")
+
+      patch api_v1_transaction_path(existing), params: { description: "Renamed" }, headers: auth, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(existing.reload.description).to eq("Renamed")
+    end
+
+    it "adds transfers into the account to its history with include_incoming_transfers=true" do
+      own = create(:transaction, user: user, account: account, date: Date.current)
+      incoming = create(:transaction, :transfer, user: user, related_account: account, date: Date.current - 1)
+      create(:transaction, :transfer, user: user)
+
+      get api_v1_transactions_path(account_id: account.id), headers: auth
+      expect(JSON.parse(response.body)["transactions"].map { |t| t["id"] }).to eq([ own.id ])
+
+      get api_v1_transactions_path(account_id: account.id, include_incoming_transfers: true), headers: auth
+      expect(JSON.parse(response.body)["transactions"].map { |t| t["id"] }).to eq([ own.id, incoming.id ])
     end
   end
 end

@@ -59,6 +59,86 @@ RSpec.describe "Api::V1::Finance::Dashboard", type: :request do
     )
   end
 
+  describe "cumulative spend series" do
+    let(:account) { create(:account, user: user) }
+
+    def spend(cents, date, **attributes)
+      create(:transaction, user: user, account: account, amount_cents: cents, date: date, **attributes)
+    end
+
+    it "is all zeros for a fresh user: one element per day so far, and every day of last month" do
+      get api_v1_finance_dashboard_path, headers: auth
+
+      expect(body["spend_cumulative_cents"]).to eq([ 0 ] * 15)
+      expect(body["reference_cumulative_cents"]).to eq([ 0 ] * 30)
+    end
+
+    it "adds this month's expenses up day by day and ends on month.expense_cents" do
+      spend(100_00, Date.new(2026, 7, 1))
+      spend(200_00, Date.new(2026, 7, 15))
+      spend(50_00, Date.new(2026, 7, 20))
+      create(:transaction, :income, user: user, account: account, amount_cents: 999_00, date: Date.new(2026, 7, 2))
+      create(:transaction, :transfer, user: user, account: account, amount_cents: 999_00, date: Date.new(2026, 7, 2))
+      create(:transaction, amount_cents: 999_00, date: Date.new(2026, 7, 2))
+
+      get api_v1_finance_dashboard_path, headers: auth
+
+      expect(body["spend_cumulative_cents"]).to eq([ 100_00 ] * 14 + [ 350_00 ])
+      expect(body["spend_cumulative_cents"].last).to eq(body["month"]["expense_cents"])
+    end
+
+    it "adds last month's expenses up over all of its days and ends on its total" do
+      spend(40_00, Date.new(2026, 6, 3))
+      spend(60_00, Date.new(2026, 6, 30))
+      spend(70_00, Date.new(2026, 5, 31))
+
+      get api_v1_finance_dashboard_path, headers: auth
+
+      expect(body["reference_cumulative_cents"]).to eq([ 0, 0 ] + [ 40_00 ] * 27 + [ 100_00 ])
+      expect(body["six_month_series"]["expense_cents"][4]).to eq(body["reference_cumulative_cents"].last)
+    end
+  end
+
+  describe "currencies" do
+    let(:lira) { create(:account, user: user, currency: "TRY") }
+    let(:gold) { create(:account, user: user, currency: "GAU") }
+    let(:dollars) { create(:account, user: user, currency: "USD", archived_at: Time.current) }
+
+    before do
+      create(:transaction, :income, user: user, account: lira, amount_cents: 5_000_00, date: Date.new(2026, 7, 10))
+      create(:transaction, user: user, account: lira, amount_cents: 300_00, date: Date.new(2026, 7, 11), finance_category: nil)
+      create(:transaction, :income, user: user, account: gold, amount_cents: 2, date: Date.new(2026, 7, 10))
+      create(:transaction, user: user, account: gold, amount_cents: 5, date: Date.new(2026, 7, 11), finance_category: nil)
+      create(:transaction, user: user, account: dollars, amount_cents: 40_00, date: Date.new(2026, 2, 1))
+      create(:account, user: user, currency: "EUR")
+    end
+
+    it "keeps the totals, series and pie to accounts in the user's currency" do
+      get api_v1_finance_dashboard_path, headers: auth
+
+      expect(body["month"]).to eq("income_cents" => 5_000_00, "expense_cents" => 300_00, "net_cents" => 4_700_00)
+      expect(body["year"]).to eq("income_cents" => 5_000_00, "expense_cents" => 300_00)
+      expect(body["six_month_series"]["expense_cents"]).to eq([ 0, 0, 0, 0, 0, 300_00 ])
+      expect(body["pie"].sum { |slice| slice["amount_cents"] }).to eq(300_00)
+      expect(body["spend_cumulative_cents"].last).to eq(300_00)
+    end
+
+    it "lists every currency's month and year in totals_by_currency, the user's first" do
+      get api_v1_finance_dashboard_path, headers: auth
+
+      totals = body["totals_by_currency"]
+      expect(totals.map { |row| row["currency"] }).to eq(%w[TRY EUR GAU USD])
+      expect(totals.first.slice("month", "year")).to eq(body.slice("month", "year"))
+      expect(totals[2]).to eq(
+        "currency" => "GAU", "subunit_to_unit" => 1,
+        "month" => { "income_cents" => 2, "expense_cents" => 5, "net_cents" => -3 },
+        "year" => { "income_cents" => 2, "expense_cents" => 5 }
+      )
+      expect(totals[3]).to include("month" => { "income_cents" => 0, "expense_cents" => 0, "net_cents" => 0 },
+                                   "year" => { "income_cents" => 0, "expense_cents" => 40_00 })
+    end
+  end
+
   describe "pie" do
     let(:market) { create(:finance_category, user: user, name: "Market", color: "#AA0000") }
     let(:snacks) { create(:finance_category, user: user, name: "Atıştırmalık", parent: market) }
@@ -87,26 +167,56 @@ RSpec.describe "Api::V1::Finance::Dashboard", type: :request do
 
       expect(body["pie"]).to eq(expected_pie)
     end
+
+    it "adds an uncategorized bucket, over the same whole month as month.expense_cents" do
+      create(:transaction, user: user, finance_category: transport, amount_cents: 50_00, date: Date.new(2026, 7, 14))
+      create(:transaction, user: user, finance_category: nil, amount_cents: 70_00, date: Date.new(2026, 7, 2))
+      create(:transaction, user: user, finance_category: nil, amount_cents: 5_00, date: Date.new(2026, 7, 30))
+      create(:transaction, user: user, finance_category: nil, amount_cents: 9_00, date: Date.new(2026, 6, 30))
+      create(:transaction, :transfer, user: user, amount_cents: 999_00, date: Date.new(2026, 7, 3))
+
+      get api_v1_finance_dashboard_path, headers: auth
+
+      expect(body["pie"]).to eq([
+        { "id" => 0, "name" => "Uncategorized", "color" => "#6E6A64", "amount_cents" => 75_00, "breakdown" => [], "uncategorized" => true },
+        { "id" => transport.id, "name" => "Ulaşım", "color" => "#A09B8E", "amount_cents" => 50_00, "breakdown" => [] }
+      ])
+      expect(body["pie"].sum { |slice| slice["amount_cents"] }).to eq(body["month"]["expense_cents"])
+    end
+
+    it "counts a legacy row on another user's category as uncategorized, named in the user's language" do
+      user.update!(locale: "tr")
+      transaction = create(:transaction, user: user, amount_cents: 20_00, date: Date.new(2026, 7, 2))
+      transaction.update_column(:finance_category_id, create(:finance_category).id)
+
+      get api_v1_finance_dashboard_path, headers: auth
+
+      expect(body["pie"]).to eq([
+        { "id" => 0, "name" => "Kategorisiz", "color" => "#6E6A64", "amount_cents" => 20_00, "breakdown" => [], "uncategorized" => true }
+      ])
+    end
   end
 
   describe "budgets" do
     let(:market) { create(:finance_category, user: user, name: "Market", color: "#AA0000") }
     let(:transport) { create(:finance_category, user: user, name: "Ulaşım") }
 
-    def expected_budgets
+    def expected_budgets(market_budget, transport_budget)
       [
-        { "category" => { "id" => market.id, "name" => "Market" }, "color" => "#AA0000",
-          "limit_cents" => 40_000, "spent_cents" => 50_000, "remaining_cents" => -10_000,
-          "percent_used" => 125, "pace_percent" => 48, "projected_cents" => 103_333, "state" => "over" },
-        { "category" => { "id" => transport.id, "name" => "Ulaşım" }, "color" => "#A09B8E",
-          "limit_cents" => 100_000_000, "spent_cents" => 5_000, "remaining_cents" => 99_995_000,
-          "percent_used" => 0, "pace_percent" => 48, "projected_cents" => 10_333, "state" => "under" }
+        { "id" => market_budget.id, "finance_category_id" => market.id,
+          "category" => { "id" => market.id, "name" => "Market", "color" => "#AA0000" }, "color" => "#AA0000", "custom_color" => nil,
+          "limit_cents" => 40_000, "spent_cents" => 50_000, "remaining_cents" => -10_000, "over_by_cents" => 10_000,
+          "percent_used" => 125, "bar_percent" => 100, "pace_percent" => 48, "projected_cents" => 103_333, "state" => "over" },
+        { "id" => transport_budget.id, "finance_category_id" => transport.id,
+          "category" => { "id" => transport.id, "name" => "Ulaşım", "color" => "#A09B8E" }, "color" => "#A09B8E", "custom_color" => nil,
+          "limit_cents" => 100_000_000, "spent_cents" => 5_000, "remaining_cents" => 99_995_000, "over_by_cents" => 0,
+          "percent_used" => 0, "bar_percent" => 0, "pace_percent" => 48, "projected_cents" => 10_333, "state" => "under" }
       ]
     end
 
-    it "serializes month-to-date status with pace and projection, over-budget first" do
-      create(:budget, user: user, finance_category: market, monthly_limit_cents: 400_00)
-      create(:budget, user: user, finance_category: transport, monthly_limit_cents: 1_000_000_00)
+    it "serializes month-to-date status with ids, pace and projection, over-budget first" do
+      transport_budget = create(:budget, user: user, finance_category: transport, monthly_limit_cents: 1_000_000_00)
+      market_budget = create(:budget, user: user, finance_category: market, monthly_limit_cents: 400_00)
       create(:budget)
       snacks = create(:finance_category, user: user, name: "Atıştırmalık", parent: market)
       create(:transaction, user: user, finance_category: snacks, amount_cents: 300_00, date: Date.new(2026, 7, 12))
@@ -115,7 +225,7 @@ RSpec.describe "Api::V1::Finance::Dashboard", type: :request do
 
       get api_v1_finance_dashboard_path, headers: auth
 
-      expect(body["budgets"]).to eq(expected_budgets)
+      expect(body["budgets"]).to eq(expected_budgets(market_budget, transport_budget))
     end
   end
 
