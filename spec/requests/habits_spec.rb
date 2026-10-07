@@ -42,6 +42,15 @@ RSpec.describe "Habits", type: :request do
     end
   end
 
+  describe "GET /habits/new" do
+    it "prefills the name quick capture sends for an unknown habit" do
+      get new_habit_path(habit: { name: "Koşu" })
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('value="Koşu"')
+    end
+  end
+
   describe "POST /habits" do
     it "creates a habit" do
       expect { post habits_path, params: { habit: { name: "Test", frequency: "daily", target_count: 1 } } }
@@ -55,6 +64,27 @@ RSpec.describe "Habits", type: :request do
     it "toggles today's log to completed" do
       patch toggle_today_habit_path(habit)
       expect(habit.habit_logs.find_by(date: Date.current).completed).to be(true)
+    end
+
+    it "refuses an archived habit, whose logs are frozen, as the API does" do
+      habit.update!(archived_at: Time.current)
+
+      patch toggle_today_habit_path(habit)
+
+      expect(response).to have_http_status(:see_other)
+      expect(flash[:alert]).to eq(I18n.t("api.errors.habit_archived"))
+      expect(habit.habit_logs).to be_empty
+    end
+
+    it "hides the goal page's 'mark today' button for an archived habit" do
+      goal = create(:goal, user: user, target_type: "habit", related: habit)
+
+      get goal_path(goal)
+      expect(response.body).to include(toggle_today_habit_path(habit))
+
+      habit.update!(archived_at: Time.current)
+      get goal_path(goal)
+      expect(response.body).not_to include(toggle_today_habit_path(habit))
     end
 
     it "toggles back to false on second call" do

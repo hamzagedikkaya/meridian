@@ -48,5 +48,18 @@ RSpec.describe "TodoLists", type: :request do
       list = create(:todo_list, user: user)
       expect { delete todo_list_path(list) }.to change(user.todo_lists, :count).by(-1)
     end
+
+    it "keeps the list's todos, without a list, as the confirmation says" do
+      list = create(:todo_list, user: user)
+      open_todo = create(:todo, user: user, todo_list: list)
+      done_todo = create(:todo, user: user, todo_list: list, status: "done")
+
+      get todo_lists_path
+      expect(response.body).to include(CGI.escapeHTML(I18n.t("todo_lists.delete_confirm")))
+
+      delete todo_list_path(list)
+
+      expect([ open_todo.reload.todo_list_id, done_todo.reload.todo_list_id ]).to eq([ nil, nil ])
+    end
   end
 end

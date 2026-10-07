@@ -43,6 +43,25 @@
     <% end %>
   </div>
 
+  <%# All-day events, and timed ones outside the hour grid %>
+  <% if @all_day_by_day.values.any?(&:present?) %>
+    <div class="grid" style="grid-template-columns: 60px repeat(7, 1fr);" data-testid="all-day-row">
+      <div class="text-[10px] text-[var(--color-fg-muted)] text-right pr-2 pt-1"><%= t("events.all_day") %></div>
+      <% (0..6).each do |i| %>
+        <% day = @week_start + i.days %>
+        <div class="border-l border-b border-[var(--color-border-subtle)] p-1 space-y-0.5 min-h-[28px]">
+          <% @all_day_by_day[day].each do |e| %>
+            <%= link_to edit_event_path(e), data: { turbo_frame: "modal" },
+                class: "block text-[11px] truncate px-1.5 py-0.5 rounded",
+                style: "background: #{e.color}33; color: #{e.color};" do %>
+              <%= e.title %><%= " · #{e.start_at.strftime('%H:%M')}" unless e.all_day %>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
   <%# Hour grid with events %>
   <div class="grid relative" style="grid-template-columns: 60px repeat(7, 1fr);">
     <%# Hour labels column %>
@@ -70,17 +89,25 @@
         <% day_events.each do |e| %>
           <%
             start_minutes = e.start_at.hour * 60 + e.start_at.min - @hours.first * 60
-            next if start_minutes < 0 || start_minutes >= @hours.size * 60
             top = (start_minutes.to_f / 60.0 * hour_height).round
             duration_min = e.end_at ? ((e.end_at - e.start_at) / 60).to_i : 60
             height = [ [ duration_min, 30 ].max, @hours.size * 60 - start_minutes ].min * hour_height / 60
           %>
+          <%# A series' occurrence opens its form but is not draggable (EventsController#refuse_series_drag). %>
+          <% if e.repeats? %>
+          <div class="absolute left-1 right-1 rounded-[var(--radius-sm)] px-2 py-1 text-xs cursor-pointer overflow-hidden"
+               style="top: <%= top %>px; height: <%= height %>px; background: <%= e.color %>33; border-left: 3px solid <%= e.color %>; color: <%= e.color %>;"
+               title="<%= t("events.series_not_draggable") %>"
+               data-event-id="<%= e.id %>"
+               data-action="click->calendar-week#openEvent">
+          <% else %>
           <div class="absolute left-1 right-1 rounded-[var(--radius-sm)] px-2 py-1 text-xs cursor-grab active:cursor-grabbing overflow-hidden"
                style="top: <%= top %>px; height: <%= height %>px; background: <%= e.color %>33; border-left: 3px solid <%= e.color %>; color: <%= e.color %>;"
                draggable="true"
                data-event-id="<%= e.id %>"
                data-duration-minutes="<%= duration_min %>"
                data-action="dragstart->calendar-week#eventDragStart dragend->calendar-week#eventDragEnd click->calendar-week#openEvent">
+          <% end %>
             <p class="font-medium truncate"><%= e.title %></p>
             <p class="text-[10px] opacity-80"><%= e.start_at.strftime("%H:%M") %><%= " – #{e.end_at.strftime("%H:%M")}" if e.end_at %></p>
           </div>

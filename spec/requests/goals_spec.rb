@@ -91,6 +91,20 @@ RSpec.describe "Goals", type: :request do
       expect(response).to have_http_status(:success)
     end
 
+    it "shows a financial goal's target in its account's currency units (250 grams of gold, not 25,000)" do
+      gold = create(:account, user: user, currency: "GAU")
+      goal = create(:goal, user: user, target_type: "financial", target_value: 250, related: gold)
+      try_goal = create(:goal, user: user, target_type: "financial", target_value: 1250.5, related: create(:account, user: user))
+
+      get goal_path(goal)
+      expect(response.body).to include("250 gr")
+      expect(response.body).not_to include("25.000 gr")
+      expect(response.body).not_to include("25,000 gr")
+
+      get goal_path(try_goal)
+      expect(response.body).to include(ApplicationController.helpers.money_format(125_050, currency: "TRY"))
+    end
+
     it "renders a habit goal and exposes linkable habits" do
       create(:habit, user: user)
       goal = create(:goal, user: user, target_type: "habit", target_value: 30)

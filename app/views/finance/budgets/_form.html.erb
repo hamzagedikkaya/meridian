@@ -1,8 +1,10 @@
 <%
   input_cls = "w-full px-3.5 py-2.5 bg-[var(--color-bg-base)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] text-[var(--color-fg-primary)] focus:outline-none focus:border-[var(--color-accent-500)]"
   label_cls = "block text-sm font-medium text-[var(--color-fg-muted)] mb-1.5"
-  subunit = Money::Currency.find(current_user.currency)&.subunit_to_unit || 100
-  limit_value = budget.monthly_limit_cents.to_i.positive? ? (budget.monthly_limit_cents / subunit.to_f) : nil
+  subunit = CurrencyUnit.subunit_to_unit(current_user.currency)
+  limit_value = amount_form_value(budget, :budget, :monthly_limit) do
+    amount_field_value(budget.monthly_limit_cents, current_user.currency) if budget.monthly_limit_cents.to_i.positive?
+  end
 %>
 
 <%= form_with model: budget,
@@ -29,7 +31,7 @@
     <div>
       <%= label_tag "budget_monthly_limit", t("finance.budgets.monthly_limit"), class: label_cls %>
       <div class="relative">
-        <%= number_field_tag "budget[monthly_limit]", limit_value, step: "0.01", min: 0, id: "budget_monthly_limit",
+        <%= number_field_tag "budget[monthly_limit]", limit_value, step: (BigDecimal(1) / subunit).to_s("F"), min: 0, id: "budget_monthly_limit",
               placeholder: "0", class: input_cls + " pr-12 tabular-nums" %>
         <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-fg-muted)] pointer-events-none"><%= current_user.currency %></span>
       </div>

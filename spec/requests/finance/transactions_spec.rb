@@ -185,6 +185,41 @@ RSpec.describe "Finance::Transactions", type: :request do
       expect(response).to redirect_to(finance_transactions_path)
     end
 
+    # One too-precise flag for both amounts used to word the error with the
+    # primary record's currency.
+    it "names the linked counter-transaction's currency when its amount is the too-precise one" do
+      gold = create(:account, user: user, currency: "GAU", name: "Gold")
+      params = {
+        transaction: {
+          account_id: account.id, finance_category_id: category.id,
+          amount: "100", kind: "expense", description: "Gold buy", date: Date.current,
+          linked: { enabled: "1", account_id: gold.id, amount: "1.5" }
+        }
+      }
+
+      expect { post finance_transactions_path, params: params }.not_to change(Transaction, :count)
+      expect(response).to have_http_status(:unprocessable_entity)
+      page = CGI.unescapeHTML(response.body)
+      expect(page).to include(I18n.t("quick_capture.invalid_amount.too_precise", currency: "GAU"))
+      expect(page).not_to include(I18n.t("quick_capture.invalid_amount.too_precise", currency: "TRY"))
+    end
+
+    it "names each currency whose amount is too precise" do
+      gold = create(:account, user: user, currency: "GAU", name: "Gold")
+      params = {
+        transaction: {
+          account_id: account.id, finance_category_id: category.id,
+          amount: "100.005", kind: "expense", description: "Gold buy", date: Date.current,
+          linked: { enabled: "1", account_id: gold.id, amount: "1.5" }
+        }
+      }
+
+      post finance_transactions_path, params: params
+      page = CGI.unescapeHTML(response.body)
+      expect(page).to include(I18n.t("quick_capture.invalid_amount.too_precise", currency: "GAU"))
+      expect(page).to include(I18n.t("quick_capture.invalid_amount.too_precise", currency: "TRY"))
+    end
+
     it "rolls back both rows and re-renders :new when the linked counterpart is invalid" do
       # A linked amount of 0 produces amount_cents 0, which fails the > 0 validation
       # on the counterpart only, exercising the rescue/rollback branch.
@@ -232,6 +267,17 @@ RSpec.describe "Finance::Transactions", type: :request do
       expect(response).to have_http_status(:success)
       expect(response.content_type).to start_with("text/csv")
       expect(response.body).to include("Snack")
+    end
+
+    it "writes each amount in its own currency's units (5 grams of gold is 5, not 0.05)" do
+      gold = create(:account, user: user, currency: "GAU")
+      create(:transaction, user: user, account: gold, finance_category: category, description: "Gold", amount_cents: 5)
+      create(:transaction, user: user, account: account, finance_category: category, description: "Snack", amount_cents: 1250)
+
+      get finance_transactions_export_path(format: :csv)
+
+      rows = CSV.parse(response.body, headers: true).to_h { |row| [ row["Description"], [ row["Amount"], row["Currency"] ] ] }
+      expect(rows).to eq("Gold" => [ "5", "GAU" ], "Snack" => [ "12.50", "TRY" ])
     end
   end
 end

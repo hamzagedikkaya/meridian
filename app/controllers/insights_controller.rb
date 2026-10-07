@@ -26,7 +26,7 @@ class InsightsController < ApplicationController
     @mood_completion = mood_completion_correlation(from, to)
 
     # Focus day-of-week breakdown
-    @focus_by_dow = current_user.focus_sessions.completed.where(started_at: from..to.end_of_day)
+    @focus_by_dow = current_user.focus_sessions.completed.where(started_at: from.beginning_of_day..to.end_of_day)
                                  .group_by_day_of_week(:started_at, format: "%a").sum(:duration_seconds)
                                  .transform_values { |s| s / 60 }
 

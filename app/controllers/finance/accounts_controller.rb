@@ -26,8 +26,15 @@ module Finance
     def edit
     end
 
+    # The currency stays once something is recorded on the account, as in
+    # the API (Account#currency_locked?): 100.00 TRY would otherwise become
+    # 10,000 grams of GAU. Letter case alone is not a change.
     def update
-      if @account.update(account_params)
+      @account.assign_attributes(account_params)
+      if @account.currency.to_s.casecmp(@account.currency_in_database.to_s).nonzero? && @account.currency_locked?
+        @account.errors.add(:base, t("api.errors.currency_locked"))
+        render :edit, status: :unprocessable_entity
+      elsif @account.save
         redirect_to finance_accounts_path, notice: t("flash.updated")
       else
         render :edit, status: :unprocessable_entity

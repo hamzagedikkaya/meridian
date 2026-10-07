@@ -48,10 +48,13 @@ module Finance
       start_date = 5.months.ago.beginning_of_month.to_date
       months = (0..5).map { |i| (start_date + i.months).beginning_of_month }
 
+      # `date` is a calendar date, not an instant: time_zone: false stops
+      # groupdate from shifting it through the request's zone (in zones west
+      # of UTC the 1st of a month would land in the previous month).
       incomes  = current_user.transactions.income.between(months.first, Date.current.end_of_month)
-                             .group_by_month(:date).sum(:amount_cents)
+                             .group_by_month(:date, time_zone: false).sum(:amount_cents)
       expenses = current_user.transactions.expense.between(months.first, Date.current.end_of_month)
-                             .group_by_month(:date).sum(:amount_cents)
+                             .group_by_month(:date, time_zone: false).sum(:amount_cents)
 
       {
         labels: months.map { |m| m.strftime("%b") },

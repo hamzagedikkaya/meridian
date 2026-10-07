@@ -13,7 +13,7 @@ module Finance
 
     def create
       @budget = current_user.budgets.new(budget_params)
-      if @budget.save
+      if amount_precise?(@budget) && @budget.save
         redirect_to finance_budgets_path, notice: t("flash.saved")
       else
         render :new, status: :unprocessable_entity
@@ -24,7 +24,8 @@ module Finance
     end
 
     def update
-      if @budget.update(budget_params)
+      @budget.assign_attributes(budget_params)
+      if amount_precise?(@budget) && @budget.save
         redirect_to finance_budgets_path, notice: t("flash.updated")
       else
         render :edit, status: :unprocessable_entity
@@ -51,19 +52,16 @@ module Finance
       @budget = current_user.budgets.find(params[:id])
     end
 
-    # Convert the form's decimal :monthly_limit into cents using the user's
-    # currency subunit (100 for TRY/USD, 1 for GAU gram-gold) instead of a
-    # hardcoded *100.
+    # The form's decimal :monthly_limit in minor units of the user's currency
+    # (100 for TRY/USD, 1 for GAU gram-gold), not a hardcoded *100. A
+    # fraction of the smallest unit (1.5 grams) is refused by
+    # #amount_precise?, not rounded into another limit.
     def budget_params
       permitted = params.require(:budget).permit(:finance_category_id, :color, :monthly_limit)
       if permitted[:monthly_limit].present?
-        permitted[:monthly_limit_cents] = (permitted.delete(:monthly_limit).to_f * user_subunit).round
+        permitted[:monthly_limit_cents] = minor_units_in(permitted.delete(:monthly_limit), current_user.currency)
       end
       permitted
-    end
-
-    def user_subunit
-      Money::Currency.find(current_user.currency)&.subunit_to_unit || Money.default_currency.subunit_to_unit
     end
   end
 end

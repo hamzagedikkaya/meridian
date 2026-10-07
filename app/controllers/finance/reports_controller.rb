@@ -20,7 +20,8 @@ module Finance
 
       # Use string-keyed labels so the chart uses a category axis (avoids
       # the Chart.js date-adapter dependency).
-      @daily_totals = scope.expense.group_by_day(:date).sum(:amount_cents)
+      # time_zone: false: `date` is a calendar date, see Finance::DashboardController.
+      @daily_totals = scope.expense.group_by_day(:date, time_zone: false).sum(:amount_cents)
                            .transform_keys { |d| I18n.l(d, format: "%d %b") }
     end
   end

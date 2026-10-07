@@ -85,8 +85,11 @@
         </div>
 
         <div class="flex gap-2 flex-wrap">
-          <%= button_to t("goals.log.mark_today"), toggle_today_habit_path(@goal.related), method: :patch,
-              class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer" %>
+          <%# An archived habit's logs are frozen (Habit#log_refusal). %>
+          <% unless @goal.related.archived? %>
+            <%= button_to t("goals.log.mark_today"), toggle_today_habit_path(@goal.related), method: :patch,
+                class: "px-3 py-2 text-sm bg-[var(--color-accent-500)] hover:bg-[var(--color-accent-600)] text-[var(--color-bg-base)] font-medium rounded-[var(--radius-sm)] cursor-pointer" %>
+          <% end %>
           <%= button_to t("goals.recalculate"), recalculate_goal_path(@goal), method: :patch,
               class: "px-3 py-2 text-sm border border-[var(--color-border-default)] rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] cursor-pointer" %>
         </div>
@@ -120,7 +123,7 @@
           </div>
           <div>
             <p class="text-xs text-[var(--color-fg-muted)]"><%= t("goals.target_value") %></p>
-            <p class="text-2xl font-medium mt-1"><%= money_format((@goal.target_value.to_f * 100).round, currency: @goal.related.currency) %></p>
+            <p class="text-2xl font-medium mt-1"><%= money_format(@goal.target_value, currency: @goal.related.currency) %></p>
           </div>
         </div>
 

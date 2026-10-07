@@ -43,7 +43,7 @@ module Finance
       @transaction = current_user.transactions.new(transaction_params)
       linked_params = build_linked_params(@transaction)
 
-      if save_with_linked(@transaction, linked_params)
+      if amount_precise?(@transaction) && save_with_linked(@transaction, linked_params)
         redirect_back_or_to finance_transactions_path, notice: t("flash.saved")
       else
         load_form_data
@@ -56,7 +56,8 @@ module Finance
     end
 
     def update
-      if @transaction.update(transaction_params)
+      @transaction.assign_attributes(transaction_params)
+      if amount_precise?(@transaction) && @transaction.save
         redirect_back_or_to finance_transactions_path, notice: t("flash.updated")
       else
         load_form_data
@@ -80,7 +81,7 @@ module Finance
             t.account.name,
             t.finance_category&.name,
             t.description,
-            (t.amount_cents / 100.0),
+            csv_amount(t.amount_cents, t.account_currency),
             t.account_currency
           ]
         end
@@ -89,6 +90,13 @@ module Finance
     end
 
     private
+
+    # Major units with the currency's own decimals: 1250 TRY cents is
+    # "12.50", 5 grams of GAU (1 unit per gram) is "5", not 0.05.
+    def csv_amount(cents, currency)
+      subunit = CurrencyUnit.subunit_to_unit(currency)
+      ActiveSupport::NumberHelper.number_to_rounded(BigDecimal(cents) / subunit, precision: Math.log10(subunit).round)
+    end
 
     def set_transaction
       @transaction = current_user.transactions.find(params[:id])
@@ -122,7 +130,8 @@ module Finance
         :amount, :amount_cents, :kind, :description, :date
       ).tap do |p|
         if p[:amount].present? && p[:amount_cents].blank?
-          p[:amount_cents] = (p.delete(:amount).to_f * subunit_multiplier_for(p[:account_id])).round
+          # An edit that leaves the account out keeps the transaction's own.
+          p[:amount_cents] = minor_units_from_form(p.delete(:amount), p[:account_id].presence || @transaction&.account_id)
         end
       end
     end
@@ -137,7 +146,7 @@ module Finance
       {
         account_id:          permitted[:account_id],
         finance_category_id: permitted[:finance_category_id].presence,
-        amount_cents:        (permitted[:amount].to_f * subunit_multiplier_for(permitted[:account_id])).round,
+        amount_cents:        minor_units_from_form(permitted[:amount], permitted[:account_id]),
         kind:                primary.kind == "income" ? "expense" : "income",
         description:         primary.description,
         date:                primary.date

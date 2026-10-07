@@ -6,7 +6,7 @@ module Finance
       @active_subs   = current_user.subscriptions.active.includes(:account, :finance_category).order(:next_charge_on)
       @inactive_subs = current_user.subscriptions.inactive.includes(:account, :finance_category)
 
-      @monthly_total_cents = @active_subs.sum { |s| s.frequency == "monthly" ? s.amount_cents : s.yearly_amount_cents / 12 }
+      @monthly_total_cents = @active_subs.sum(&:monthly_amount_cents)
       @yearly_total_cents  = @active_subs.sum(&:yearly_amount_cents)
     end
 
@@ -20,7 +20,7 @@ module Finance
 
     def create
       @subscription = current_user.subscriptions.new(subscription_params)
-      if @subscription.save
+      if amount_precise?(@subscription) && @subscription.save
         redirect_to finance_subscriptions_path, notice: t("flash.saved")
       else
         load_form_data
@@ -33,7 +33,8 @@ module Finance
     end
 
     def update
-      if @subscription.update(subscription_params)
+      @subscription.assign_attributes(subscription_params)
+      if amount_precise?(@subscription) && @subscription.save
         redirect_to finance_subscriptions_path, notice: t("flash.updated")
       else
         load_form_data
@@ -64,7 +65,8 @@ module Finance
         :start_date, :end_date, :active, :color, :note
       ).tap do |p|
         if p[:amount].present? && p[:amount_cents].blank?
-          p[:amount_cents] = (p.delete(:amount).to_f * subunit_multiplier_for(p[:account_id])).round
+          # An edit that leaves the account out keeps the subscription's own.
+          p[:amount_cents] = minor_units_from_form(p.delete(:amount), p[:account_id].presence || @subscription&.account_id)
         end
       end
     end

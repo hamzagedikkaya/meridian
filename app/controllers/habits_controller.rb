@@ -16,7 +16,7 @@ class HabitsController < ApplicationController
   end
 
   def new
-    @habit = current_user.habits.new(frequency: "daily", target_count: 1, color: "#B8860B")
+    @habit = current_user.habits.new(name: prefill_name, frequency: "daily", target_count: 1, color: "#B8860B")
   end
 
   def create
@@ -45,31 +45,32 @@ class HabitsController < ApplicationController
   end
 
   def toggle_today
-    log = @habit.log_for(Date.current)
-
-    if params[:delta].present? && @habit.target_count > 1
-      # +/- counter mode (from the inline counter widget).
-      delta = params[:delta].to_i
-      log.count = (log.count.to_i + delta).clamp(0, @habit.target_count)
-      log.completed = log.count >= @habit.target_count
-    else
-      # Plain checkbox toggle — universal. For multi-count habits this jumps
-      # straight to "all done" (count = target_count) or "reset" (count = 0).
-      log.completed = !log.completed
-      log.count = log.completed ? @habit.target_count : 0
-    end
-    log.save!
+    # +/- counter mode when a delta comes from the inline counter widget;
+    # otherwise a plain checkbox flip. Rules live in Habit#toggle_log!, shared
+    # with the API, which also refuses an archived habit.
+    delta = params[:delta]
+    @habit.toggle_log!(Date.current, delta: delta.is_a?(String) ? delta.presence&.to_i : nil)
 
     respond_to do |format|
       format.turbo_stream { render turbo_stream: toggle_today_streams }
       format.html         { redirect_back fallback_location: habits_path }
     end
+  rescue Habit::LogRefused
+    redirect_back fallback_location: habits_path, alert: t("api.errors.habit_archived"), status: :see_other
   end
 
   private
 
   def set_habit
     @habit = current_user.habits.find(params[:id])
+  end
+
+  # Quick capture links here with habit[name] when "habit: X" names a habit
+  # that does not exist yet.
+  def prefill_name
+    habit = params[:habit]
+    name = habit[:name] if habit.is_a?(ActionController::Parameters)
+    name if name.is_a?(String)
   end
 
   def habit_params

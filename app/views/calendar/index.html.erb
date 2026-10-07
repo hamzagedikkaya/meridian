@@ -52,7 +52,17 @@
         </div>
         <div class="space-y-0.5">
           <% events.first(3).each do |e| %>
-            <% if e.is_a?(Event) %>
+            <% if e.is_a?(Event) && e.repeats? %>
+              <%# A series' occurrence opens its form but is not draggable (EventsController#refuse_series_drag). %>
+              <%= link_to edit_event_path(e),
+                  data: { turbo_frame: "modal" },
+                  draggable: "false",
+                  title: t("events.series_not_draggable"),
+                  class: "text-[11px] truncate px-1.5 py-0.5 rounded block",
+                  style: "background: #{e.color}22; color: #{e.color};" do %>
+                <%= e.title %>
+              <% end %>
+            <% elsif e.is_a?(Event) %>
               <%= link_to edit_event_path(e),
                   data: { turbo_frame: "modal", event_id: e.id, action: "dragstart->calendar#eventDragStart dragend->calendar#eventDragEnd" },
                   draggable: "true",

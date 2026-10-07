@@ -21,7 +21,7 @@
     </div>
     <div>
       <%= f.label :amount, t("common.amount"), class: label_cls %>
-      <%= number_field_tag "subscription[amount]", subscription.amount_cents.to_i / 100.0, step: 0.01, min: 0, class: input_cls %>
+      <%= number_field_tag "subscription[amount]", amount_form_value(subscription, :subscription, :amount) { amount_field_value(subscription.amount_cents, subscription.account_currency) }, step: "any", min: 0, class: input_cls %>
     </div>
     <div>
       <%= f.label :frequency, t("finance.subscriptions.frequency"), class: label_cls %>

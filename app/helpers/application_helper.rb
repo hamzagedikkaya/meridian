@@ -16,6 +16,21 @@ module ApplicationHelper
     money.format(opts)
   end
 
+  # A stored minor-unit amount as a form's major-unit value in its currency:
+  # 1250 TRY cents is "12.5", 250 grams of GAU (1 unit per gram) is "250.0".
+  def amount_field_value(cents, currency)
+    (BigDecimal(cents.to_i) / CurrencyUnit.subunit_to_unit(currency)).to_s("F")
+  end
+
+  # What an amount field shows: after a refused save, the text the user sent
+  # in params[+form+][+field+] ("1.5" grams stays "1.5"; the record holds the
+  # rounded 2, and showing that would let one more click save it, out of
+  # step with the error); otherwise the block's value, the stored amount.
+  def amount_form_value(record, form, field)
+    sent = params[form][field] if record.errors.any? && params[form].is_a?(ActionController::Parameters)
+    sent.is_a?(String) && sent.present? ? sent : yield
+  end
+
   def signed_amount_class(kind)
     case kind.to_s
     when "income"   then "text-[var(--color-income)]"

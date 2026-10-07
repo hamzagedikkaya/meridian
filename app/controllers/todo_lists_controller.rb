@@ -29,8 +29,13 @@ class TodoListsController < ApplicationController
     end
   end
 
+  # As the confirmation says ("Todos remain unlisted"), the list's todos
+  # stay, without a list: the API's todos=keep.
   def destroy
-    @list.destroy
+    TodoList.transaction do
+      @list.todos.update_all(todo_list_id: nil, updated_at: Time.current)
+      @list.destroy
+    end
     redirect_to todo_lists_path, notice: t("flash.deleted")
   end
 
