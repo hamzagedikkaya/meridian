@@ -54,7 +54,7 @@ gem "ice_cube"
 # image_processing 2.x dropped mini_magick/ruby-vips as runtime deps — declare mini_magick
 # explicitly. ActiveStorage variant_processor is overridden to :mini_magick in
 # config/application.rb since libvips is not installed on the host.
-gem "image_processing", "~> 2.0"
+gem "image_processing", "~> 2.2"
 gem "mini_magick"
 
 group :development, :test do

@@ -151,7 +151,7 @@ GEM
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
     ice_cube (0.17.0)
-    image_processing (2.0.3)
+    image_processing (2.2.0)
     importmap-rails (2.2.3)
       actionpack (>= 6.0.0)
       activesupport (>= 6.0.0)
@@ -500,7 +500,7 @@ DEPENDENCIES
   faker
   groupdate
   ice_cube
-  image_processing (~> 2.0)
+  image_processing (~> 2.2)
   importmap-rails
   jbuilder
   kamal
