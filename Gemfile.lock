@@ -147,7 +147,6 @@ GEM
     groupdate (6.8.0)
       activesupport (>= 7.2)
     htmlbeautifier (1.4.3)
-    htmlentities (4.4.2)
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
     ice_cube (0.17.0)
@@ -183,7 +182,7 @@ GEM
     loofah (2.25.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.19.5)
-    lookbook (2.3.15)
+    lookbook (2.3.17)
       activemodel
       css_parser
       htmlbeautifier (~> 1.3)
